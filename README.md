@@ -35,7 +35,7 @@ Land
 
 ---
 
-# **Vine** 🍇 The gRPC Protocol Layer for Land 🏞️
+# **Vine** 🍇 The gRPC Protocol Layer for Land 🏞️
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
 [![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
@@ -59,7 +59,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ---
 
-## Key Features 🔐
+## Key Features 🔐
 
 - **Protocol Buffer Definitions:** `.proto` files specifying gRPC service
   definitions for all inter-component communication.
@@ -74,7 +74,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ---
 
-## Core Architecture Principles 🏗️
+## Core Architecture Principles 🏗️
 
 | Principle                 | Description                                                                         | Key Components Involved                   |
 | :------------------------ | :---------------------------------------------------------------------------------- | :---------------------------------------- |
@@ -85,7 +85,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ---
 
-## `Vine` in the Land Ecosystem 🍇 + 🏞️
+## `Vine` in the Land Ecosystem 🍇 + 🏞️
 
 | Component          | Role & Key Responsibilities                                  |
 | :----------------- | :----------------------------------------------------------- |
@@ -95,7 +95,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ---
 
-## Getting Started 🚀
+## Getting Started 🚀
 
 ### Current Status
 
@@ -168,7 +168,7 @@ Element/Vine/
 
 ---
 
-## System Architecture Diagram 🏗️
+## System Architecture Diagram 🏗️
 
 This diagram illustrates `Vine`'s planned role as the gRPC protocol layer in the
 Land ecosystem.
@@ -184,7 +184,7 @@ subgraph "Mountain ⛰️ (Rust Backend)"
 VineServer["Vine gRPC Server"]:::mountain
 end
 
-subgraph "Vine 🍇 (Protocol Layer)"
+subgraph "Vine 🍇 (Protocol Layer)"
 VineProto["Vine.proto"]:::vine
 SpineProto["Spine.proto"]:::vine
 GroveProto["Grove.proto"]:::vine
@@ -212,7 +212,7 @@ VineProto <--> GroveClient
 
 ---
 
-## Deep Dive & Component Breakdown 🔬
+## Deep Dive & Component Breakdown 🔬
 
 **Vine** is currently a placeholder for the gRPC protocol definitions. When
 implemented, the protocol structure will include:
@@ -234,13 +234,13 @@ documentation.
 
 ## Development Status
 
-| Feature           | Status                              |
-| ----------------- | ----------------------------------- |
-| Proto Definitions | ⏳ Planned                          |
-| gRPC Services     | ⏳ Planned                          |
-| Spine Protocol    | 📝 Specified (see SpineContract.md) |
-| Health Monitoring | ⏳ Planned                          |
-| Message Types     | ⏳ Planned                          |
+| Feature           | Status                               |
+| ----------------- | ------------------------------------ |
+| Proto Definitions | ⏳ Planned                           |
+| gRPC Services     | ⏳ Planned                           |
+| Spine Protocol    |  📝 Specified (see SpineContract.md) |
+| Health Monitoring | ⏳ Planned                           |
+| Message Types     | ⏳ Planned                           |
 
 ## References
 
@@ -263,7 +263,7 @@ see the [`LICENSE`](https://github.com/CodeEditorLand/Vine/tree/Current/) file.
 
 ---
 
-## Changelog 📜
+## Changelog 📜
 
 Stay updated with our progress! See
 [`CHANGELOG.md`](https://github.com/CodeEditorLand/Vine/tree/Current/) for a
@@ -271,7 +271,7 @@ history of changes specific to **Vine**.
 
 ---
 
-## Funding & Acknowledgements 🙏🏻
+## Funding & Acknowledgements 🙏🏻
 
 **Vine** is a core element of the **Land** ecosystem. This project is funded
 through [NGI0 Commons Fund](https://NLnet.NL/commonsfund), a fund established by
@@ -280,38 +280,38 @@ through [NGI0 Commons Fund](https://NLnet.NL/commonsfund), a fund established by
 [NLnet project page](https://NLnet.NL/project/Land).
 
 <table>
-<thead>
-<tr>
-<th align="left"><strong>Land</strong></th>
-<th align="left"><strong>PlayForm</strong></th>
-<th align="left"><strong>NLnet</strong></th>
-<th align="left"><strong>NGI0 Commons Fund</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left" valign="middle">
-<a href="https://Editor.Land">
-<img width="60" src="https://raw.githubusercontent.com/CodeEditorLand/Asset/refs/heads/Current/Logo/Land.svg" alt="Land">
-</a>
-</td>
-<td align="left" valign="middle">
-<a href="https://PlayForm.Cloud">
-<img width="76" src="https://raw.githubusercontent.com/PlayForm/Asset/refs/heads/Current/Logo/PlayForm.svg" alt="PlayForm">
-</a>
-</td>
-<td align="left" valign="middle">
-<a href="https://NLnet.NL">
-<img width="240" src="https://NLnet.NL/logo/banner.svg" alt="NLnet">
-</a>
-</td>
-<td align="left" valign="middle">
-<a href="https://NLnet.NL/commonsfund">
-<img width="240" src="https://NLnet.NL/image/logos/NGI0CommonsFund_tag_black_mono.svg" alt="NGI0 Commons Fund">
-</a>
-</td>
-</tr>
-</tbody>
+	<thead>
+		<tr>
+			<th align="left"><strong>Land</strong></th>
+			<th align="left"><strong>PlayForm</strong></th>
+			<th align="left"><strong>NLnet</strong></th>
+			<th align="left"><strong>NGI0 Commons Fund</strong></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td align="left" valign="middle">
+				<a href="https://Editor.Land">
+					<img width="60" src="https://raw.githubusercontent.com/CodeEditorLand/Asset/refs/heads/Current/Logo/Land.svg" alt="Land">
+				</a>
+			</td>
+			<td align="left" valign="middle">
+				<a href="https://PlayForm.Cloud">
+					<img width="76" src="https://raw.githubusercontent.com/PlayForm/Asset/refs/heads/Current/Logo/PlayForm.svg" alt="PlayForm">
+				</a>
+			</td>
+			<td align="left" valign="middle">
+				<a href="https://NLnet.NL">
+					<img width="240" src="https://NLnet.NL/logo/banner.svg" alt="NLnet">
+				</a>
+			</td>
+			<td align="left" valign="middle">
+				<a href="https://NLnet.NL/commonsfund">
+					<img width="240" src="https://NLnet.NL/image/logos/NGI0CommonsFund_tag_black_mono.svg" alt="NGI0 Commons Fund">
+				</a>
+			</td>
+		</tr>
+	</tbody>
 </table>
 
 ---
