@@ -221,10 +221,14 @@ implemented, the protocol structure will include:
     - [`Vine.proto`](Proto/Vine.proto) - Core Mountain↔Cocoon communication
     - [`Spine.proto`](Proto/Spine.proto) - Extension host coordination protocol
     - [`Grove.proto`](Proto/Grove.proto) - Grove-specific extensions
-- **[`Source/`](Source/)** - Rust implementation
-    - [`Message/`](Source/Message/) - Message type definitions
-    - [`Service/`](Source/Service/) - gRPC service implementations
-    - [`Client/`](Source/Client/) - Protocol clients
+- **[`Source/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/)** -
+  Rust implementation
+- [`Message/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/Message/) -
+  Message type definitions
+- [`Service/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/Service/) -
+  gRPC service implementations
+- [`Client/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/Client/) -
+  Protocol clients
 
 For the current protocol specification, refer to the
 [Spine Contract](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md)
