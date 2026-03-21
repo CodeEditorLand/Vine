@@ -4,7 +4,7 @@
 <h3 align="left">Vine</h3>
 </td>
 <td align="left" valign="middle">
-<h3 align="left">🍇</h3>
+<h3 align="left">🌿</h3>
 </td>
 <td align="left" valign="middle">
 <h3 align="left">+</h3>
@@ -35,7 +35,7 @@ Land
 
 ---
 
-# **Vine** 🍇 The gRPC Protocol Layer for Land 🏞️
+# **Vine** 🌿 The gRPC Protocol Layer for Land 🏞️
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
 [![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
@@ -85,7 +85,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ---
 
-## `Vine` in the Land Ecosystem 🍇 + 🏞️
+## `Vine` in the Land Ecosystem 🌿 + 🏞️
 
 | Component          | Role & Key Responsibilities                                  |
 | :----------------- | :----------------------------------------------------------- |
@@ -97,7 +97,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ## Getting Started 🚀
 
-### Current Status
+### Current Status 📊
 
 `Vine` is currently a placeholder for the gRPC protocol definitions. The actual
 protocol implementation resides in:
@@ -105,7 +105,7 @@ protocol implementation resides in:
 - **`Mountain`**: gRPC server implementation in `Vine/` directory
 - **`Cocoon`**: gRPC client implementation in `Services/MountainGRPCClient.ts`
 
-### Future Usage
+### Future Usage 🚀
 
 When fully implemented, `Vine` will be used as:
 
@@ -122,14 +122,12 @@ Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" 
 
 ---
 
-## Status
-
-## Status
+## Status 📊
 
 ⚠️ **Under Development** - This component is currently a placeholder. The
 protocol definitions and implementation are in progress.
 
-## Overview
+## Overview 📖
 
 Vine defines the gRPC-based communication protocol used between components in
 the Land architecture:
@@ -180,11 +178,11 @@ classDef mountain fill:#9cf,stroke:#333,stroke-width:2px;
 classDef cocoon fill:#ccf,stroke:#333,stroke-width:2px;
 classDef grove fill:#cfc,stroke:#333,stroke-width:1px;
 
-subgraph "Mountain ⛰️ (Rust Backend)"
+subgraph "Mountain ⛰️ (Rust Backend)"
 VineServer["Vine gRPC Server"]:::mountain
 end
 
-subgraph "Vine 🍇 (Protocol Layer)"
+subgraph "Vine 🌿 (Protocol Layer)"
 VineProto["Vine.proto"]:::vine
 SpineProto["Spine.proto"]:::vine
 GroveProto["Grove.proto"]:::vine
@@ -200,15 +198,13 @@ VineProto <--> CocoonClient
 VineProto <--> GroveClient
 ```
 
-## Related Components
+## Related Components 🔗
 
 - [**Mountain**](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/components/Mountain.md) -
   Core VS Code implementation (protocol client)
 - [**Cocoon**](https://github.com/CodeEditorLand/Cocoon/tree/Current/) - Node.js
   Extension Host (protocol server)
 - [**Grove**](../Grove/) - Rust/WASM Extension Host (protocol server)
-- [**Spine**](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md) -
-  Extension host contract
 
 ---
 
@@ -236,29 +232,29 @@ documentation.
 
 ---
 
-## Development Status
+## Development Status 📊
 
-| Feature           | Status                               |
-| ----------------- | ------------------------------------ |
-| Proto Definitions | ⏳ Planned                           |
-| gRPC Services     | ⏳ Planned                           |
-| Spine Protocol    |  📝 Specified (see SpineContract.md) |
-| Health Monitoring | ⏳ Planned                           |
-| Message Types     | ⏳ Planned                           |
+| Feature           | Status                              |
+| ----------------- | ----------------------------------- |
+| Proto Definitions | ⏳ Planned                          |
+| gRPC Services     | ⏳ Planned                          |
+| Spine Protocol    | 📝 Specified (see SpineContract.md) |
+| Health Monitoring | ⏳ Planned                          |
+| Message Types     | ⏳ Planned                          |
 
-## References
+## References 📚
 
 - [Spine Contract](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md) -
   Extension host communication contract
 - [Communication Flows](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/CommunicationFlows.md) -
   Component communication patterns
 
-## Changelog
+## Changelog 📜
 
 See [`CHANGELOG.md`](https://github.com/CodeEditorLand/Vine/tree/Current/) for a
 history of changes to this component.
 
-## License ⚖️
+## License ⚖️
 
 This project is released into the public domain under the **Creative Commons CC0
 Universal** license. You are free to use, modify, distribute, and build upon
