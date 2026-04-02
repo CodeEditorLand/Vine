@@ -35,9 +35,9 @@ Land
 
 ---
 
-# **Vine** 🌿
+# **Vine** 🌿
 
-The gRPC Protocol Layer for Land 🏞️
+The gRPC Protocol Layer for Land 🏞️
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
 [![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
@@ -60,7 +60,7 @@ host), and the planned `Grove` (Rust/WASM extension host).
 
 ---
 
-## Key Features 🔐
+## Key Features 🔐
 
 - **Protocol Buffer Definitions:** `.proto` files specifying gRPC service
   definitions for all inter-component communication.
@@ -86,7 +86,7 @@ host), and the planned `Grove` (Rust/WASM extension host).
 
 ---
 
-## `Vine` in the Land Ecosystem 🌿 + 🏞️
+## `Vine` in the Land Ecosystem 🌿 + 🏞️
 
 | Component          | Role & Key Responsibilities                                  |
 | :----------------- | :----------------------------------------------------------- |
@@ -96,9 +96,9 @@ host), and the planned `Grove` (Rust/WASM extension host).
 
 ---
 
-## Getting Started 🚀
+## Getting Started 🚀
 
-### Current Status 📊
+### Current Status 📊
 
 `Vine` is currently a placeholder for the gRPC protocol definitions. The actual
 protocol implementation resides in:
@@ -106,7 +106,7 @@ protocol implementation resides in:
 - **`Mountain`:** gRPC server implementation in `Vine/` directory
 - **`Cocoon`:** gRPC client implementation in `Services/MountainGRPCClient.ts`
 
-### Future Usage 🚀
+### Future Usage 🚀
 
 When fully implemented, `Vine` will be used as:
 
@@ -123,12 +123,12 @@ Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" 
 
 ---
 
-## Status 📊
+## Status 📊
 
 ⚠️ **Under Development** - This component is currently a placeholder. The
 protocol definitions and implementation are in progress.
 
-## Overview 📖
+## Overview 📖
 
 Vine defines the gRPC-based communication protocol used between components in
 the Land architecture:
@@ -209,7 +209,7 @@ VineProto <--> GroveClient
 
 ---
 
-## Deep Dive & Component Breakdown 🔬
+## Deep Dive & Component Breakdown 🔬
 
 **Vine** is currently a placeholder for the gRPC protocol definitions. When
 implemented, the protocol structure will include:
@@ -233,7 +233,7 @@ documentation.
 
 ---
 
-## Development Status 📊
+## Development Status 📊
 
 | Feature           | Status                              |
 | ----------------- | ----------------------------------- |
@@ -243,7 +243,7 @@ documentation.
 | Health Monitoring | ⏳ Planned                          |
 | Message Types     | ⏳ Planned                          |
 
-## References 📚
+## References 📚
 
 - [Spine Contract](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md) -
   Extension host communication contract
