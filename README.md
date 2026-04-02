@@ -35,16 +35,17 @@ Land
 
 ---
 
-# **Vine** 🌿 The gRPC Protocol Layer for Land 🏞️
+# **Vine** 🌿
+
+The gRPC Protocol Layer for Land 🏞️
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
 [![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
 
-Welcome to **Vine**, the gRPC protocol definition and communication
-specification for the **Land Code Editor** ecosystem. Vine defines the
-strongly-typed IPC layer used for communication between `Mountain` (Rust
-backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
-(Rust/WASM extension host).
+**Vine** is the gRPC protocol definition and communication specification for the
+**Land Code Editor** ecosystem. It defines the strongly-typed IPC layer used for
+communication between `Mountain` (Rust backend), `Cocoon` (Node.js extension
+host), and the planned `Grove` (Rust/WASM extension host).
 
 **Vine** is engineered to:
 
@@ -59,7 +60,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ---
 
-## Key Features 🔐
+## Key Features 🔐
 
 - **Protocol Buffer Definitions:** `.proto` files specifying gRPC service
   definitions for all inter-component communication.
@@ -85,7 +86,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ---
 
-## `Vine` in the Land Ecosystem 🌿 + 🏞️
+## `Vine` in the Land Ecosystem 🌿 + 🏞️
 
 | Component          | Role & Key Responsibilities                                  |
 | :----------------- | :----------------------------------------------------------- |
@@ -95,17 +96,17 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ---
 
-## Getting Started 🚀
+## Getting Started 🚀
 
-### Current Status 📊
+### Current Status 📊
 
 `Vine` is currently a placeholder for the gRPC protocol definitions. The actual
 protocol implementation resides in:
 
-- **`Mountain`**: gRPC server implementation in `Vine/` directory
-- **`Cocoon`**: gRPC client implementation in `Services/MountainGRPCClient.ts`
+- **`Mountain`:** gRPC server implementation in `Vine/` directory
+- **`Cocoon`:** gRPC client implementation in `Services/MountainGRPCClient.ts`
 
-### Future Usage 🚀
+### Future Usage 🚀
 
 When fully implemented, `Vine` will be used as:
 
@@ -116,18 +117,18 @@ Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" 
 
 **Key Dependencies:**
 
-- `tonic`: Rust gRPC framework
-- `prost`: Protocol Buffers implementation
-- `@grpc/grpc-js`: Node.js gRPC client (for Cocoon)
+- `tonic` — Rust gRPC framework
+- `prost` — Protocol Buffers implementation
+- `@grpc/grpc-js` — Node.js gRPC client (for Cocoon)
 
 ---
 
-## Status 📊
+## Status 📊
 
 ⚠️ **Under Development** - This component is currently a placeholder. The
 protocol definitions and implementation are in progress.
 
-## Overview 📖
+## Overview 📖
 
 Vine defines the gRPC-based communication protocol used between components in
 the Land architecture:
@@ -138,14 +139,14 @@ the Land architecture:
 
 ## Planned Features
 
-- **gRPC Service Definitions**: Protocol buffer (`.proto`) files for all
+- **gRPC Service Definitions:** Protocol buffer (`.proto`) files for all
   inter-component communication
-- **Spine Protocol**: Extension host connection protocol (action/response
+- **Spine Protocol:** Extension host connection protocol (action/response
   pattern)
-- **Health Monitoring**: Heartbeat and connection state management
-- **Message Types**: Structured message formats for commands, events, and
+- **Health Monitoring:** Heartbeat and connection state management
+- **Message Types:** Structured message formats for commands, events, and
   responses
-- **Transport Agnostic**: Support for multiple transport layers (TCP, IPC, WASM)
+- **Transport Agnostic:** Support for multiple transport layers (TCP, IPC, WASM)
 
 ## Protocol Structure (Planned)
 
@@ -178,11 +179,11 @@ classDef mountain fill:#9cf,stroke:#333,stroke-width:2px;
 classDef cocoon fill:#ccf,stroke:#333,stroke-width:2px;
 classDef grove fill:#cfc,stroke:#333,stroke-width:1px;
 
-subgraph "Mountain ⛰️ (Rust Backend)"
+subgraph "Mountain ⛰️ (Rust Backend)"
 VineServer["Vine gRPC Server"]:::mountain
 end
 
-subgraph "Vine 🌿 (Protocol Layer)"
+subgraph "Vine 🌿 (Protocol Layer)"
 VineProto["Vine.proto"]:::vine
 SpineProto["Spine.proto"]:::vine
 GroveProto["Grove.proto"]:::vine
@@ -208,7 +209,7 @@ VineProto <--> GroveClient
 
 ---
 
-## Deep Dive & Component Breakdown 🔬
+## Deep Dive & Component Breakdown 🔬
 
 **Vine** is currently a placeholder for the gRPC protocol definitions. When
 implemented, the protocol structure will include:
@@ -232,34 +233,28 @@ documentation.
 
 ---
 
-## Development Status 📊
+## Development Status 📊
 
 | Feature           | Status                              |
 | ----------------- | ----------------------------------- |
 | Proto Definitions | ⏳ Planned                          |
 | gRPC Services     | ⏳ Planned                          |
-| Spine Protocol    | 📝 Specified (see SpineContract.md) |
+| Spine Protocol    | 📝 Specified (see SpineContract.md) |
 | Health Monitoring | ⏳ Planned                          |
 | Message Types     | ⏳ Planned                          |
 
-## References 📚
+## References 📚
 
 - [Spine Contract](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md) -
   Extension host communication contract
 - [Communication Flows](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/CommunicationFlows.md) -
   Component communication patterns
 
-## Changelog 📜
-
-See [`CHANGELOG.md`](https://github.com/CodeEditorLand/Vine/tree/Current/) for a
-history of changes to this component.
-
 ## License ⚖️
 
-This project is released into the public domain under the **Creative Commons CC0
-Universal** license. You are free to use, modify, distribute, and build upon
-this work for any purpose, without any restrictions. For the full legal text,
-see the [`LICENSE`](https://github.com/CodeEditorLand/Vine/tree/Current/) file.
+This project is licensed under Creative Commons CC0.
+
+See the LICENSE file for details.
 
 ---
 
@@ -273,11 +268,14 @@ history of changes specific to **Vine**.
 
 ## Funding & Acknowledgements 🙏🏻
 
-**Vine** is a core element of the **Land** ecosystem. This project is funded
-through [NGI0 Commons Fund](https://NLnet.NL/commonsfund), a fund established by
-[NLnet](https://NLnet.NL) with financial support from the European Commission's
-[Next Generation Internet](https://ngi.eu) program. Learn more at the
-[NLnet project page](https://NLnet.NL/project/Land).
+Code Editor Land is funded through the NGI0 Commons Fund, established by NLnet
+with financial support from the European Commission's Next Generation Internet
+programme, under grant agreement No. 101135429.
+
+The project is operated by PlayForm, based in Sofia, Bulgaria.
+
+PlayForm acts as the open-source steward for Code Editor Land under the NGI0
+Commons Fund grant.
 
 <table>
 	<thead>
