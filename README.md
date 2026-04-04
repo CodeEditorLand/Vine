@@ -33,143 +33,32 @@ Land
 </tr>
 </table>
 
+
 ---
 
-# **Vine** 🌿
+# **Vine**&#x2001;🌿
 
-The gRPC Protocol Layer for Land 🏞️
+> **Electron's IPC is untyped. You send a string event name and hope the handler matches. Refactoring a message field breaks things silently in production. There is no schema validation at the wire.**
+
+_"Change a message field and every consumer breaks loudly at compile time, not silently at runtime."_
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
-[<img src="https://cdn.simpleicons.org/rust" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
+[<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
 
-Vine is the wire protocol that connects every Land component. Mountain, Cocoon,
-and Grove all speak the same gRPC language. Type mismatches between Rust and
-TypeScript are caught at compile time, not at runtime.
-
-**What Vine gives you:**
-
-1. **One source of truth for IPC.** `.proto` files define every message and
-   service. Change the schema, and both Rust and TypeScript get compile errors.
-2. **Sub-millisecond round trips.** gRPC over local TCP or IPC. No JSON
-   serialization, no HTTP overhead.
-3. **Transport flexibility.** TCP for sidecars, IPC for in-process, WASM host
-   functions for Grove. Same API, different transports.
-4. **Built-in health checks.** Heartbeat and connection state management. Land
-   knows immediately when a sidecar goes down.
+Every inter-process service interface starts as a `.proto` file. The generated Rust and TypeScript stubs are the only way Land processes communicate. gRPC over a Unix domain socket runs at native memory-copy speed: microseconds for any message under 64KB. Changing a message field breaks every consumer at compile time.
 
 ---
 
-## Key Features 🔐
+## What It Does&#x2001;🔐
 
-- **Protocol Buffer Definitions:** `.proto` files specifying gRPC service
-  definitions for all inter-component communication.
-- **Strong Typing:** Type-safe communication through Protocol Buffers with
-  generated Rust and TypeScript code.
-- **Transport Agnosticism:** Designed for multiple transport backends including
-  TCP, IPC, and WASM host functions.
-- **Health Monitoring:** Built-in heartbeat and connection state management for
-  reliable communication.
-- **Spine Protocol:** Extension host coordination using action/response pattern
-  for command execution.
+- **Typed at the wire.** Every message is a `.proto` contract compiled to Rust and TypeScript stubs.
+- **Compile-time safety.** Change a field and every consumer breaks at the compiler, not in production.
+- **Microsecond latency.** gRPC over Unix domain socket runs at memory-copy speed.
+- **Versioned protocol.** The `.proto` file is the single source of truth for all IPC.
 
 ---
 
-## Core Architecture Principles 🏗️
-
-| Principle                 | Description                                                                         | Key Components Involved                   |
-| :------------------------ | :---------------------------------------------------------------------------------- | :---------------------------------------- |
-| **Contract-First**        | Define all service interfaces in `.proto` files before implementation.              | `Proto/*.proto`, protocol buffer compiler |
-| **Type Safety**           | Generate strongly-typed code from protocol definitions for compile-time guarantees. | Generated Rust/TypeScript code            |
-| **Transport Agnosticism** | Design protocol layer independent of specific transport implementation.             | `Transport` trait, strategy pattern       |
-| **Health Awareness**      | Built-in connection monitoring and heartbeat for reliability.                       | Health check messages, timeout handling   |
-
----
-
-## `Vine` in the Land Ecosystem 🌿 + 🏞️
-
-| Component          | Role & Key Responsibilities                                  |
-| :----------------- | :----------------------------------------------------------- |
-| **gRPC Server**    | Hosted by `Mountain` for extension host communication.       |
-| **gRPC Client**    | Used by `Cocoon` and `Grove` to communicate with `Mountain`. |
-| **Spine Protocol** | Extension host coordination layer for command execution.     |
-
----
-
-## Getting Started 🚀
-
-### Current Status 📊
-
-`Vine` is currently a placeholder for the gRPC protocol definitions. The actual
-protocol implementation resides in:
-
-- **`Mountain`:** gRPC server implementation in `Vine/` directory
-- **`Cocoon`:** gRPC client implementation in `Services/MountainGRPCClient.ts`
-
-### Future Usage 🚀
-
-When fully implemented, `Vine` will be used as:
-
-```toml
-[dependencies]
-Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" }
-```
-
-**Key Dependencies:**
-
-- `tonic` — Rust gRPC framework
-- `prost` — Protocol Buffers implementation
-- `@grpc/grpc-js` — Node.js gRPC client (for Cocoon)
-
----
-
-## Status 📊
-
-⚠️ **Under Development** - This component is currently a placeholder. The
-protocol definitions and implementation are in progress.
-
-## Overview 📖
-
-Vine defines the gRPC-based communication protocol used between components in
-the Land architecture:
-
-- **Mountain** ↔ **Cocoon** communication
-- **Mountain** ↔ **Grove** communication
-- **Spine** protocol for extension host coordination
-
-## Planned Features
-
-- **gRPC Service Definitions:** Protocol buffer (`.proto`) files for all
-  inter-component communication
-- **Spine Protocol:** Extension host connection protocol (action/response
-  pattern)
-- **Health Monitoring:** Heartbeat and connection state management
-- **Message Types:** Structured message formats for commands, events, and
-  responses
-- **Transport Agnostic:** Support for multiple transport layers (TCP, IPC, WASM)
-
-## Protocol Structure (Planned)
-
-```
-Element/Vine/
-├── Proto/
-│   ├── Vine.proto # Core protocol definitions
-│   ├── Spine.proto # Extension host protocol
-│   └── Grove.proto # Grove-specific extensions
-├── Source/
-│   ├── lib.rs # Protocol library
-│   ├── Message/ # Message type definitions
-│   ├── Service/ # gRPC service implementations
-│   └── Client/ # Protocol clients
-└── Documentation/
-  └── Protocol.md # Protocol specification
-```
-
----
-
-## System Architecture Diagram 🏗️
-
-This diagram illustrates `Vine`'s planned role as the gRPC protocol layer in the
-Land ecosystem.
+## In the Ecosystem&#x2001;🌿 + 🏞️
 
 ```mermaid
 graph LR
@@ -198,80 +87,31 @@ VineProto <--> CocoonClient
 VineProto <--> GroveClient
 ```
 
-## Related Components 🔗
+---
 
-- [**Mountain**](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/components/Mountain.md) -
-  Core VS Code implementation (protocol client)
-- [**Cocoon**](https://github.com/CodeEditorLand/Cocoon/tree/Current/) - Node.js
-  Extension Host (protocol server)
-- [**Grove**](../Grove/) - Rust/WASM Extension Host (protocol server)
+## Development&#x2001;🛠️
+
+Vine is a component of the Land workspace. Follow the
+[Land Repository](https://github.com/CodeEditorLand/Land) instructions to
+build and run.
 
 ---
 
-## Deep Dive & Component Breakdown 🔬
+## License&#x2001;⚖️
 
-**Vine** is currently a placeholder for the gRPC protocol definitions. When
-implemented, the protocol structure will include:
-
-- **[`Proto/`](Proto/)** - Protocol buffer definitions
-    - [`Vine.proto`](Proto/Vine.proto) - Core Mountain↔Cocoon communication
-    - [`Spine.proto`](Proto/Spine.proto) - Extension host coordination protocol
-    - [`Grove.proto`](Proto/Grove.proto) - Grove-specific extensions
-- **[`Source/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/)** -
-  Rust implementation
-- [`Message/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/Message/) -
-  Message type definitions
-- [`Service/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/Service/) -
-  gRPC service implementations
-- [`Client/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/Client/) -
-  Protocol clients
-
-For the current protocol specification, refer to the
-[Spine Contract](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md)
-documentation.
+CC0 1.0 Universal. Public domain. No restrictions.
+[LICENSE](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
 
 ---
-
-## Development Status 📊
-
-| Feature           | Status                              |
-| ----------------- | ----------------------------------- |
-| Proto Definitions | ⏳ Planned                          |
-| gRPC Services     | ⏳ Planned                          |
-| Spine Protocol    | 📝 Specified (see SpineContract.md) |
-| Health Monitoring | ⏳ Planned                          |
-| Message Types     | ⏳ Planned                          |
-
-## References 📚
-
-- [Spine Contract](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md) -
-  Extension host communication contract
-- [Communication Flows](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/CommunicationFlows.md) -
-  Component communication patterns
-
-## License ⚖️
-
-This project is licensed under Creative Commons CC0.
-
-See the LICENSE file for details.
-
----
-
-## Changelog 📜
-
-Stay updated with our progress! See
-[`CHANGELOG.md`](https://github.com/CodeEditorLand/Vine/tree/Current/) for a
-history of changes specific to **Vine**.
-
----
-
 
 ## See Also
 
+- [Vine Documentation](https://editor.land/Doc/vine)
 - [Architecture Overview](https://editor.land/Doc/architecture)
+- [Why gRPC](https://editor.land/Doc/why-grpc)
 - [Mountain](https://github.com/CodeEditorLand/Mountain)
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon)
-- [Mist](https://github.com/CodeEditorLand/Mist)
+
 
 ## Funding & Acknowledgements 🙏🏻
 
