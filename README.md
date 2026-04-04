@@ -266,6 +266,14 @@ history of changes specific to **Vine**.
 
 ---
 
+
+## See Also
+
+- [Architecture Overview](https://editor.land/Doc/architecture)
+- [Mountain](https://github.com/CodeEditorLand/Mountain)
+- [Cocoon](https://github.com/CodeEditorLand/Cocoon)
+- [Mist](https://github.com/CodeEditorLand/Mist)
+
 ## Funding & Acknowledgements 🙏🏻
 
 Code Editor Land is funded through the NGI0 Commons Fund, established by NLnet
