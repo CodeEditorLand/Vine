@@ -42,21 +42,20 @@ The gRPC Protocol Layer for Land 🏞️
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
 [![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
 
-**Vine** is the gRPC protocol definition and communication specification for the
-**Land Code Editor** ecosystem. It defines the strongly-typed IPC layer used for
-communication between `Mountain` (Rust backend), `Cocoon` (Node.js extension
-host), and the planned `Grove` (Rust/WASM extension host).
+Vine is the wire protocol that connects every Land component. Mountain, Cocoon,
+and Grove all speak the same gRPC language. Type mismatches between Rust and
+TypeScript are caught at compile time, not at runtime.
 
-**Vine** is engineered to:
+**What Vine gives you:**
 
-1. **Define Protocol Contracts:** Provide `.proto` files that specify the gRPC
-   service definitions for all inter-component communication.
-2. **Enable Strong Typing:** Ensure type-safe communication through Protocol
-   Buffers and generated Rust/TypeScript code.
-3. **Support Multiple Transports:** Design for transport agnosticism with
-   support for TCP, IPC, and WASM host functions.
-4. **Implement Health Monitoring:** Provide heartbeat and connection state
-   management for reliable communication.
+1. **One source of truth for IPC.** `.proto` files define every message and
+   service. Change the schema, and both Rust and TypeScript get compile errors.
+2. **Sub-millisecond round trips.** gRPC over local TCP or IPC. No JSON
+   serialization, no HTTP overhead.
+3. **Transport flexibility.** TCP for sidecars, IPC for in-process, WASM host
+   functions for Grove. Same API, different transports.
+4. **Built-in health checks.** Heartbeat and connection state management. Land
+   knows immediately when a sidecar goes down.
 
 ---
 
