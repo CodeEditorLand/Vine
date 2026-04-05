@@ -33,32 +33,74 @@ Land
 </tr>
 </table>
 
-
 ---
 
 # **Vine**&#x2001;🌿
 
-> **Electron's IPC is untyped. You send a string event name and hope the handler matches. Refactoring a message field breaks things silently in production. There is no schema validation at the wire.**
-
-_"Change a message field and every consumer breaks loudly at compile time, not silently at runtime."_
+The gRPC Protocol Layer for Land 🏞️
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
 [<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
 
-Every inter-process service interface starts as a `.proto` file. The generated Rust and TypeScript stubs are the only way Land processes communicate. gRPC over a Unix domain socket runs at native memory-copy speed: microseconds for any message under 64KB. Changing a message field breaks every consumer at compile time.
+Welcome to **Vine**, the gRPC protocol definition and communication
+specification for the **Land Code Editor** ecosystem. Vine defines the
+strongly-typed IPC layer used for communication between `Mountain` (Rust
+backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
+(Rust/WASM extension host).
+
+**Vine** is engineered to:
+
+1. **Define Protocol Contracts:** Provide `.proto` files that specify the gRPC
+   service definitions for all inter-component communication.
+2. **Enable Strong Typing:** Ensure type-safe communication through Protocol
+   Buffers and generated Rust/TypeScript code.
+3. **Support Multiple Transports:** Design for transport agnosticism with
+   support for TCP, IPC, and WASM host functions.
+4. **Implement Health Monitoring:** Provide heartbeat and connection state
+   management for reliable communication.
 
 ---
 
-## What It Does&#x2001;🔐
+## Key Features&#x2001;🔐
 
-- **Typed at the wire.** Every message is a `.proto` contract compiled to Rust and TypeScript stubs.
-- **Compile-time safety.** Change a field and every consumer breaks at the compiler, not in production.
-- **Microsecond latency.** gRPC over Unix domain socket runs at memory-copy speed.
-- **Versioned protocol.** The `.proto` file is the single source of truth for all IPC.
+- **Protocol Buffer Definitions:** `.proto` files specifying gRPC service
+  definitions for all inter-component communication.
+- **Strong Typing:** Type-safe communication through Protocol Buffers with
+  generated Rust and TypeScript code.
+- **Transport Agnosticism:** Designed for multiple transport backends including
+  TCP, IPC, and WASM host functions.
+- **Health Monitoring:** Built-in heartbeat and connection state management for
+  reliable communication.
+- **Spine Protocol:** Extension host coordination using action/response pattern
+  for command execution.
 
 ---
 
-## In the Ecosystem&#x2001;🌿 + 🏞️
+## Core Architecture Principles&#x2001;🏗️
+
+| Principle                 | Description                                                                         | Key Components Involved                   |
+| :------------------------ | :---------------------------------------------------------------------------------- | :---------------------------------------- |
+| **Contract-First**        | Define all service interfaces in `.proto` files before implementation.              | `Proto/*.proto`, protocol buffer compiler |
+| **Type Safety**           | Generate strongly-typed code from protocol definitions for compile-time guarantees. | Generated Rust/TypeScript code            |
+| **Transport Agnosticism** | Design protocol layer independent of specific transport implementation.             | `Transport` trait, strategy pattern       |
+| **Health Awareness**      | Built-in connection monitoring and heartbeat for reliability.                       | Health check messages, timeout handling   |
+
+---
+
+## `Vine` in the Land Ecosystem&#x2001;🌿 + 🏞️
+
+| Component          | Role & Key Responsibilities                                  |
+| :----------------- | :----------------------------------------------------------- |
+| **gRPC Server**    | Hosted by `Mountain` for extension host communication.       |
+| **gRPC Client**    | Used by `Cocoon` and `Grove` to communicate with `Mountain`. |
+| **Spine Protocol** | Extension host coordination layer for command execution.     |
+
+---
+
+## System Architecture Diagram&#x2001;🏗️
+
+This diagram illustrates `Vine`'s role as the gRPC protocol layer in the Land
+ecosystem.
 
 ```mermaid
 graph LR
@@ -89,18 +131,89 @@ VineProto <--> GroveClient
 
 ---
 
-## Development&#x2001;🛠️
+## Protocol Structure
 
-Vine is a component of the Land workspace. Follow the
-[Land Repository](https://github.com/CodeEditorLand/Land) instructions to
-build and run.
+```
+Element/Vine/
+├── Proto/
+│   ├── Vine.proto           # Core Mountain↔Cocoon communication
+│   ├── Spine.proto          # Extension host coordination protocol
+│   └── Grove.proto          # Grove-specific extensions
+├── Source/
+│   ├── lib.rs               # Protocol library
+│   ├── Message/             # Message type definitions
+│   ├── Service/             # gRPC service implementations
+│   └── Client/              # Protocol clients
+└── Documentation/
+    └── Protocol.md          # Protocol specification
+```
 
 ---
 
-## License&#x2001;⚖️
+## Deep Dive & Component Breakdown&#x2001;🔬
 
-CC0 1.0 Universal. Public domain. No restrictions.
-[LICENSE](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
+The current protocol implementation resides in the consuming components:
+
+- **`Mountain`**: gRPC server implementation in `Vine/` directory
+- **`Cocoon`**: gRPC client implementation in `Services/MountainGRPCClient.ts`
+
+When fully implemented, the protocol structure will include:
+
+- **[`Proto/Vine.proto`](Proto/Vine.proto)** - Core Mountain↔Cocoon
+  communication
+- **[`Proto/Spine.proto`](Proto/Spine.proto)** - Extension host coordination
+  protocol (action/response pattern for command execution)
+- **[`Proto/Grove.proto`](Proto/Grove.proto)** - Grove-specific extensions for
+  WASM extension host integration
+- **[`Source/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/)** -
+  Rust implementation
+- **[`Source/Message/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/Message/)** -
+  Message type definitions
+- **[`Source/Service/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/Service/)** -
+  gRPC service implementations
+
+For the current protocol specification, refer to the
+[Spine Contract](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md)
+documentation.
+
+---
+
+## Getting Started&#x2001;🚀
+
+### Current Status
+
+`Vine` is currently a placeholder for the gRPC protocol definitions. The actual
+protocol implementation resides in:
+
+- **`Mountain`**: gRPC server implementation in `Vine/` directory
+- **`Cocoon`**: gRPC client implementation in `Services/MountainGRPCClient.ts`
+
+### Future Usage
+
+When fully implemented, `Vine` will be used as:
+
+```toml
+[dependencies]
+Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" }
+```
+
+**Key Dependencies (planned):**
+
+- `tonic`: Rust gRPC framework
+- `prost`: Protocol Buffers implementation
+- `@grpc/grpc-js`: Node.js gRPC client (for Cocoon)
+
+---
+
+## Development Status
+
+| Feature           | Status                              |
+| ----------------- | ----------------------------------- |
+| Proto Definitions | ⏳ Planned                          |
+| gRPC Services     | ⏳ Planned                          |
+| Spine Protocol    | 📝 Specified (see SpineContract.md) |
+| Health Monitoring | ⏳ Planned                          |
+| Message Types     | ⏳ Planned                          |
 
 ---
 
@@ -111,13 +224,34 @@ CC0 1.0 Universal. Public domain. No restrictions.
 - [Why gRPC](https://editor.land/Doc/why-grpc)
 - [Mountain](https://github.com/CodeEditorLand/Mountain)
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon)
+- [Spine Contract](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md)
 
+---
 
-## Funding & Acknowledgements 🙏🏻
+## License&#x2001;⚖️
 
-Code Editor Land is funded through the NGI0 Commons Fund, established by NLnet
-with financial support from the European Commission's Next Generation Internet
-programme, under grant agreement No. 101135429.
+This project is released into the public domain under the **Creative Commons CC0
+Universal** license. You are free to use, modify, distribute, and build upon
+this work for any purpose, without any restrictions. For the full legal text,
+see the [`LICENSE`](https://github.com/CodeEditorLand/Vine/tree/Current/) file.
+
+---
+
+## Changelog&#x2001;📜
+
+Stay updated with our progress! See
+[`CHANGELOG.md`](https://github.com/CodeEditorLand/Vine/tree/Current/) for a
+history of changes specific to **Vine**.
+
+---
+
+## Funding \& Acknowledgements&#x2001;🙏🏻
+
+**Vine** is a core element of the **Land** ecosystem. This project is funded
+through [NGI0 Commons Fund](https://NLnet.NL/commonsfund), a fund established by
+[NLnet](https://NLnet.NL) with financial support from the European Commission's
+[Next Generation Internet](https://ngi.eu) program. Learn more at the
+[NLnet project page](https://NLnet.NL/project/Land).
 
 The project is operated by PlayForm, based in Sofia, Bulgaria.
 
