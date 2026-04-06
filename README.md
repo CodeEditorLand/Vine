@@ -87,7 +87,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ---
 
-## `Vine` in the Land Ecosystem&#x2001;🌿 + 🏞️
+## `Vine` in the Land Ecosystem&#x2001;🌿 + 🏞️
 
 | Component          | Role & Key Responsibilities                                  |
 | :----------------- | :----------------------------------------------------------- |
