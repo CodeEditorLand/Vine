@@ -39,7 +39,7 @@ Land
 
 The gRPC Protocol Layer for Land 🏞️
 
-[![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
+[![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Land/tree/Current/LICENSE)
 [<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
 
 Welcome to **Vine**, the gRPC protocol definition and communication
@@ -159,21 +159,21 @@ The current protocol implementation resides in the consuming components:
 
 When fully implemented, the protocol structure will include:
 
-- **[`Proto/Vine.proto`](Proto/Vine.proto)** - Core Mountain↔Cocoon
+- **[`Proto/Vine.proto`](https://github.com/CodeEditorLand/Mountain/tree/Current/Proto/Vine.proto)** - Core Mountain↔Cocoon
   communication
-- **[`Proto/Spine.proto`](Proto/Spine.proto)** - Extension host coordination
+- **`Proto/Spine.proto`** - Extension host coordination
   protocol (action/response pattern for command execution)
-- **[`Proto/Grove.proto`](Proto/Grove.proto)** - Grove-specific extensions for
+- **[`Proto/Grove.proto`](https://github.com/CodeEditorLand/Grove/tree/Current/Proto/Grove.proto)** - Grove-specific extensions for
   WASM extension host integration
-- **[`Source/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/)** -
+- **`Source/`** -
   Rust implementation
-- **[`Source/Message/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/Message/)** -
+- **`Source/Message/`** -
   Message type definitions
-- **[`Source/Service/`](https://github.com/CodeEditorLand/Vine/tree/Current/Source/Service/)** -
+- **`Source/Service/`** -
   gRPC service implementations
 
 For the current protocol specification, refer to the
-[Spine Contract](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md)
+Spine Contract
 documentation.
 
 ---
@@ -224,7 +224,7 @@ Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" 
 - [Why gRPC](https://editor.land/Doc/why-grpc)
 - [Mountain](https://github.com/CodeEditorLand/Mountain)
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon)
-- [Spine Contract](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/Architecture/integration/SpineContract.md)
+- Spine Contract
 
 ---
 
@@ -233,7 +233,7 @@ Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" 
 This project is released into the public domain under the **Creative Commons CC0
 Universal** license. You are free to use, modify, distribute, and build upon
 this work for any purpose, without any restrictions. For the full legal text,
-see the [`LICENSE`](https://github.com/CodeEditorLand/Vine/tree/Current/) file.
+see the [`LICENSE`](https://github.com/CodeEditorLand/Land/tree/Current/LICENSE) file.
 
 ---
 
