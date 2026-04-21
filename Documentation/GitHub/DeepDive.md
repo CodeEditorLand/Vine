@@ -1,4 +1,4 @@
-# Vine — Deep Dive
+# Vine - Deep Dive
 
 This document provides the technical foundation for the Vine gRPC protocol layer
 within the Land ecosystem. **Vine** defines the strongly-typed inter-process
@@ -14,7 +14,7 @@ server implementation and by Cocoon/Grove for client stubs.
 
 ```mermaid
 graph TB
-    subgraph "Vine — Protocol Layer"
+    subgraph "Vine - Protocol Layer"
         VineProto["Vine.proto\nMountain ↔ Cocoon"]
         SpineProto["Spine.proto\nExtension Host Coordination"]
         GroveProto["Grove.proto\nMountain ↔ Grove"]
@@ -24,7 +24,7 @@ graph TB
         ClientStubs["Client/\nGenerated client code"]
     end
 
-    subgraph "Mountain — gRPC Server Host"
+    subgraph "Mountain - gRPC Server Host"
         VineServer["Vine gRPC Server\ntonic implementation"]
         AirServer["Air gRPC Server\ntonic implementation"]
     end
@@ -87,11 +87,11 @@ sequenceDiagram
 
 **Communication patterns supported by Vine:**
 
-- **Unary RPC** — Request/response for commands and queries.
-- **Server streaming** — Mountain streams events (terminal output, diagnostics)
+- **Unary RPC** - Request/response for commands and queries.
+- **Server streaming** - Mountain streams events (terminal output, diagnostics)
   to Cocoon.
-- **Client streaming** — Cocoon sends batched registration calls at startup.
-- **Bidirectional streaming** — Used by the Spine protocol for real-time
+- **Client streaming** - Cocoon sends batched registration calls at startup.
+- **Bidirectional streaming** - Used by the Spine protocol for real-time
   extension host coordination.
 
 ---
