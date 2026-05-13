@@ -133,20 +133,18 @@ VineProto <--> GroveClient
 
 ## Protocol Structure
 
-```
-Element/Vine/
-├── Proto/
-│   ├── Vine.proto           # Core Mountain↔Cocoon communication
-│   ├── Spine.proto          # Extension host coordination protocol
-│   └── Grove.proto          # Grove-specific extensions
-├── Source/
-│   ├── lib.rs               # Protocol library
-│   ├── Message/             # Message type definitions
-│   ├── Service/             # gRPC service implementations
-│   └── Client/              # Protocol clients
-└── Documentation/
-    └── Protocol.md          # Protocol specification
-```
+The protocol definitions currently live inside the consuming components, not a
+standalone directory. The future `Vine` package will centralize these:
+
+| File               | Location (today)                                 | Purpose                                           |
+| :----------------- | :----------------------------------------------- | :------------------------------------------------ |
+| `Vine.proto`       | `Mountain/Proto/Vine.proto`                      | Core `Mountain`↔`Cocoon` gRPC service definitions |
+| `Grove.proto`      | `Grove/Proto/Grove.proto`                        | `Grove`-specific extensions for `WASM` hosting    |
+| Server impl        | `Mountain/Source/Vine/`                          | Rust-side gRPC server (`tonic`)                   |
+| Client impl        | `Cocoon/Source/Services/Mountain/gRPC/Client.ts` | TypeScript-side gRPC client                       |
+| `RouteManifest.ts` | `Cocoon/Source/Generated/RouteManifest.ts`       | Auto-generated routing tier enumeration           |
+
+````
 
 ---
 
@@ -191,7 +189,7 @@ When fully implemented, `Vine` will be used as:
 ```toml
 [dependencies]
 Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" }
-```
+````
 
 **Key Dependencies (planned):**
 
