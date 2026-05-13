@@ -55,7 +55,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 2. **Enable Strong Typing:** Ensure type-safe communication through Protocol
    Buffers and generated Rust/TypeScript code.
 3. **Support Multiple Transports:** Design for transport agnosticism with
-   support for TCP, IPC, and WASM host functions.
+   support for `TCP`, `IPC`, and `WASM` host functions.
 4. **Implement Health Monitoring:** Provide heartbeat and connection state
    management for reliable communication.
 
@@ -68,7 +68,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 - **Strong Typing:** Type-safe communication through Protocol Buffers with
   generated Rust and TypeScript code.
 - **Transport Agnosticism:** Designed for multiple transport backends including
-  TCP, IPC, and WASM host functions.
+  `TCP`, `IPC`, and `WASM` host functions.
 - **Health Monitoring:** Built-in heartbeat and connection state management for
   reliable communication.
 - **Spine Protocol:** Extension host coordination using action/response pattern
@@ -154,17 +154,17 @@ Element/Vine/
 
 The current protocol implementation resides in the consuming components:
 
-- **`Mountain`**: gRPC server implementation in `Vine/` directory
-- **`Cocoon`**: gRPC client implementation in `Services/MountainGRPCClient.ts`
+- **`Mountain`**: `gRPC` server implementation in `Vine/` directory
+- **`Cocoon`**: `gRPC` client implementation in `Services/MountainGRPCClient.ts`
 
 When fully implemented, the protocol structure will include:
 
 - **[`Proto/Vine.proto`](https://github.com/CodeEditorLand/Mountain/tree/Current/Proto/Vine.proto)** -
-  Core Mountain↔Cocoon communication
+  Core `Mountain`↔`Cocoon` communication
 - **`Proto/Spine.proto`** - Extension host coordination protocol
   (action/response pattern for command execution)
 - **[`Proto/Grove.proto`](https://github.com/CodeEditorLand/Grove/tree/Current/Proto/Grove.proto)** -
-  Grove-specific extensions for WASM extension host integration
+  `Grove`-specific extensions for `WASM` extension host integration
 - **`Source/`** - Rust implementation
 - **`Source/Message/`** - Message type definitions
 - **`Source/Service/`** - gRPC service implementations
