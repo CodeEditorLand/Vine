@@ -144,8 +144,6 @@ standalone directory. The future `Vine` package will centralize these:
 | Client impl        | `Cocoon/Source/Services/Mountain/gRPC/Client.ts` | TypeScript-side gRPC client                       |
 | `RouteManifest.ts` | `Cocoon/Source/Generated/RouteManifest.ts`       | Auto-generated routing tier enumeration           |
 
-````
-
 ---
 
 ## Deep Dive & Component Breakdown&#x2001;🔬
@@ -189,7 +187,7 @@ When fully implemented, `Vine` will be used as:
 ```toml
 [dependencies]
 Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" }
-````
+```
 
 **Key Dependencies (planned):**
 
@@ -219,6 +217,14 @@ Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" 
 - [Mountain](https://github.com/CodeEditorLand/Mountain)
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon)
 - Spine Contract
+
+---
+
+## Building & Running
+
+`Vine` is the gRPC protocol layer for the Land editor. It is built as part of
+the two-step Land build (Step 2). Do NOT clone submodules recursively -- each
+Element repository is managed independently on its own branch.
 
 ---
 
