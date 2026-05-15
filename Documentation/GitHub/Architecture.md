@@ -22,6 +22,28 @@ extension host), Air (background daemon), and Grove (WASM extension host).
 
 ---
 
+```mermaid
+graph TB
+    subgraph Vine["Vine gRPC Protocol Layer"]
+        VINEPROTO["Vine.proto<br/>ExtensionHost service<br/>lifecycle / commands<br/>language / webview"]
+        SPINEPROTO["Spine.proto<br/>action/response pattern<br/>PerformAction / Stream"]
+        GROVEPROTO["Grove.proto<br/>WASM host extensions"]
+        AIRPROTO["Air.proto<br/>background services"]
+    end
+
+    VINEPROTO -->|"prost-build"| RUST["Generated Rust types<br/>(tonic + prost)"]
+    VINEPROTO -->|"protoc-gen-ts"| TS["Generated TS types<br/>(@grpc/grpc-js)"]
+    SPINEPROTO --> RUST
+    GROVEPROTO --> RUST
+    AIRPROTO --> RUST
+
+    MOUNTAIN_SRV["Mountain<br/>gRPC Server<br/>port 50051"] -->|"serves"| VINEPROTO
+    MOUNTAIN_SRV -->|"serves"| SPINEPROTO
+    COCOON_CLI["Cocoon<br/>gRPC Client"] -->|"consumes"| TS
+    AIR_SRV["Air<br/>gRPC Client"] -->|"consumes"| RUST
+    GROVE_CLI["Grove<br/>gRPC Client"] -->|"consumes"| RUST
+```
+
 ## Overview
 
 Vine defines the gRPC service contracts in Protocol Buffer (`.proto`) files.
