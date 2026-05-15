@@ -37,7 +37,7 @@ Land
 
 # **Vine**&#x2001;🌿
 
-The gRPC Protocol Layer for Land 🏞️
+The gRPC Protocol Layer for Land &#x2001;🏞️
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
 [<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
@@ -87,7 +87,7 @@ backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
 
 ---
 
-## `Vine` in the Land Ecosystem&#x2001;🌿 + 🏞️
+## `Vine` in the Land Ecosystem&#x2001;🌿 + &#x2001;🏞️
 
 | Component          | Role & Key Responsibilities                                  |
 | :----------------- | :----------------------------------------------------------- |
@@ -109,11 +109,11 @@ classDef mountain fill:#9cf,stroke:#333,stroke-width:2px;
 classDef cocoon fill:#ccf,stroke:#333,stroke-width:2px;
 classDef grove fill:#cfc,stroke:#333,stroke-width:1px;
 
-subgraph "Mountain ⛰️ (Rust Backend)"
+subgraph "Mountain (Rust Backend)&#x2001;⛰️"
 VineServer["Vine gRPC Server"]:::mountain
 end
 
-subgraph "Vine 🌿 (Protocol Layer)"
+subgraph "Vine (Protocol Layer)&#x2001;🌿"
 VineProto["Vine.proto"]:::vine
 SpineProto["Spine.proto"]:::vine
 GroveProto["Grove.proto"]:::vine
@@ -199,13 +199,13 @@ Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" 
 
 ## Development Status
 
-| Feature           | Status                              |
-| ----------------- | ----------------------------------- |
-| Proto Definitions | ⏳ Planned                          |
-| gRPC Services     | ⏳ Planned                          |
-| Spine Protocol    | 📝 Specified (see SpineContract.md) |
-| Health Monitoring | ⏳ Planned                          |
-| Message Types     | ⏳ Planned                          |
+| Feature           | Status                                      |
+| ----------------- | ------------------------------------------- |
+| Proto Definitions | ⏳ Planned                                  |
+| gRPC Services     | ⏳ Planned                                  |
+| Spine Protocol    | &#x2001;📝 Specified (see SpineContract.md) |
+| Health Monitoring | ⏳ Planned                                  |
+| Message Types     | ⏳ Planned                                  |
 
 ---
 
