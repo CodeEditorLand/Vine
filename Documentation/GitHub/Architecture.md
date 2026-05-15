@@ -1,9 +1,13 @@
-# Vine: gRPC Protocol Layer
+# Vine: gRPC Protocol Layer 🌿
 
-This document describes Vine, the gRPC protocol definition and communication
-specification for the Land ecosystem. Vine defines the strongly-typed IPC layer
-used for communication between Mountain (Rust backend), Cocoon (Node.js
-extension host), Air (background daemon), and Grove (WASM extension host).
+This document describes `Vine`, the `gRPC` protocol definition and communication
+specification for the `Land` ecosystem. `Vine` defines the strongly-typed IPC
+layer used for communication between:
+
+- `Mountain` (`Rust` backend) - gRPC server
+- `Cocoon` (`Node.js` extension host) - gRPC client
+- `Air` (background daemon) - gRPC client
+- `Grove` (WASM extension host) - gRPC client
 
 ---
 
@@ -44,26 +48,27 @@ graph TB
     GROVE_CLI["Grove<br/>gRPC Client"] -->|"consumes"| RUST
 ```
 
-## Overview
+## Overview 📋
 
-Vine defines the gRPC service contracts in Protocol Buffer (`.proto`) files.
-These are the source of truth for inter-component communication. Rust code is
-generated via prost/tonic-build at compile time; TypeScript code is generated
-via protoc-gen-ts.
+`Vine` defines the `gRPC` service contracts in Protocol Buffer (`.proto`) files:
 
-| Attribute       | Value                                  |
-| --------------- | -------------------------------------- |
-| Language        | Protocol Buffers (`.proto`)            |
-| Rust impl       | tonic (server) + generated prost types |
-| TypeScript impl | @grpc/grpc-js + protoc-gen-ts          |
-| Transport       | TCP loopback (127.0.0.1 only)          |
-| Security        | No TLS (localhost-only enforced)       |
+- These are the source of truth for inter-component communication
+- `Rust` code is generated via `prost`/`tonic-build` at compile time
+- `TypeScript` code is generated via `protoc-gen-ts`
+
+| Attribute       | Value                                      |
+| --------------- | ------------------------------------------ |
+| Language        | Protocol Buffers (`.proto`)                |
+| Rust impl       | `tonic` (server) + generated `prost` types |
+| TypeScript impl | `@grpc/grpc-js` + `protoc-gen-ts`          |
+| Transport       | TCP loopback (`127.0.0.1` only)            |
+| Security        | No TLS (localhost-only enforced)           |
 
 ---
 
-## Architecture
+## Architecture 🏗️
 
-Vine is the protocol layer that enables all inter-component communication:
+`Vine` is the protocol layer that enables all inter-component communication:
 
 ```
                     +------------------------------------+
@@ -88,7 +93,7 @@ Vine is the protocol layer that enables all inter-component communication:
      +------------------+
 ```
 
-### Protocol Files
+### Protocol Files 📋
 
 | File          | Location                             | Defines                                |
 | ------------- | ------------------------------------ | -------------------------------------- |
@@ -99,9 +104,9 @@ Vine is the protocol layer that enables all inter-component communication:
 
 ---
 
-## Protocol Buffers
+## Protocol Buffers 📋
 
-### Vine.proto
+### Vine.proto 📋
 
 ```protobuf
 syntax = "proto3";
@@ -147,9 +152,9 @@ service ExtensionHost {
 }
 ```
 
-### Spine.proto
+### Spine.proto 📋
 
-The Spine protocol defines extension host coordination with an action/response
+The `Spine` protocol defines extension host coordination with an action/response
 pattern:
 
 ```protobuf
@@ -180,9 +185,9 @@ message ActionResponse {
 
 ---
 
-## Service Definitions
+## Service Definitions 🔌
 
-### ExtensionHost Service (Mountain <-> Cocoon)
+### ExtensionHost Service (Mountain <-> Cocoon) 🔗
 
 | RPC                   | Direction          | Trigger              | Purpose                             |
 | --------------------- | ------------------ | -------------------- | ----------------------------------- |
@@ -201,7 +206,7 @@ message ActionResponse {
 | `SetDiagnostics`      | Cocoon -> Mountain | Extension            | Update diagnostic markers           |
 | `ShowMessage`         | Cocoon -> Mountain | Extension            | Show message to user                |
 
-### Spine Service (Cocoon -> Mountain)
+### Spine Service (Cocoon -> Mountain) 🔗
 
 | RPC             | Direction          | Purpose                          |
 | --------------- | ------------------ | -------------------------------- |
@@ -211,9 +216,9 @@ message ActionResponse {
 
 ---
 
-## Message Types
+## Message Types 📨
 
-### Initialize
+### Initialize 📦
 
 ```protobuf
 message InitRequest {
@@ -234,7 +239,7 @@ message ProductInfo {
 }
 ```
 
-### Commands
+### Commands ⌨️
 
 ```protobuf
 message CommandRequest {
@@ -250,7 +255,7 @@ message CommandResponse {
 }
 ```
 
-### Language Features
+### Language Features 📝
 
 ```protobuf
 message HoverRequest {
@@ -270,9 +275,9 @@ message HoverResponse {
 
 ---
 
-## Client Implementation
+## Client Implementation 💻
 
-Cocoon's gRPC client (`Cocoon/Source/Services/Mountain/gRPC/Client.ts`) uses
+`Cocoon`'s `gRPC` client (`Cocoon/Source/Services/Mountain/gRPC/Client.ts`) uses
 `@grpc/grpc-js`:
 
 ```typescript
@@ -299,9 +304,9 @@ const response = await new Promise<CommandResponse>((resolve, reject) => {
 
 ---
 
-## Server Implementation
+## Server Implementation 💻
 
-Mountain's gRPC server (`Mountain/Source/Vine/Server/`) uses tonic:
+`Mountain`'s `gRPC` server (`Mountain/Source/Vine/Server/`) uses `tonic`:
 
 ```rust
 use tonic::{Request, Response, Status};
@@ -332,7 +337,7 @@ impl ExtensionHost for VineServiceImpl {
 
 ---
 
-## Port Allocation
+## Port Allocation 🔢
 
 | Service            | Port  | Transport    | Components                         |
 | ------------------ | ----- | ------------ | ---------------------------------- |
@@ -350,9 +355,9 @@ Ports can be overridden via environment variables:
 
 ---
 
-## Code Generation
+## Code Generation ⚙️
 
-### Rust (compile-time via build.rs)
+### Rust (compile-time via build.rs) ⚙️
 
 ```rust
 // Mountain/build.rs
@@ -363,7 +368,7 @@ fn main() {
 }
 ```
 
-### TypeScript (pre-generated via protoc-gen-ts)
+### TypeScript (pre-generated via protoc-gen-ts) ⚙️
 
 ```sh
 protoc \
@@ -373,21 +378,21 @@ protoc \
 	Element/Mountain/Proto/Vine.proto
 ```
 
-Generated TypeScript types are committed to the Cocoon source tree.
+- Generated `TypeScript` types are committed to the `Cocoon` source tree
 
 ---
 
-## Related Documentation
+## Related Documentation 📚
 
-- [Mountain](../Mountain/Documentation/GitHub/Architecture.md) - gRPC server
-  implementation
-- [Cocoon](../Cocoon/Documentation/GitHub/Architecture.md) - gRPC client
-  implementation
-- [Air](../Air/Documentation/GitHub/Architecture.md) - Background daemon (gRPC
-  consumer)
-- [Grove](../Grove/Documentation/GitHub/Architecture.md) - WASM host (gRPC
-  consumer)
-- [InterComponentProtocol](../../../Documentation/GitHub/InterComponentProtocol.md) -
+- [Mountain](https://github.com/CodeEditorLand/Mountain/tree/Current/Documentation/GitHub/Architecture.md) -
+  `gRPC` server implementation
+- [Cocoon](https://github.com/CodeEditorLand/Cocoon/tree/Current/Documentation/GitHub/Architecture.md) -
+  `gRPC` client implementation
+- [Air](https://github.com/CodeEditorLand/Air/tree/Current/Documentation/GitHub/Architecture.md) -
+  Background daemon (`gRPC` consumer)
+- [Grove](https://github.com/CodeEditorLand/Grove/tree/Current/Documentation/GitHub/Architecture.md) -
+  WASM host (`gRPC` consumer)
+- [InterComponentProtocol](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/GitHub/InterComponentProtocol.md) -
   Full protocol specification
 
 ---
