@@ -1,4 +1,4 @@
-# Vine: gRPC Protocol Layer 🌿
+# Vine: gRPC Protocol Layer 🌿
 
 This document describes `Vine`, the `gRPC` protocol definition and communication
 specification for the `Land` ecosystem. `Vine` defines the strongly-typed IPC
@@ -48,7 +48,7 @@ graph TB
     GROVE_CLI["Grove<br/>gRPC Client"] -->|"consumes"| RUST
 ```
 
-## Overview 📋
+## Overview 📋
 
 `Vine` defines the `gRPC` service contracts in Protocol Buffer (`.proto`) files:
 
@@ -66,7 +66,7 @@ graph TB
 
 ---
 
-## Architecture 🏗️
+## Architecture 🏗️
 
 `Vine` is the protocol layer that enables all inter-component communication:
 
@@ -93,7 +93,7 @@ graph TB
      +------------------+
 ```
 
-### Protocol Files 📋
+### Protocol Files 📋
 
 | File          | Location                             | Defines                                |
 | ------------- | ------------------------------------ | -------------------------------------- |
@@ -104,9 +104,9 @@ graph TB
 
 ---
 
-## Protocol Buffers 📋
+## Protocol Buffers 📋
 
-### Vine.proto 📋
+### Vine.proto 📋
 
 ```protobuf
 syntax = "proto3";
@@ -152,7 +152,7 @@ service ExtensionHost {
 }
 ```
 
-### Spine.proto 📋
+### Spine.proto 📋
 
 The `Spine` protocol defines extension host coordination with an action/response
 pattern:
@@ -185,9 +185,9 @@ message ActionResponse {
 
 ---
 
-## Service Definitions 🔌
+## Service Definitions 🔌
 
-### ExtensionHost Service (Mountain <-> Cocoon) 🔗
+### ExtensionHost Service (Mountain <-> Cocoon) 🔗
 
 | RPC                   | Direction          | Trigger              | Purpose                             |
 | --------------------- | ------------------ | -------------------- | ----------------------------------- |
@@ -206,7 +206,7 @@ message ActionResponse {
 | `SetDiagnostics`      | Cocoon -> Mountain | Extension            | Update diagnostic markers           |
 | `ShowMessage`         | Cocoon -> Mountain | Extension            | Show message to user                |
 
-### Spine Service (Cocoon -> Mountain) 🔗
+### Spine Service (Cocoon -> Mountain) 🔗
 
 | RPC             | Direction          | Purpose                          |
 | --------------- | ------------------ | -------------------------------- |
@@ -216,9 +216,9 @@ message ActionResponse {
 
 ---
 
-## Message Types 📨
+## Message Types 📨
 
-### Initialize 📦
+### Initialize 📦
 
 ```protobuf
 message InitRequest {
@@ -239,7 +239,7 @@ message ProductInfo {
 }
 ```
 
-### Commands ⌨️
+### Commands ⌨️
 
 ```protobuf
 message CommandRequest {
@@ -255,7 +255,7 @@ message CommandResponse {
 }
 ```
 
-### Language Features 📝
+### Language Features 📝
 
 ```protobuf
 message HoverRequest {
@@ -275,7 +275,7 @@ message HoverResponse {
 
 ---
 
-## Client Implementation 💻
+## Client Implementation 💻
 
 `Cocoon`'s `gRPC` client (`Cocoon/Source/Services/Mountain/gRPC/Client.ts`) uses
 `@grpc/grpc-js`:
@@ -304,7 +304,7 @@ const response = await new Promise<CommandResponse>((resolve, reject) => {
 
 ---
 
-## Server Implementation 💻
+## Server Implementation 💻
 
 `Mountain`'s `gRPC` server (`Mountain/Source/Vine/Server/`) uses `tonic`:
 
@@ -337,7 +337,7 @@ impl ExtensionHost for VineServiceImpl {
 
 ---
 
-## Port Allocation 🔢
+## Port Allocation 🔢
 
 | Service            | Port  | Transport    | Components                         |
 | ------------------ | ----- | ------------ | ---------------------------------- |
@@ -355,9 +355,9 @@ Ports can be overridden via environment variables:
 
 ---
 
-## Code Generation ⚙️
+## Code Generation ⚙️
 
-### Rust (compile-time via build.rs) ⚙️
+### Rust (compile-time via build.rs) ⚙️
 
 ```rust
 // Mountain/build.rs
@@ -368,7 +368,7 @@ fn main() {
 }
 ```
 
-### TypeScript (pre-generated via protoc-gen-ts) ⚙️
+### TypeScript (pre-generated via protoc-gen-ts) ⚙️
 
 ```sh
 protoc \
@@ -382,7 +382,7 @@ protoc \
 
 ---
 
-## Related Documentation 📚
+## Related Documentation 📚
 
 - [Mountain](https://github.com/CodeEditorLand/Mountain/tree/Current/Documentation/GitHub/Architecture.md) -
   `gRPC` server implementation
