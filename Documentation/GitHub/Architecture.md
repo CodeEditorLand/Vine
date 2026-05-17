@@ -110,7 +110,7 @@ graph TB
 
 ```protobuf
 syntax = "proto3";
-package editor.land.vine;
+package land.playform.cloud.vine;
 
 service ExtensionHost {
     // Lifecycle
@@ -158,7 +158,7 @@ The `Spine` protocol defines extension host coordination with an action/response
 pattern:
 
 ```protobuf
-package editor.land.spine;
+package land.playform.cloud.spine;
 
 service Spine {
     rpc PerformAction(ActionRequest) returns (ActionResponse);
@@ -398,6 +398,6 @@ protoc \
 ---
 
 **Project Maintainers:** Source Open
-([Source/Open@Editor.Land](mailto:Source/Open@Editor.Land)) |
+([Source/Open@Land.PlayForm.Cloud](mailto:Source/Open@Land.PlayForm.Cloud)) |
 [GitHub Repository](https://github.com/CodeEditorLand/Vine) |
 [Report an Issue](https://github.com/CodeEditorLand/Vine/issues)
