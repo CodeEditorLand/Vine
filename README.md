@@ -104,29 +104,42 @@ ecosystem.
 
 ```mermaid
 graph LR
-classDef vine fill:#f9f,stroke:#333,stroke-width:2px;
-classDef mountain fill:#9cf,stroke:#333,stroke-width:2px;
-classDef cocoon fill:#ccf,stroke:#333,stroke-width:2px;
-classDef grove fill:#cfc,stroke:#333,stroke-width:1px;
+    classDef vine     fill:#e8ffe8,stroke:#27ae60,stroke-width:2px,color:#0a3a0a;
+    classDef mountain fill:#f0d0ff,stroke:#9b59b6,stroke-width:2px,color:#2c0050;
+    classDef cocoon   fill:#d0d8ff,stroke:#4a6fa5,stroke-width:2px,color:#001050;
+    classDef grove    fill:#d4f5d4,stroke:#27ae60,stroke-width:1px,color:#0a3a0a;
+    classDef proto    fill:#fff3c0,stroke:#f39c12,stroke-width:1px,stroke-dasharray:5 5,color:#5a3e00;
 
-subgraph "Mountain (Rust Backend)&#x2001;⛰️"
-VineServer["Vine gRPC Server"]:::mountain
-end
+    subgraph PROTO["Vine.proto - Contract Definition 🌿"]
+        direction TB
+        MountainSvc["MountainService\nProcessCocoonRequest · SendCocoonNotification\nCancelOperation · OpenChannelFromCocoon (streaming)"]:::proto
+        CocoonSvc["CocoonService\nProcessMountainRequest · SendMountainNotification\nCancelOperation · OpenChannelFromMountain (streaming)"]:::proto
+    end
 
-subgraph "Vine (Protocol Layer)&#x2001;🌿"
-VineProto["Vine.proto"]:::vine
-SpineProto["Spine.proto"]:::vine
-GroveProto["Grove.proto"]:::vine
-end
+    subgraph MOUNTAIN["Mountain ⛰️ - Server-side impl (Source/Vine/)"]
+        direction TB
+        VineServer["Vine gRPC Server (tonic)"]:::mountain
+        VineMux["Multiplexer.rs - envelope routing"]:::mountain
+        VineClient["Client.rs - Mountain→Cocoon calls"]:::mountain
+        VineGenerated["Generated/ - prost bindings"]:::mountain
+        VineServer --> VineMux
+        VineMux --> VineClient
+    end
 
-subgraph "Clients"
-CocoonClient["Cocoon gRPC Client"]:::cocoon
-GroveClient["Grove gRPC Client"]:::grove
-end
+    subgraph COCOON["Cocoon 🦋 - Client-side impl"]
+        GRPCClient["Services/Mountain/gRPC/Client.ts"]:::cocoon
+        GRPCServer["Services/gRPC/Server/ - CocoonService impl"]:::cocoon
+    end
 
-VineServer --> VineProto
-VineProto <--> CocoonClient
-VineProto <--> GroveClient
+    subgraph GROVE["Grove 🌳 - WASM host (planned)"]
+        GroveTransport["Transport/gRPCTransport"]:::grove
+    end
+
+    MountainSvc -.defines.-> VineServer
+    CocoonSvc -.defines.-> GRPCServer
+    VineServer <-- bidirectional gRPC :50052 --> GRPCClient
+    VineClient --> GRPCServer
+    MountainSvc -.planned.-> GroveTransport
 ```
 
 ---
