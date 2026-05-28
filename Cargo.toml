@@ -1,0 +1,62 @@
+[package]
+authors = ["Source 🖋️ Open 👐🏻 <Source/Open@Editor.Land>"]
+autobenches = false
+autobins = false
+autoexamples = false
+autotests = false
+description = "Vine 🌿 - The gRPC Protocol Layer for Land"
+edition = "2024"
+license-file = "LICENSE"
+name = "Vine"
+publish = false
+version = "0.1.0"
+
+[lib]
+name = "Vine"
+path = "Source/Library.rs"
+
+[dependencies]
+tokio = { workspace = true }
+tokio-stream = { workspace = true }
+tonic = { workspace = true }
+tonic-prost = { workspace = true }
+prost = { workspace = true }
+http = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+log = { workspace = true }
+tracing = { workspace = true }
+futures = { workspace = true }
+futures-util = { workspace = true }
+bytes = { workspace = true, features = ["serde"] }
+chrono = { workspace = true, features = ["serde"] }
+uuid = { workspace = true, features = ["v4", "serde"] }
+lazy_static = { workspace = true }
+parking_lot = { workspace = true }
+once_cell = { workspace = true }
+dashmap = { workspace = true }
+
+[build-dependencies]
+tonic-build = { workspace = true }
+tonic-prost-build = { workspace = true }
+
+[features]
+default = ["server", "client"]
+# Server-side gRPC handler scaffolding (Mountain consumes this).
+server = []
+# Client-side gRPC stubs (Air + Cocoon Rust client consume this).
+client = []
+# Bidirectional envelope multiplexer (LAND-PATCH B7-S6 P14.1).
+multiplexer = []
+
+[package.metadata.docs.rs]
+all-features = true
+default-target = "x86_64-apple-darwin"
+targets = [
+	"x86_64-unknown-linux-gnu",
+	"x86_64-apple-darwin",
+	"aarch64-apple-darwin",
+]

@@ -1,0 +1,1720 @@
+syntax = "proto3";
+
+package Vine;
+
+// Service running on the Mountain host, listening for requests from Cocoon.
+service MountainService {
+  // A generic request-response method for Cocoon to call a function on Mountain.
+  rpc ProcessCocoonRequest(GenericRequest) returns (GenericResponse);
+
+  // A generic fire-and-forget method for Cocoon to send a notification to Mountain.
+  rpc SendCocoonNotification(GenericNotification) returns (Empty);
+
+  // A method for Cocoon to request that Mountain cancel a long-running operation.
+  rpc CancelOperation(CancelOperationRequest) returns (Empty);
+
+  // LAND-PATCH B7-S6 P2: bidirectional streaming channel.
+  //
+  // Multiplexes every notification, request, and response over a
+  // single h2 stream. Each side reads frames asynchronously and
+  // routes by `correlation_id` (request/response) or by
+  // `channel` (notification fan-out).
+  //
+  // Replaces the unary methods above for any caller that needs
+  // concurrent / parallel dispatch. The unary methods stay for
+  // backward compatibility and for callers that explicitly want
+  // a single round-trip.
+  //
+  rpc OpenChannelFromCocoon(stream Envelope) returns (stream Envelope);
+}
+
+// Service running on the Cocoon sidecar, listening for requests from Mountain.
+service CocoonService {
+  // A generic request-response method for Mountain to call a function on Cocoon.
+  rpc ProcessMountainRequest(GenericRequest) returns (GenericResponse);
+
+  // A generic fire-and-forget method for Mountain to send a notification to Cocoon.
+  rpc SendMountainNotification(GenericNotification) returns (Empty);
+
+  // A method for Mountain to request that Cocoon cancel a long-running operation.
+  rpc CancelOperation(CancelOperationRequest) returns (Empty);
+
+  // LAND-PATCH B7-S6 P2: bidirectional streaming channel (mirror of
+  // MountainService::OpenChannelFromCocoon). Mountain opens this
+  // stream once per Cocoon connection; all subsequent traffic
+  // multiplexes over it. Reverses the call direction so Mountain is
+  // the streaming initiator (which matches the typical "client
+  // opens stream, server replies" gRPC idiom).
+  rpc OpenChannelFromMountain(stream Envelope) returns (stream Envelope);
+
+  // ==================== Initialization ====================
+
+  // Handshake - Called by Cocoon to signal readiness
+  rpc InitialHandshake(Empty) returns (Empty);
+
+  // Initialize Extension Host - Mountain sends initialization data to Cocoon
+  rpc InitExtensionHost(InitExtensionHostRequest) returns (Empty);
+
+  // ==================== Commands ====================
+
+  // Register Command - Cocoon registers an extension command
+  rpc RegisterCommand(RegisterCommandRequest) returns (Empty);
+
+  // Execute Contributed Command - Mountain executes an extension command
+  rpc ExecuteContributedCommand(ExecuteCommandRequest) returns (ExecuteCommandResponse);
+
+  // Unregister Command - Unregister a previously registered command
+  rpc UnregisterCommand(UnregisterCommandRequest) returns (Empty);
+
+  // ==================== Language Features ====================
+
+  // Register Hover Provider - Register a hover provider
+  rpc RegisterHoverProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Hover - Request hover information
+  rpc ProvideHover(ProvideHoverRequest) returns (ProvideHoverResponse);
+
+  // Register Completion Item Provider - Register a completion provider
+  rpc RegisterCompletionItemProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Completion Items - Request completion items
+  rpc ProvideCompletionItems(ProvideCompletionItemsRequest) returns (ProvideCompletionItemsResponse);
+
+  // Register Definition Provider - Register a definition provider
+  rpc RegisterDefinitionProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Definition - Request definition location
+  rpc ProvideDefinition(ProvideDefinitionRequest) returns (ProvideDefinitionResponse);
+
+  // Register Reference Provider - Register a reference provider
+  rpc RegisterReferenceProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide References - Request references
+  rpc ProvideReferences(ProvideReferencesRequest) returns (ProvideReferencesResponse);
+
+  // Register Code Actions Provider - Register code actions provider
+  rpc RegisterCodeActionsProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Code Actions - Request code actions
+  rpc ProvideCodeActions(ProvideCodeActionsRequest) returns (ProvideCodeActionsResponse);
+
+  // ==================== Language Features (Extended) ====================
+
+  // Register Document Highlight Provider
+  rpc RegisterDocumentHighlightProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Document Highlights
+  rpc ProvideDocumentHighlights(ProvideDocumentHighlightsRequest) returns (ProvideDocumentHighlightsResponse);
+
+  // Register Document Symbol Provider
+  rpc RegisterDocumentSymbolProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Document Symbols
+  rpc ProvideDocumentSymbols(ProvideDocumentSymbolsRequest) returns (ProvideDocumentSymbolsResponse);
+
+  // Register Workspace Symbol Provider
+  rpc RegisterWorkspaceSymbolProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Workspace Symbols
+  rpc ProvideWorkspaceSymbols(ProvideWorkspaceSymbolsRequest) returns (ProvideWorkspaceSymbolsResponse);
+
+  // Register Rename Provider
+  rpc RegisterRenameProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Rename Edits
+  rpc ProvideRenameEdits(ProvideRenameEditsRequest) returns (ProvideRenameEditsResponse);
+
+  // Register Document Formatting Provider
+  rpc RegisterDocumentFormattingProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Document Formatting
+  rpc ProvideDocumentFormatting(ProvideDocumentFormattingRequest) returns (ProvideDocumentFormattingResponse);
+
+  // Register Document Range Formatting Provider
+  rpc RegisterDocumentRangeFormattingProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Document Range Formatting
+  rpc ProvideDocumentRangeFormatting(ProvideDocumentRangeFormattingRequest) returns (ProvideDocumentRangeFormattingResponse);
+
+  // Register On Type Formatting Provider
+  rpc RegisterOnTypeFormattingProvider(RegisterOnTypeFormattingProviderRequest) returns (Empty);
+
+  // Provide On Type Formatting
+  rpc ProvideOnTypeFormatting(ProvideOnTypeFormattingRequest) returns (ProvideOnTypeFormattingResponse);
+
+  // Register Signature Help Provider
+  rpc RegisterSignatureHelpProvider(RegisterSignatureHelpProviderRequest) returns (Empty);
+
+  // Provide Signature Help
+  rpc ProvideSignatureHelp(ProvideSignatureHelpRequest) returns (ProvideSignatureHelpResponse);
+
+  // Register Code Lens Provider
+  rpc RegisterCodeLensProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Code Lenses
+  rpc ProvideCodeLenses(ProvideCodeLensesRequest) returns (ProvideCodeLensesResponse);
+
+  // Register Folding Range Provider
+  rpc RegisterFoldingRangeProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Folding Ranges
+  rpc ProvideFoldingRanges(ProvideFoldingRangesRequest) returns (ProvideFoldingRangesResponse);
+
+  // Register Selection Range Provider
+  rpc RegisterSelectionRangeProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Selection Ranges
+  rpc ProvideSelectionRanges(ProvideSelectionRangesRequest) returns (ProvideSelectionRangesResponse);
+
+  // Register Semantic Tokens Provider
+  rpc RegisterSemanticTokensProvider(RegisterSemanticTokensProviderRequest) returns (Empty);
+
+  // Provide Semantic Tokens Full
+  rpc ProvideSemanticTokensFull(ProvideSemanticTokensRequest) returns (ProvideSemanticTokensResponse);
+
+  // Register Inlay Hints Provider
+  rpc RegisterInlayHintsProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Inlay Hints
+  rpc ProvideInlayHints(ProvideInlayHintsRequest) returns (ProvideInlayHintsResponse);
+
+  // Register Type Hierarchy Provider
+  rpc RegisterTypeHierarchyProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Type Hierarchy Supertypes
+  rpc ProvideTypeHierarchySupertypes(ProvideTypeHierarchyRequest) returns (ProvideTypeHierarchyResponse);
+
+  // Provide Type Hierarchy Subtypes
+  rpc ProvideTypeHierarchySubtypes(ProvideTypeHierarchyRequest) returns (ProvideTypeHierarchyResponse);
+
+  // Register Call Hierarchy Provider
+  rpc RegisterCallHierarchyProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Call Hierarchy Incoming Calls
+  rpc ProvideCallHierarchyIncomingCalls(ProvideCallHierarchyRequest) returns (ProvideCallHierarchyResponse);
+
+  // Provide Call Hierarchy Outgoing Calls
+  rpc ProvideCallHierarchyOutgoingCalls(ProvideCallHierarchyRequest) returns (ProvideCallHierarchyResponse);
+
+  // Register Linked Editing Range Provider
+  rpc RegisterLinkedEditingRangeProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Linked Editing Ranges
+  rpc ProvideLinkedEditingRanges(ProvideLinkedEditingRangesRequest) returns (ProvideLinkedEditingRangesResponse);
+
+  // Register Inline Completion Item Provider (GitHub Copilot, Roo Code, etc.)
+  rpc RegisterInlineCompletionItemProvider(RegisterProviderRequest) returns (Empty);
+
+  // Provide Inline Completion Items - called by Monaco when the cursor pauses
+  rpc ProvideInlineCompletionItems(ProvideInlineCompletionRequest) returns (ProvideInlineCompletionResponse);
+
+  // ==================== Window Operations (Extended) ====================
+
+  // Show Quick Pick
+  rpc ShowQuickPick(ShowQuickPickRequest) returns (ShowQuickPickResponse);
+
+  // Show Input Box
+  rpc ShowInputBox(ShowInputBoxRequest) returns (ShowInputBoxResponse);
+
+  // Show Progress
+  rpc ShowProgress(ShowProgressRequest) returns (ShowProgressResponse);
+
+  // Report Progress
+  rpc ReportProgress(ReportProgressRequest) returns (Empty);
+
+  // Post Message to Webview
+  rpc PostWebviewMessage(PostWebviewMessageRequest) returns (Empty);
+
+  // Dispose Webview Panel
+  rpc DisposeWebviewPanel(DisposeWebviewPanelRequest) returns (Empty);
+
+  // Open External URI
+  rpc OpenExternal(OpenExternalRequest) returns (Empty);
+
+  // ==================== File System (Extended) ====================
+
+  // Delete File
+  rpc DeleteFile(DeleteFileRequest) returns (Empty);
+
+  // Rename File
+  rpc RenameFile(RenameFileRequest) returns (Empty);
+
+  // Copy File
+  rpc CopyFile(CopyFileRequest) returns (Empty);
+
+  // Create Directory
+  rpc CreateDirectory(CreateDirectoryRequest) returns (Empty);
+
+  // ==================== Output Channels ====================
+
+  // Create Output Channel
+  rpc CreateOutputChannel(CreateOutputChannelRequest) returns (CreateOutputChannelResponse);
+
+  // Append to Output Channel
+  rpc AppendOutput(AppendOutputRequest) returns (Empty);
+
+  // Clear Output Channel
+  rpc ClearOutput(ClearOutputRequest) returns (Empty);
+
+  // Show Output Channel
+  rpc ShowOutput(ShowOutputRequest) returns (Empty);
+
+  // Dispose Output Channel
+  rpc DisposeOutput(DisposeOutputRequest) returns (Empty);
+
+  // ==================== Tasks ====================
+
+  // Register Task Provider
+  rpc RegisterTaskProvider(RegisterTaskProviderRequest) returns (Empty);
+
+  // Execute Task
+  rpc ExecuteTask(ExecuteTaskRequest) returns (ExecuteTaskResponse);
+
+  // Terminate Task
+  rpc TerminateTask(TerminateTaskRequest) returns (Empty);
+
+  // ==================== Authentication ====================
+
+  // Get Authentication Session
+  rpc GetAuthenticationSession(GetAuthenticationSessionRequest) returns (GetAuthenticationSessionResponse);
+
+  // Register Authentication Provider
+  rpc RegisterAuthenticationProvider(RegisterAuthenticationProviderRequest) returns (Empty);
+
+  // ==================== Debug (Extended) ====================
+
+  // Stop Debugging
+  rpc StopDebugging(StopDebuggingRequest) returns (Empty);
+
+  // ==================== Extensions ====================
+
+  // Get Extension
+  rpc GetExtension(GetExtensionRequest) returns (GetExtensionResponse);
+
+  // Get All Extensions
+  rpc GetAllExtensions(Empty) returns (GetAllExtensionsResponse);
+
+  // ==================== Terminal (Extended) ====================
+
+  // Resize Terminal
+  rpc ResizeTerminal(ResizeTerminalRequest) returns (Empty);
+
+  // ==================== Configuration (Extended) ====================
+
+  // Get Configuration Value
+  rpc GetConfiguration(GetConfigurationRequest) returns (GetConfigurationResponse);
+
+  // ==================== Window Operations ====================
+
+  // Show Text Document - Open a text document
+  rpc ShowTextDocument(ShowTextDocumentRequest) returns (ShowTextDocumentResponse);
+
+  // Show Information Message - Display an info message
+  rpc ShowInformationMessage(ShowMessageRequest) returns (ShowMessageResponse);
+
+  // Show Warning Message - Display a warning message
+  rpc ShowWarningMessage(ShowMessageRequest) returns (ShowMessageResponse);
+
+  // Show Error Message - Display an error message
+  rpc ShowErrorMessage(ShowMessageRequest) returns (ShowMessageResponse);
+
+  // Create Status Bar Item - Create a status bar item
+  rpc CreateStatusBarItem(CreateStatusBarItemRequest) returns (CreateStatusBarItemResponse);
+
+  // Set Status Bar Text - Set status bar text
+  rpc SetStatusBarText(SetStatusBarTextRequest) returns (Empty);
+
+  // Create Webview Panel - Create a new webview panel
+  rpc CreateWebviewPanel(CreateWebviewPanelRequest) returns (CreateWebviewPanelResponse);
+
+  // Set Webview HTML - Update webview HTML content
+  rpc SetWebviewHTML(SetWebviewHtmlRequest) returns (Empty);
+
+  // On Did Receive Message - Receive message from webview
+  rpc OnDidReceiveMessage(OnDidReceiveMessageRequest) returns (Empty);
+
+  // ==================== File System ====================
+
+  // Read File - Read file contents
+  rpc ReadFile(ReadFileRequest) returns (ReadFileResponse);
+
+  // Write File - Write file contents
+  rpc WriteFile(WriteFileRequest) returns (Empty);
+
+  // Stat - Get file metadata
+  rpc Stat(StatRequest) returns (StatResponse);
+
+  // Read Directory - List directory contents
+  rpc Readdir(ReaddirRequest) returns (ReaddirResponse);
+
+  // Watch File - Watch file for changes
+  rpc WatchFile(WatchFileRequest) returns (Empty);
+
+  // ==================== Workspace Operations ====================
+
+  // Find Files - Search for files
+  rpc FindFiles(FindFilesRequest) returns (FindFilesResponse);
+
+  // Find Text in Files - Search for text across files
+  rpc FindTextInFiles(FindTextInFilesRequest) returns (FindTextInFilesResponse);
+
+  // Open Document - Open a document
+  rpc OpenDocument(OpenDocumentRequest) returns (OpenDocumentResponse);
+
+  // Save All - Save all open documents
+  rpc SaveAll(SaveAllRequest) returns (SaveAllResponse);
+
+  // Apply Edit - Apply a text edit to a document
+  rpc ApplyEdit(ApplyEditRequest) returns (ApplyEditResponse);
+
+  // Update Configuration - Notify of configuration changes
+  rpc UpdateConfiguration(UpdateConfigurationRequest) returns (Empty);
+
+  // Update Workspace Folders - Update workspace folders
+  rpc UpdateWorkspaceFolders(UpdateWorkspaceFoldersRequest) returns (Empty);
+
+  // ==================== Terminal ====================
+
+  // Open Terminal - Open a new terminal
+  rpc OpenTerminal(OpenTerminalRequest) returns (Empty);
+
+  // Terminal Input - Send input to terminal
+  rpc TerminalInput(TerminalInputRequest) returns (Empty);
+
+  // Close Terminal - Close a terminal
+  rpc CloseTerminal(CloseTerminalRequest) returns (Empty);
+
+  // Accept Terminal Opened - Notification: Terminal opened
+  rpc AcceptTerminalOpened(TerminalOpenedNotification) returns (Empty);
+
+  // Accept Terminal Closed - Notification: Terminal closed
+  rpc AcceptTerminalClosed(TerminalClosedNotification) returns (Empty);
+
+  // Accept Terminal Process ID - Notification: Terminal process ID
+  rpc AcceptTerminalProcessId(TerminalProcessIdNotification) returns (Empty);
+
+  // Accept Terminal Process Data - Notification: Terminal output
+  rpc AcceptTerminalProcessData(TerminalDataNotification) returns (Empty);
+
+  // ==================== Tree View ====================
+
+  // Register Tree View Provider - Register a tree view provider
+  rpc RegisterTreeViewProvider(RegisterTreeViewProviderRequest) returns (Empty);
+
+  // Get Tree Children - Request tree view children
+  rpc GetTreeChildren(GetTreeChildrenRequest) returns (GetTreeChildrenResponse);
+
+  // ==================== SCM ====================
+
+  // Register SCM Provider - Register source control provider
+  rpc RegisterSCMProvider(RegisterScmProviderRequest) returns (Empty);
+
+  // Update SCM Group - Update SCM group
+  rpc UpdateSCMGroup(UpdateScmGroupRequest) returns (Empty);
+
+  // Execute Git - Execute git command
+  rpc GitExec(GitExecRequest) returns (GitExecResponse);
+
+  // ==================== Debug ====================
+
+  // Register Debug Adapter - Register debug adapter
+  rpc RegisterDebugAdapter(RegisterDebugAdapterRequest) returns (Empty);
+
+  // Start Debugging - Start debug session
+  rpc StartDebugging(StartDebuggingRequest) returns (StartDebuggingResponse);
+
+  // ==================== Save Participants ====================
+
+  // Participate in Save - Extension participates in save
+  rpc ParticipateInSave(ParticipateInSaveRequest) returns (ParticipateInSaveResponse);
+
+  // ==================== Secret Storage ====================
+
+  // Get Secret - Retrieve a secret from storage
+  rpc GetSecret(GetSecretRequest) returns (GetSecretResponse);
+
+  // Store Secret - Store a secret in storage
+  rpc StoreSecret(StoreSecretRequest) returns (Empty);
+
+  // Delete Secret - Delete a secret from storage
+  rpc DeleteSecret(DeleteSecretRequest) returns (Empty);
+}
+
+// Represents an empty message, typically used for RPCs that don't need to return data.
+message Empty {}
+
+// LAND-PATCH B7-S6 P2: streaming channel envelope.
+//
+// One frame on the bidirectional `OpenChannelFromCocoon` /
+// `OpenChannelFromMountain` streams. The sender chooses which
+// `payload` arm to populate based on what the frame represents:
+//
+//   - Notification: fire-and-forget; no response expected.
+//   - Request:      paired with a Response carrying the same
+//                   correlation_id; receiver reads the request,
+//                   dispatches, sends the response back over the
+//                   same stream.
+//   - Response:     replies to a previously received Request.
+//                   Carries the request's correlation_id verbatim.
+//   - Cancel:       request the receiver to abort an in-flight
+//                   request (best-effort; receiver chooses whether
+//                   to honour).
+//
+// Each side maintains a `HashMap<u64, oneshot::Sender>` of pending
+// requests keyed by correlation_id; the multiplexer routes
+// incoming Response frames into the matching sender.
+//
+// Notifications fan out to a `tokio::sync::broadcast` channel so
+// any number of subscribers (Effect-TS fibers, dev-log, telemetry,
+// etc.) can observe the same flow concurrently.
+message Envelope {
+  oneof payload {
+    GenericNotification notification = 1;
+    GenericRequest request = 2;
+    GenericResponse response = 3;
+    CancelOperationRequest cancel = 4;
+  }
+}
+
+// A generic request message containing a method name and serialized parameters.
+message GenericRequest {
+  uint64 RequestIdentifier = 1;
+
+  string Method = 2;
+
+  // Parameters are expected to be a JSON-serialized byte array.
+  bytes Parameter = 3;
+}
+
+// A generic response message containing the result or an error.
+message GenericResponse {
+  uint64 RequestIdentifier = 1;
+
+  // The successful result, JSON-serialized.
+  bytes Result = 2;
+
+  optional RPCError error = 3;
+}
+
+// A generic notification message, which is fire-and-forget and does not have an ID.
+message GenericNotification {
+  string Method = 1;
+
+  // Parameters are expected to be a JSON-serialized byte array.
+  bytes Parameter = 2;
+}
+
+// A structured error payload, compliant with JSON-RPC error objects.
+message RPCError {
+  int32 Code = 1;
+
+  string Message = 2;
+
+  // Optional, additional error data, JSON-serialized.
+  bytes Data = 3;
+}
+
+// A message to cancel a specific, ongoing operation.
+message CancelOperationRequest {
+  uint64 RequestIdentifierToCancel = 1;
+}
+
+// A generic data payload, currently unused but available for future extensions.
+message RPCDataPayload {
+  bytes Data = 1;
+}
+
+// ==================== Common Types ====================
+
+// A position in a text document, expressed as zero-based line and character offset.
+message Position {
+  uint32 Line = 1;
+  uint32 Character = 2;
+}
+
+// A range in a text document, expressed as start and end positions.
+message Range {
+  Position Start = 1;
+  Position End = 2;
+}
+
+// A Uniform Resource Identifier (URI).
+message Uri {
+  string Value = 1;
+}
+
+// A command argument, which can be one of several types.
+message Argument {
+  oneof Value {
+    string StringValue = 1;
+    int32 IntValue = 2;
+    bool BoolValue = 3;
+    bytes BytesValue = 4;
+  }
+}
+
+// A workspace folder.
+message WorkspaceFolder {
+  Uri Uri = 1;
+  string Name = 2;
+}
+
+// A view column (editor location).
+enum ViewColumn {
+  VIEW_COLUMN_UNDEFINED = 0;
+  VIEW_COLUMN_ACTIVE = 1;
+  VIEW_COLUMN_ONE = 2;
+  VIEW_COLUMN_TWO = 3;
+  VIEW_COLUMN_THREE = 4;
+  VIEW_COLUMN_FOUR = 5;
+  VIEW_COLUMN_FIVE = 6;
+  VIEW_COLUMN_SIX = 7;
+  VIEW_COLUMN_SEVEN = 8;
+  VIEW_COLUMN_EIGHT = 9;
+  VIEW_COLUMN_NINE = 10;
+}
+
+// Text document save reason.
+enum TextDocumentSaveReason {
+  SAVE_REASON_MANUAL = 0;
+  SAVE_REASON_AFTER_DELAY = 1;
+  SAVE_REASON_FOCUS_OUT = 2;
+}
+
+// ==================== Initialization ====================
+
+// Request to initialize the extension host.
+message InitExtensionHostRequest {
+  repeated WorkspaceFolder WorkspaceFolders = 1;
+  map<string, string> Configuration = 2;
+  string WorkspaceId = 3;
+}
+
+// ==================== Commands ====================
+
+// Request to register a command.
+message RegisterCommandRequest {
+  string CommandId = 1;
+  string ExtensionId = 2;
+  string Title = 3;
+}
+
+// Request to execute a command.
+message ExecuteCommandRequest {
+  string CommandId = 1;
+  repeated Argument Arguments = 2;
+}
+
+// Response from command execution.
+message ExecuteCommandResponse {
+  oneof Result {
+    bytes Value = 1;
+    RPCError Error = 2;
+  }
+}
+
+// Request to unregister a command.
+message UnregisterCommandRequest {
+  string CommandId = 1;
+}
+
+// ==================== Language Features ====================
+
+// Request to register a provider.
+message RegisterProviderRequest {
+  string LanguageSelector = 1;
+  uint32 Handle = 2;
+  string ExtensionId = 3;
+}
+
+// Request for hover information.
+message ProvideHoverRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  uint32 ProviderHandle = 3;
+}
+
+// Response with hover information.
+message ProvideHoverResponse {
+  string Markdown = 1;
+  Range Range = 2;
+}
+
+// Request for completion items.
+message ProvideCompletionItemsRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  uint32 ProviderHandle = 3;
+  string TriggerCharacter = 4;
+}
+
+// Response with completion items.
+message ProvideCompletionItemsResponse {
+  repeated CompletionItem Items = 1;
+}
+
+message CompletionItem {
+  string Label = 1;
+  string Kind = 2;
+  string Detail = 3;
+  bytes Documentation = 4;
+  string InsertText = 5;
+}
+
+// Request for definition location.
+message ProvideDefinitionRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  uint32 ProviderHandle = 3;
+}
+
+// Response with definition location.
+message ProvideDefinitionResponse {
+  repeated Location Locations = 1;
+}
+
+message Location {
+  Uri Uri = 1;
+  Range Range = 2;
+}
+
+// Request for references.
+message ProvideReferencesRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  uint32 ProviderHandle = 3;
+}
+
+// Response with references.
+message ProvideReferencesResponse {
+  repeated Location Locations = 1;
+}
+
+// Request for code actions.
+message ProvideCodeActionsRequest {
+  Uri Uri = 1;
+  Range Range = 2;
+  uint32 ProviderHandle = 3;
+}
+
+// Response with code actions.
+message ProvideCodeActionsResponse {
+  repeated CodeAction Actions = 1;
+}
+
+message CodeAction {
+  string Title = 1;
+  string Kind = 2;
+  bool IsPreferred = 3;
+}
+
+// ==================== Window Operations ====================
+
+// Request to show a text document.
+message ShowTextDocumentRequest {
+  Uri Uri = 1;
+  ViewColumn ViewColumn = 2;
+  bool PreserveFocus = 3;
+}
+
+// Response for showing a text document.
+message ShowTextDocumentResponse {
+  bool Success = 1;
+}
+
+// Request to show a message.
+message ShowMessageRequest {
+  string Message = 1;
+}
+
+// Response for showing a message.
+message ShowMessageResponse {
+  bool Success = 1;
+}
+
+// Request to create a status bar item.
+message CreateStatusBarItemRequest {
+  string Id = 1;
+  string Text = 2;
+  string Tooltip = 3;
+}
+
+// Response for creating a status bar item.
+message CreateStatusBarItemResponse {
+  string ItemId = 1;
+}
+
+// Request to set status bar text.
+message SetStatusBarTextRequest {
+  string ItemId = 1;
+  string Text = 2;
+}
+
+// Request to create a webview panel.
+message CreateWebviewPanelRequest {
+  string ViewType = 1;
+  string Title = 2;
+  string IconPath = 3;
+  ViewColumn ViewColumn = 4;
+  bool PreserveFocus = 5;
+  bool EnableFindWidget = 6;
+  bool RetainContextWhenHidden = 7;
+  repeated string LocalResourceRoots = 8;
+}
+
+// Response for creating a webview panel.
+message CreateWebviewPanelResponse {
+  uint32 Handle = 1;
+}
+
+// Request to set webview HTML.
+message SetWebviewHtmlRequest {
+  uint32 Handle = 1;
+  string Html = 2;
+}
+
+// Request for webview message.
+message OnDidReceiveMessageRequest {
+  uint32 Handle = 1;
+  oneof Message {
+    string StringMessage = 2;
+    bytes BytesMessage = 3;
+  }
+}
+
+// ==================== File System ====================
+
+// Request to read a file.
+message ReadFileRequest {
+  Uri Uri = 1;
+}
+
+// Response with file contents.
+message ReadFileResponse {
+  bytes Content = 1;
+  string Encoding = 2;
+}
+
+// Request to write a file.
+message WriteFileRequest {
+  Uri Uri = 1;
+  bytes Content = 2;
+  string Encoding = 3;
+}
+
+// Request for file metadata.
+message StatRequest {
+  Uri Uri = 1;
+}
+
+// Response with file metadata.
+message StatResponse {
+  bool IsFile = 1;
+  bool IsDirectory = 2;
+  uint64 Size = 3;
+  uint64 Mtime = 4;
+}
+
+// Request to read directory contents.
+message ReaddirRequest {
+  Uri Uri = 1;
+}
+
+// Response with directory contents.
+message ReaddirResponse {
+  repeated string Entries = 1;
+}
+
+// Request to watch a file.
+message WatchFileRequest {
+  Uri Uri = 1;
+}
+
+// ==================== Workspace Operations ====================
+
+// Request to find files.
+message FindFilesRequest {
+  string Pattern = 1;
+  bool Include = 2;
+}
+
+// Response with found files.
+message FindFilesResponse {
+  repeated string Uris = 1;
+}
+
+// Request to find text in files.
+message FindTextInFilesRequest {
+  string Pattern = 1;
+  repeated string Include = 2;
+  repeated string Exclude = 3;
+}
+
+// Response with text matches.
+message FindTextInFilesResponse {
+  repeated TextMatch Matches = 1;
+}
+
+message TextMatch {
+  Uri Uri = 1;
+  Range Range = 2;
+  string Preview = 3;
+}
+
+// Request to open a document.
+message OpenDocumentRequest {
+  Uri Uri = 1;
+  ViewColumn ViewColumn = 2;
+}
+
+// Response for opening a document.
+message OpenDocumentResponse {
+  bool Success = 1;
+}
+
+// Request to save all documents.
+message SaveAllRequest {
+  bool includeUntitled = 1;
+}
+
+// Response for saving all documents.
+message SaveAllResponse {
+  bool Success = 1;
+}
+
+// Request to apply an edit.
+message ApplyEditRequest {
+  Uri Uri = 1;
+  repeated TextEdit Edits = 2;
+}
+
+message TextEdit {
+  Range Range = 1;
+  string NewText = 2;
+}
+
+// Response for applying an edit.
+message ApplyEditResponse {
+  bool Success = 1;
+}
+
+// Request to update configuration.
+message UpdateConfigurationRequest {
+  repeated string ChangedKeys = 1;
+}
+
+// Request to update workspace folders.
+message UpdateWorkspaceFoldersRequest {
+  repeated WorkspaceFolder Additions = 1;
+  repeated WorkspaceFolder Removals = 2;
+}
+
+// ==================== Terminal ====================
+
+// Request to open a terminal.
+message OpenTerminalRequest {
+  string Name = 1;
+  string ShellPath = 2;
+  repeated string ShellArgs = 3;
+  string Cwd = 4;
+}
+
+// Request for terminal input.
+message TerminalInputRequest {
+  uint32 TerminalId = 1;
+  bytes Data = 2;
+}
+
+// Request to close a terminal.
+message CloseTerminalRequest {
+  uint32 TerminalId = 1;
+}
+
+// Notification that a terminal was opened.
+message TerminalOpenedNotification {
+  uint32 TerminalId = 1;
+  string Name = 2;
+}
+
+// Notification that a terminal was closed.
+message TerminalClosedNotification {
+  uint32 TerminalId = 1;
+}
+
+// Notification of terminal process ID.
+message TerminalProcessIdNotification {
+  uint32 TerminalId = 1;
+  uint32 ProcessId = 2;
+}
+
+// Notification of terminal output.
+message TerminalDataNotification {
+  uint32 TerminalId = 1;
+  bytes Data = 2;
+}
+
+// ==================== Tree View ====================
+
+// Request to register a tree view provider.
+message RegisterTreeViewProviderRequest {
+  string ViewId = 1;
+  string ExtensionId = 2;
+}
+
+// Request for tree children.
+message GetTreeChildrenRequest {
+  string ViewId = 1;
+  string TreeItemHandle = 2;
+}
+
+// Response with tree children.
+message GetTreeChildrenResponse {
+  repeated TreeItem Items = 1;
+}
+
+message TreeItem {
+  string Handle = 1;
+  string Label = 2;
+  bool IsCollapsed = 3;
+  string Icon = 4;
+}
+
+// ==================== SCM ====================
+
+// Request to register an SCM provider.
+message RegisterScmProviderRequest {
+  string SCMId = 1;
+  string ExtensionId = 2;
+}
+
+// Request to update SCM group.
+message UpdateScmGroupRequest {
+  string ProviderId = 1;
+  string GroupId = 2;
+  repeated SourceControlResourceState ResourceStates = 3;
+}
+
+message SourceControlResourceState {
+  Uri Uri = 1;
+  string State = 2;
+  string Decorations = 3;
+}
+
+// Request to execute a git command.
+message GitExecRequest {
+  string RepositoryPath = 1;
+  repeated string Args = 2;
+}
+
+// Response from git execution.
+message GitExecResponse {
+  repeated string Output = 1;
+  int32 ExitCode = 2;
+}
+
+// ==================== Debug ====================
+
+// Request to register a debug adapter.
+message RegisterDebugAdapterRequest {
+  string DebugType = 1;
+  string ExtensionId = 2;
+}
+
+message DebugConfiguration {
+  string Type = 1;
+  string Name = 2;
+  string Request = 3;
+  map<string, string> Options = 4;
+}
+
+// Request to start debugging.
+message StartDebuggingRequest {
+  string DebugType = 1;
+  DebugConfiguration Configuration = 2;
+}
+
+// Response for starting debugging.
+message StartDebuggingResponse {
+  bool Success = 1;
+}
+
+// ==================== Save Participants ====================
+
+// Request to participate in save.
+message ParticipateInSaveRequest {
+  Uri Uri = 1;
+  TextDocumentSaveReason Reason = 2;
+}
+
+message TextEditForSave {
+  Uri Uri = 1;
+  repeated TextEdit Edits = 2;
+}
+
+// Response for participating in save.
+message ParticipateInSaveResponse {
+  repeated TextEditForSave Edits = 1;
+}
+
+// ==================== Secret Storage ====================
+
+// Request to get a secret.
+message GetSecretRequest {
+  string Key = 1;
+}
+
+// Response with secret value.
+message GetSecretResponse {
+  string Value = 1;
+}
+
+// Request to store a secret.
+message StoreSecretRequest {
+  string Key = 1;
+  string Value = 2;
+}
+
+// Request to delete a secret.
+message DeleteSecretRequest {
+  string Key = 1;
+}
+
+// ==================== Language Features (Extended) Messages ====================
+
+// Document filter for language selector.
+message DocumentFilter {
+  string Language = 1;
+  string Scheme = 2;
+  string Pattern = 3;
+}
+
+// Request for document highlights.
+message ProvideDocumentHighlightsRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  uint32 ProviderHandle = 3;
+}
+
+// A document highlight.
+message DocumentHighlight {
+  Range Range = 1;
+  // 0 = Text, 1 = Read, 2 = Write
+  uint32 Kind = 2;
+}
+
+// Response with document highlights.
+message ProvideDocumentHighlightsResponse {
+  repeated DocumentHighlight Highlights = 1;
+}
+
+// Request for document symbols.
+message ProvideDocumentSymbolsRequest {
+  Uri Uri = 1;
+  uint32 ProviderHandle = 2;
+}
+
+// A document symbol.
+message DocumentSymbol {
+  string Name = 1;
+  string Detail = 2;
+  // SymbolKind enum value
+  uint32 Kind = 3;
+  Range Range = 4;
+  Range SelectionRange = 5;
+  repeated DocumentSymbol Children = 6;
+}
+
+// Response with document symbols.
+message ProvideDocumentSymbolsResponse {
+  repeated DocumentSymbol Symbols = 1;
+}
+
+// Request for workspace symbols.
+message ProvideWorkspaceSymbolsRequest {
+  string Query = 1;
+  uint32 ProviderHandle = 2;
+}
+
+// A workspace symbol.
+message WorkspaceSymbol {
+  string Name = 1;
+  // SymbolKind enum value
+  uint32 Kind = 2;
+  Location Location = 3;
+  string ContainerName = 4;
+}
+
+// Response with workspace symbols.
+message ProvideWorkspaceSymbolsResponse {
+  repeated WorkspaceSymbol Symbols = 1;
+}
+
+// Request for rename edits.
+message ProvideRenameEditsRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  string NewName = 3;
+  uint32 ProviderHandle = 4;
+}
+
+// A workspace edit containing edits across multiple files.
+message WorkspaceEdit {
+  repeated TextEditForSave Edits = 1;
+}
+
+// Response with rename edits.
+message ProvideRenameEditsResponse {
+  WorkspaceEdit WorkspaceEdit = 1;
+}
+
+// Request for document formatting.
+message ProvideDocumentFormattingRequest {
+  Uri Uri = 1;
+  uint32 TabSize = 2;
+  bool InsertSpaces = 3;
+  uint32 ProviderHandle = 4;
+}
+
+// Response with formatting edits.
+message ProvideDocumentFormattingResponse {
+  repeated TextEdit Edits = 1;
+}
+
+// Request for range formatting.
+message ProvideDocumentRangeFormattingRequest {
+  Uri Uri = 1;
+  Range Range = 2;
+  uint32 TabSize = 3;
+  bool InsertSpaces = 4;
+  uint32 ProviderHandle = 5;
+}
+
+// Response with range formatting edits.
+message ProvideDocumentRangeFormattingResponse {
+  repeated TextEdit Edits = 1;
+}
+
+// Request to register on-type formatting provider with trigger characters.
+message RegisterOnTypeFormattingProviderRequest {
+  string LanguageSelector = 1;
+  uint32 Handle = 2;
+  string ExtensionId = 3;
+  repeated string TriggerCharacters = 4;
+}
+
+// Request for on-type formatting.
+message ProvideOnTypeFormattingRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  string Character = 3;
+  uint32 TabSize = 4;
+  bool InsertSpaces = 5;
+  uint32 ProviderHandle = 6;
+}
+
+// Response with on-type formatting edits.
+message ProvideOnTypeFormattingResponse {
+  repeated TextEdit Edits = 1;
+}
+
+// Request to register signature help provider with metadata.
+message RegisterSignatureHelpProviderRequest {
+  string LanguageSelector = 1;
+  uint32 Handle = 2;
+  string ExtensionId = 3;
+  repeated string TriggerCharacters = 4;
+  repeated string RetriggerCharacters = 5;
+}
+
+// Request for signature help.
+message ProvideSignatureHelpRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  uint32 ProviderHandle = 3;
+}
+
+// A parameter information.
+message ParameterInformation {
+  string Label = 1;
+  string Documentation = 2;
+}
+
+// A signature information.
+message SignatureInformation {
+  string Label = 1;
+  string Documentation = 2;
+  repeated ParameterInformation Parameters = 3;
+  uint32 ActiveParameter = 4;
+}
+
+// Response with signature help.
+message ProvideSignatureHelpResponse {
+  repeated SignatureInformation Signatures = 1;
+  uint32 ActiveSignature = 2;
+  uint32 ActiveParameter = 3;
+}
+
+// Request for code lenses.
+message ProvideCodeLensesRequest {
+  Uri Uri = 1;
+  uint32 ProviderHandle = 2;
+}
+
+// A code lens.
+message CodeLens {
+  Range Range = 1;
+  string CommandId = 2;
+  string CommandTitle = 3;
+  repeated Argument CommandArguments = 4;
+}
+
+// Response with code lenses.
+message ProvideCodeLensesResponse {
+  repeated CodeLens Lenses = 1;
+}
+
+// Request for folding ranges.
+message ProvideFoldingRangesRequest {
+  Uri Uri = 1;
+  uint32 ProviderHandle = 2;
+}
+
+// A folding range.
+message FoldingRange {
+  uint32 StartLine = 1;
+  uint32 EndLine = 2;
+  // 0 = Comment, 1 = Imports, 2 = Region
+  uint32 Kind = 3;
+}
+
+// Response with folding ranges.
+message ProvideFoldingRangesResponse {
+  repeated FoldingRange Ranges = 1;
+}
+
+// Request for selection ranges.
+message ProvideSelectionRangesRequest {
+  Uri Uri = 1;
+  repeated Position Positions = 2;
+  uint32 ProviderHandle = 3;
+}
+
+// A selection range (nested).
+message SelectionRange {
+  Range Range = 1;
+}
+
+// Response with selection ranges.
+message ProvideSelectionRangesResponse {
+  repeated SelectionRange Ranges = 1;
+}
+
+// Request to register semantic tokens provider with legend.
+message RegisterSemanticTokensProviderRequest {
+  string LanguageSelector = 1;
+  uint32 Handle = 2;
+  string ExtensionId = 3;
+  repeated string TokenTypes = 4;
+  repeated string TokenModifiers = 5;
+}
+
+// Request for semantic tokens.
+message ProvideSemanticTokensRequest {
+  Uri Uri = 1;
+  uint32 ProviderHandle = 2;
+}
+
+// Response with semantic tokens (encoded as delta array per LSP spec).
+message ProvideSemanticTokensResponse {
+  // Flat array: [deltaLine, deltaStartChar, length, tokenType, tokenModifiers, ...]
+  repeated uint32 Data = 1;
+  uint32 ResultId = 2;
+}
+
+// Request for inlay hints.
+message ProvideInlayHintsRequest {
+  Uri Uri = 1;
+  Range Range = 2;
+  uint32 ProviderHandle = 3;
+}
+
+// An inlay hint.
+message InlayHint {
+  Position Position = 1;
+  string Label = 2;
+  // 0 = Type, 1 = Parameter
+  uint32 Kind = 3;
+  string Tooltip = 4;
+  bool PaddingLeft = 5;
+  bool PaddingRight = 6;
+}
+
+// Response with inlay hints.
+message ProvideInlayHintsResponse {
+  repeated InlayHint Hints = 1;
+}
+
+// A type hierarchy item (used for both supertypes and subtypes).
+message TypeHierarchyItem {
+  string Name = 1;
+  uint32 Kind = 2;
+  Uri Uri = 3;
+  Range Range = 4;
+  Range SelectionRange = 5;
+  string Detail = 6;
+}
+
+// Request for type hierarchy.
+message ProvideTypeHierarchyRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  uint32 ProviderHandle = 3;
+  TypeHierarchyItem Item = 4;
+}
+
+// Response with type hierarchy items.
+message ProvideTypeHierarchyResponse {
+  repeated TypeHierarchyItem Items = 1;
+}
+
+// A call hierarchy item (used for both incoming and outgoing calls).
+message CallHierarchyItem {
+  string Name = 1;
+  uint32 Kind = 2;
+  Uri Uri = 3;
+  Range Range = 4;
+  Range SelectionRange = 5;
+  string Detail = 6;
+}
+
+// Request for call hierarchy.
+message ProvideCallHierarchyRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  uint32 ProviderHandle = 3;
+  CallHierarchyItem Item = 4;
+}
+
+// A call hierarchy call.
+message CallHierarchyCall {
+  CallHierarchyItem FromOrTo = 1;
+  repeated Range FromRanges = 2;
+}
+
+// Response with call hierarchy.
+message ProvideCallHierarchyResponse {
+  repeated CallHierarchyCall Calls = 1;
+}
+
+// Request for linked editing ranges.
+message ProvideLinkedEditingRangesRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  uint32 ProviderHandle = 3;
+}
+
+// Response with linked editing ranges.
+message ProvideLinkedEditingRangesResponse {
+  repeated Range Ranges = 1;
+  string WordPattern = 2;
+}
+
+// ==================== Window Operations (Extended) Messages ====================
+
+// A quick pick item.
+message QuickPickItem {
+  string Label = 1;
+  string Description = 2;
+  string Detail = 3;
+  bool Picked = 4;
+  bool AlwaysShow = 5;
+}
+
+// Request to show a quick pick.
+message ShowQuickPickRequest {
+  repeated QuickPickItem Items = 1;
+  string Placeholder = 2;
+  bool CanPickMany = 3;
+  string Title = 4;
+}
+
+// Response with selected quick pick item(s).
+message ShowQuickPickResponse {
+  repeated uint32 SelectedIndices = 1;
+}
+
+// Request to show an input box.
+message ShowInputBoxRequest {
+  string Prompt = 1;
+  string Value = 2;
+  string Placeholder = 3;
+  string Title = 4;
+  bool Password = 5;
+}
+
+// Response with input box value.
+message ShowInputBoxResponse {
+  string Value = 1;
+  bool Cancelled = 2;
+}
+
+// Progress location.
+enum ProgressLocation {
+  PROGRESS_LOCATION_NOTIFICATION = 0;
+  PROGRESS_LOCATION_SOURCE_CONTROL = 1;
+  PROGRESS_LOCATION_WINDOW = 2;
+}
+
+// Request to show a progress indicator.
+message ShowProgressRequest {
+  uint32 Handle = 1;
+  ProgressLocation Location = 2;
+  string Title = 3;
+  bool Cancellable = 4;
+  string ExtensionId = 5;
+}
+
+// Response acknowledging progress start.
+message ShowProgressResponse {
+  uint32 Handle = 1;
+}
+
+// Request to report progress.
+message ReportProgressRequest {
+  uint32 Handle = 1;
+  string Message = 2;
+  uint32 Increment = 3;
+}
+
+// Request to post a message to a webview.
+message PostWebviewMessageRequest {
+  uint32 Handle = 1;
+  oneof Message {
+    string StringMessage = 2;
+    bytes BytesMessage = 3;
+  }
+}
+
+// Request to dispose a webview panel.
+message DisposeWebviewPanelRequest {
+  uint32 Handle = 1;
+}
+
+// Request to open an external URI.
+message OpenExternalRequest {
+  string Uri = 1;
+}
+
+// ==================== File System (Extended) Messages ====================
+
+// Request to delete a file.
+message DeleteFileRequest {
+  Uri Uri = 1;
+  bool Recursive = 2;
+  bool UseTrash = 3;
+}
+
+// Request to rename a file.
+message RenameFileRequest {
+  Uri Source = 1;
+  Uri Target = 2;
+  bool Overwrite = 3;
+}
+
+// Request to copy a file.
+message CopyFileRequest {
+  Uri Source = 1;
+  Uri Target = 2;
+  bool Overwrite = 3;
+}
+
+// Request to create a directory.
+message CreateDirectoryRequest {
+  Uri Uri = 1;
+}
+
+// ==================== Output Channel Messages ====================
+
+// Request to create an output channel.
+message CreateOutputChannelRequest {
+  string Name = 1;
+  string LanguageId = 2;
+  string ExtensionId = 3;
+}
+
+// Response with channel ID.
+message CreateOutputChannelResponse {
+  string ChannelId = 1;
+}
+
+// Request to append to an output channel.
+message AppendOutputRequest {
+  string ChannelId = 1;
+  string Value = 2;
+}
+
+// Request to clear an output channel.
+message ClearOutputRequest {
+  string ChannelId = 1;
+}
+
+// Request to show an output channel.
+message ShowOutputRequest {
+  string ChannelId = 1;
+  bool PreserveFocus = 2;
+}
+
+// Request to dispose an output channel.
+message DisposeOutputRequest {
+  string ChannelId = 1;
+}
+
+// ==================== Task Messages ====================
+
+// A task definition.
+message TaskDefinition {
+  string Type = 1;
+  map<string, string> Attributes = 2;
+}
+
+// Request to register a task provider.
+message RegisterTaskProviderRequest {
+  string Type = 1;
+  string ExtensionId = 2;
+}
+
+// Request to execute a task.
+message ExecuteTaskRequest {
+  TaskDefinition Definition = 1;
+  string Name = 2;
+  string Source = 3;
+}
+
+// Response with task execution.
+message ExecuteTaskResponse {
+  uint32 TaskId = 1;
+  bool Success = 2;
+}
+
+// Request to terminate a task.
+message TerminateTaskRequest {
+  uint32 TaskId = 1;
+}
+
+// ==================== Authentication Messages ====================
+
+// Request to get an authentication session.
+message GetAuthenticationSessionRequest {
+  string ProviderId = 1;
+  repeated string Scopes = 2;
+  string ExtensionId = 3;
+  bool CreateIfNone = 4;
+  bool ClearSessionPreference = 5;
+}
+
+// Response with authentication session.
+message GetAuthenticationSessionResponse {
+  string Id = 1;
+  string AccessToken = 2;
+  string AccountLabel = 3;
+  string AccountId = 4;
+  repeated string Scopes = 5;
+}
+
+// Request to register an authentication provider.
+message RegisterAuthenticationProviderRequest {
+  string Id = 1;
+  string Label = 2;
+  bool SupportsMultipleAccounts = 3;
+  string ExtensionId = 4;
+}
+
+// ==================== Debug (Extended) Messages ====================
+
+// Request to stop debugging.
+message StopDebuggingRequest {
+  string SessionId = 1;
+}
+
+// ==================== Extension Messages ====================
+
+// Request to get an extension.
+message GetExtensionRequest {
+  string ExtensionId = 1;
+}
+
+// Extension information.
+message ExtensionInfo {
+  string Id = 1;
+  string DisplayName = 2;
+  string Version = 3;
+  bool IsActive = 4;
+  string ExtensionPath = 5;
+}
+
+// Response with extension info.
+message GetExtensionResponse {
+  ExtensionInfo Extension = 1;
+}
+
+// Response with all extensions.
+message GetAllExtensionsResponse {
+  repeated ExtensionInfo Extensions = 1;
+}
+
+// ==================== Terminal (Extended) Messages ====================
+
+// Request to resize a terminal.
+message ResizeTerminalRequest {
+  uint32 TerminalId = 1;
+  uint32 Cols = 2;
+  uint32 Rows = 3;
+}
+
+// ==================== Configuration (Extended) Messages ====================
+
+// Request to get a configuration value.
+message GetConfigurationRequest {
+  string Section = 1;
+  string Key = 2;
+}
+
+// Response with configuration value.
+message GetConfigurationResponse {
+  bytes Value = 1;
+}
+
+// ==================== Inline Completion Messages ====================
+
+// Context passed when requesting inline completions.
+message InlineCompletionContext {
+  // 0 = Invoke (user explicitly triggered), 1 = Automatic (cursor pause)
+  int32 TriggerKind = 1;
+  // JSON-serialised SelectedCompletionInfo if a completion is already showing.
+  string SelectedCompletionInfo = 2;
+}
+
+// Request for inline completion items (e.g. GitHub Copilot ghost text).
+message ProvideInlineCompletionRequest {
+  Uri Uri = 1;
+  Position Position = 2;
+  uint32 ProviderHandle = 3;
+  InlineCompletionContext Context = 4;
+}
+
+// A single inline completion suggestion.
+message InlineCompletionItem {
+  // The text to insert. May be a plain string or a SnippetString.
+  string InsertText = 1;
+  // The range to replace (optional; defaults to cursor position if empty).
+  Range Range = 2;
+  // Command to execute after accepting the completion (e.g. trigger suggest).
+  string Command = 3;
+  // Whether InsertText is a snippet string.
+  bool IsSnippet = 4;
+}
+
+// Response carrying inline completion items.
+message ProvideInlineCompletionResponse {
+  repeated InlineCompletionItem Items = 1;
+}
