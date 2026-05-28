@@ -6,10 +6,9 @@
 //!
 //! - [`MarkShutdown::Fn`] / [`IsShuttingDown::Fn`] - process-wide flag.
 //! - [`NotificationFrame::Struct`] - broadcast payload.
-//! - [`SubscribeNotifications::Fn`] / [`SubscriberCount::Fn`] - fan-out
-//!   access.
-//! - [`ConnectToSideCar::Fn`] / [`DisconnectFromSideCar::Fn`] - pool
-//!   lifecycle. Driven by [`TryConnectSingle::Fn`] (single attempt).
+//! - [`SubscribeNotifications::Fn`] / [`SubscriberCount::Fn`] - fan-out access.
+//! - [`ConnectToSideCar::Fn`] / [`DisconnectFromSideCar::Fn`] - pool lifecycle.
+//!   Driven by [`TryConnectSingle::Fn`] (single attempt).
 //! - [`IsClientConnected::Fn`] / [`WaitForClientConnection::Fn`] -
 //!   boot-race-friendly readiness checks.
 //! - [`CheckSideCarHealth::Fn`] - pool + metadata health summary.
@@ -17,14 +16,13 @@
 //!   optional streaming-multiplexer fast path under `LAND_VINE_STREAMING=1`
 //!   when the `multiplexer` cargo feature is enabled.
 //! - [`PublishNotification::Fn`] (private) and
-//!   [`PublishNotificationFromMux::Fn`] (`pub(crate)`) - broadcast
-//!   publishers.
+//!   [`PublishNotificationFromMux::Fn`] (`pub(crate)`) - broadcast publishers.
 //! - [`Shared`] - module-private state (statics, helpers, constants).
 //!
 //! ## Behaviours
 //!
-//! - 3-attempt exponential backoff (50 ms / 100 ms / 200 ms base schedule)
-//!   in [`ConnectToSideCar::Fn`].
+//! - 3-attempt exponential backoff (50 ms / 100 ms / 200 ms base schedule) in
+//!   [`ConnectToSideCar::Fn`].
 //! - `Arc<Notify>` connection-ready wake-up (no polling) in
 //!   [`WaitForClientConnection::Fn`].
 //! - 5 000 ms unary default timeout, bounded by
@@ -65,4 +63,4 @@ pub mod WaitForClientConnection;
 
 pub(crate) mod PublishNotification;
 
-pub(crate) mod Shared;
+pub mod Shared;
