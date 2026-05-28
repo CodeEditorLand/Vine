@@ -5,4 +5,6 @@
 
 use crate::Client::{NotificationFrame, Shared};
 
-pub fn Fn() -> tokio::sync::broadcast::Receiver<NotificationFrame::Struct> { Shared::NOTIFICATION_BROADCAST.subscribe() }
+pub fn Fn() -> tokio::sync::broadcast::Receiver<NotificationFrame::Struct> {
+	Shared::NOTIFICATION_BROADCAST.subscribe()
+}

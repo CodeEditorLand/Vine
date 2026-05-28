@@ -20,12 +20,12 @@
 //!   this module). Vine treats application state as opaque; embedders decide
 //!   what their state exposes. Sub-traits live in `Host::State`.
 //! - `emit_to_renderer` is the single entry point for "send a value to the
-//!   workbench / Sky window." Mountain wires it to `tauri::WebviewWindow::emit`;
-//!   Air leaves it as a no-op (no renderer).
+//!   workbench / Sky window." Mountain wires it to
+//!   `tauri::WebviewWindow::emit`; Air leaves it as a no-op (no renderer).
 //! - `ipc_provider` returns `Arc<dyn IPCProvider>`. This is the eventual
 //!   integration point with `CommonLibrary::IPC::IPCProvider`. Until the
-//!   Common-trait wiring lands, the local `IPCProvider` trait below stands
-//!   in as a forward-compatible placeholder.
+//!   Common-trait wiring lands, the local `IPCProvider` trait below stands in
+//!   as a forward-compatible placeholder.
 //!
 //! ## Stability
 //!

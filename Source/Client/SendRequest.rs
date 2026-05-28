@@ -78,8 +78,8 @@ pub async fn Fn(
 						Err(Error) => {
 							dev_log!(
 								"grpc",
-								"warn: [VineClient::SendRequest] streaming send failed for '{}::{}' ({}); falling back to \
-								 unary",
+								"warn: [VineClient::SendRequest] streaming send failed for '{}::{}' ({}); falling \
+								 back to unary",
 								SideCarIdentifier,
 								Method,
 								Error

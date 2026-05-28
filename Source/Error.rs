@@ -178,10 +178,12 @@ impl From<tonic::Status> for VineError {
 				VineError::RequestCanceled { SideCarIdentifier:"unknown".to_string(), MethodName:"unknown".to_string() }
 			},
 
-			tonic::Code::Unavailable => VineError::ConnectionFailed {
-				SideCarIdentifier:"unknown".to_string(),
-				Address:"unknown".to_string(),
-				Reason:Status.message().to_string(),
+			tonic::Code::Unavailable => {
+				VineError::ConnectionFailed {
+					SideCarIdentifier:"unknown".to_string(),
+					Address:"unknown".to_string(),
+					Reason:Status.message().to_string(),
+				}
 			},
 
 			_ => VineError::RPCError(Status.to_string()),

@@ -30,16 +30,16 @@
 //! 1. **Synthesis** (this commit set) - `Element/Vine` exposes the canonical
 //!    protocol surface as a standalone crate. Mountain's in-tree module is
 //!    untouched.
-//! 2. **Consume** (next session) - Mountain gains a `MountainVineHost` impl
-//!    and re-exports `Vine::*` from `Source/Vine/` as a `#[deprecated]` shim.
-//!    Air's `Source/Vine/` collapses to the same shim shape.
+//! 2. **Consume** (next session) - Mountain gains a `MountainVineHost` impl and
+//!    re-exports `Vine::*` from `Source/Vine/` as a `#[deprecated]` shim. Air's
+//!    `Source/Vine/` collapses to the same shim shape.
 //! 3. **Drop shim** (after Cocoon TS regen + Air client conversion verified) -
 //!    Mountain stops re-exporting; `Element/Vine` is the only home.
 //!
 //! ## Module layout
 //!
-//! - [`Error`] - canonical [`VineError`](Error::VineError) variants and
-//!   `From` conversions for `serde_json`, `tonic::transport`, `tonic::Status`,
+//! - [`Error`] - canonical [`VineError`](Error::VineError) variants and `From`
+//!   conversions for `serde_json`, `tonic::transport`, `tonic::Status`,
 //!   `http::uri::InvalidUri`, and `std::net::AddrParseError`.
 //! - [`Host`] - the `VineHost` trait + `IPCProvider` + `ApplicationStateAccess`
 //!   seam between Vine and its embedder runtime.
@@ -110,6 +110,5 @@ pub const DefaultAirAddress:&str = "[::1]:50053";
 /// consumers can write `use Vine::VineError;` without spelling out the
 /// `Error::` module path.
 pub use Error::{Result, VineError};
-
 /// Re-export the embedder seam types at the crate root for the same reason.
 pub use Host::{ApplicationStateAccess, IPCProvider, VineHost};

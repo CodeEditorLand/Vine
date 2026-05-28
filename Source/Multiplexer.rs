@@ -14,7 +14,8 @@
 //! Synthesised from `Mountain/Source/Vine/Multiplexer.rs` per
 //! `.hermes/plan/Vine-Synthesis-Audit.md`. Path-only differences from
 //! Mountain: `super::Error::VineError` → `crate::Error::VineError`,
-//! `super::Client::PublishNotificationFromMux` → `crate::Client::PublishNotificationFromMux`.
+//! `super::Client::PublishNotificationFromMux` →
+//! `crate::Client::PublishNotificationFromMux`.
 
 use std::{
 	collections::HashMap,

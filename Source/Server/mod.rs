@@ -1,21 +1,31 @@
 //! # Vine::Server
 //!
-//! Server-side gRPC scaffolding for embedders that *host* Vine services
-//! (Mountain hosting `MountainService`, Cocoon-Rust hosting `CocoonService`,
-//! Air hosting `AirService`, …).
+//! Server-side gRPC scaffolding shared by every embedder that hosts a Vine
+//! service: Mountain (`MountainService`), Cocoon-Rust (future), Air
+//! (`AirService`). The pieces below are the generic boilerplate that every
+//! bind site needs; concrete service implementations stay in their owning
+//! crate (Mountain hosts `MountainVinegRPCService`, Air hosts
+//! `AirVinegRPCService`).
 //!
 //! ## Synthesis status (2026-05-28)
 //!
-//! This submodule is the destination of `Mountain/Source/Vine/Server/`. The
-//! current Mountain inventory (kept as source of truth until the migration
-//! phase lands) is:
+//! - [`Constants`] - default ports / timeouts / message-size cap.
+//! - [`ValidateSocketAddress`] - port-and-format pre-flight check (was
+//!   `Mountain::Vine::Server::Initialize::ValidateSocketAddress`).
+//! - [`SpawnBindTask`] - the detached `tokio::spawn` that runs
+//!   `Router::serve(Address)` with consistent dev-log instrumentation
+//!   (extracted from `Mountain::Vine::Server::Initialize::Initialize`).
 //!
-//! - `Source/Vine/Server/MountainVinegRPCService.rs` - top-level service
-//!   implementation, `SendRequestToSideCar` envelope, notification fan-out
-//! - `Source/Vine/Server/Initialize.rs` - server bootstrap + bind
-//! - `Source/Vine/Server/Notification/*` (~90 files) - one file per
-//!   notification kind. The atomization is part of the stable surface;
-//!   **do not collapse handlers into mega-modules during port**.
+//! ## Pending synthesis
+//!
+//! `Mountain/Source/Vine/Server/MountainVinegRPCService.rs` and the ~90
+//! `Source/Vine/Server/Notification/*` handlers are intentionally NOT
+//! ported in this slice. Those depend on Mountain-specific runtime types
+//! (`Arc<MountainEnvironment>`, `tauri::AppHandle`, `ApplicationRunTime`)
+//! and the right abstraction (a `VineHost` extension carrying the provider
+//! surface each handler reaches into) is still being designed. The
+//! atomization is part of the stable surface; **do not collapse handlers
+//! into mega-modules during port**.
 //!
 //! Critical perf work that must survive the synthesis port:
 //!
@@ -25,14 +35,26 @@
 //! - `EnqueueTreeViewEmit.rs` (in `RPC/CocoonService/TreeView/`) - batched
 //!   `sky://tree-view/create` emit with `views: [...]` payload
 //!
-//! The synthesised handlers operate on `&dyn crate::Host::VineHost` instead
-//! of a concrete Mountain struct, so Air and any future Rust client can host
-//! the same handlers against their own `VineHost` impl.
+//! ## Embedder call pattern
 //!
-//! Until the port runs, this module is intentionally empty. The cargo feature
-//! `server` (enabled by default) keeps the surface area available for
-//! consumers that opt into server-side compilation.
+//! ```ignore
+//! use Vine::Server::{Constants, SpawnBindTask, ValidateSocketAddress};
+//!
+//! let Address = ValidateSocketAddress::Fn("[::1]:50051", "MountainService")?;
+//! let Service = MyMountainServiceImpl::new(state);
+//! let Wrapped = MountainServiceServer::new(Service)
+//!     .max_decoding_message_size(Constants::MAX_MESSAGE_SIZE)
+//!     .max_encoding_message_size(Constants::MAX_MESSAGE_SIZE);
+//! let Router  = tonic::transport::Server::builder().add_service(Wrapped);
+//! SpawnBindTask::Fn("MountainService".to_string(), Address, Router);
+//! ```
 
-// Intentionally empty - populated by Track-B task #1 Phase 2 follow-up
-// session. See `.hermes/plan/Vine-Synthesis-Audit.md` for the file inventory
-// and the perf-critical patterns each handler must preserve.
+pub mod Constants;
+
+pub mod Notification;
+
+pub mod SpawnBindTask;
+
+pub mod SpawnBindTaskWithShutdown;
+
+pub mod ValidateSocketAddress;
