@@ -153,14 +153,9 @@ pub mod UnregisterCommand;
 
 // --- Provider unregistration ---
 
-// Unregister atoms with non-trivial logic only. Pure variants
-// (authentication, debug_adapter, debug_configuration, external_uri_opener,
-// remote_authority_resolver, task) call UnregisterByHandle directly from
-// Mountain's dispatcher - no wrapper file needed.
-pub mod UnregisterFileSystemProvider;
-
-pub mod UnregisterUriHandler;
-
+// Only the atom with genuine multi-step logic: DJB-31 handle recomputation,
+// UnregisterProvider, sky relay, and log. Scheme-log-only variants
+// (file_system, uri_handler) are inlined directly in Mountain's dispatcher.
 pub mod UnregisterScmProvider;
 
 // --- Terminal lifecycle ---
