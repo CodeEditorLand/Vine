@@ -10,15 +10,15 @@
 //!
 //! ## Design notes
 //!
-//! - [`ApplicationState`](VineHost::ApplicationState) returns
-//!   `&dyn ApplicationStateAccess`. Vine treats application state as
-//!   opaque; embedders decide what their state exposes via embedder-local
-//!   sub-traits and downcasting.
-//! - [`EmitToRenderer`](VineHost::EmitToRenderer) is the single entry point
-//!   for "send a value to the workbench / Sky window." Mountain wires it to
+//! - [`ApplicationState`](VineHost::ApplicationState) returns `&dyn
+//!   ApplicationStateAccess`. Vine treats application state as opaque;
+//!   embedders decide what their state exposes via embedder-local sub-traits
+//!   and downcasting.
+//! - [`EmitToRenderer`](VineHost::EmitToRenderer) is the single entry point for
+//!   "send a value to the workbench / Sky window." Mountain wires it to
 //!   `tauri::WebviewWindow::emit`; Air leaves it as a no-op (no renderer).
-//! - [`IPCProvider`](VineHost::IPCProvider) returns `Arc<dyn IPCProvider>`
-//!   for handlers that need to re-enter the IPC bus.
+//! - [`IPCProvider`](VineHost::IPCProvider) returns `Arc<dyn IPCProvider>` for
+//!   handlers that need to re-enter the IPC bus.
 //!
 //! ## Stability
 //!
@@ -59,7 +59,7 @@ pub trait IPCProvider: Send + Sync {
 /// Vine.
 pub trait VineHost: Send + Sync {
 	/// Returns the embedder's application state for handler use.
-	fn ApplicationState(&self) -> &(dyn ApplicationStateAccess);
+	fn ApplicationState(&self) -> &dyn ApplicationStateAccess;
 
 	/// Emits a JSON event on the named renderer channel. No-op for embedders
 	/// that have no renderer (e.g. Air).

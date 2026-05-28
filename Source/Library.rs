@@ -15,16 +15,16 @@
 //!
 //! - **Mountain** (Tauri editor host) - hosts the `MountainService` gRPC
 //!   server; routes notifications from Cocoon and Air into Tauri's renderer.
-//! - **Cocoon** (Node.js extension host) - speaks Vine to invoke VS
-//!   Code-shaped operations on Mountain.
+//! - **Cocoon** (Node.js extension host) - speaks Vine to invoke VS Code-shaped
+//!   operations on Mountain.
 //! - **Air** (background daemon) - speaks Vine as a client to query Mountain
 //!   for editor state when running indexing / update / download tasks; also
 //!   hosts its own `AirService` gRPC server on `[::1]:50053`.
 //!
 //! ## Module layout
 //!
-//! - [`Error`] - canonical [`VineError`](Error::VineError) variants and
-//!   `From` conversions for `serde_json`, `tonic::transport`, `tonic::Status`,
+//! - [`Error`] - canonical [`VineError`](Error::VineError) variants and `From`
+//!   conversions for `serde_json`, `tonic::transport`, `tonic::Status`,
 //!   `http::uri::InvalidUri`, and `std::net::AddrParseError`.
 //! - [`Host`] - the [`VineHost`](Host::VineHost) trait,
 //!   [`IPCProvider`](Host::IPCProvider), and
@@ -33,11 +33,11 @@
 //! - [`Generated`] - prost-built message types + tonic clients and servers
 //!   produced from [`Proto/Vine.proto`](../Proto/Vine.proto) by `build.rs`.
 //! - [`Client`] - client building blocks (cargo feature `client`).
-//! - [`Server`] - server scaffolding + notification handler tree (cargo
-//!   feature `server`).
+//! - [`Server`] - server scaffolding + notification handler tree (cargo feature
+//!   `server`).
 //! - [`Multiplexer`] - bidirectional envelope multiplexer
-//!   (`OpenChannelFromMountain` / `OpenChannelFromCocoon` per
-//!   LAND-PATCH B7-S6 P14.1; cargo feature `multiplexer`).
+//!   (`OpenChannelFromMountain` / `OpenChannelFromCocoon` per LAND-PATCH B7-S6
+//!   P14.1; cargo feature `multiplexer`).
 //!
 //! ## Cargo features
 //!
@@ -95,10 +95,8 @@ pub const DefaultCocoonAddress:&str = "[::1]:50052";
 /// Default Air Vine server bind address.
 pub const DefaultAirAddress:&str = "[::1]:50053";
 
-/// Re-export the canonical error type at the crate root so downstream
-/// consumers can write `use Vine::VineError;` without spelling out the
-/// `Error::` module path.
-pub use Error::{Result, VineError};
-
-/// Re-export the embedder seam types at the crate root for the same reason.
-pub use Host::{ApplicationStateAccess, IPCProvider, VineHost};
+// External consumers reach the canonical names via
+// `::Vine::Error::{Result, VineError}` and
+// `::Vine::Host::{VineHost, IPCProvider, ApplicationStateAccess}` - the
+// canonical paths live exactly where the items are declared, with no
+// crate-root re-exports.
