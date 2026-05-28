@@ -178,3 +178,11 @@ pub mod RegisterScmResourceGroup;
 // --- Language-feature provider registration ---
 
 pub mod RegisterLanguageProvider;
+
+// --- Webview lifecycle ---
+
+pub mod WebviewLifecycle;
+
+// --- SCM group update ---
+
+pub mod UpdateScmGroup;

@@ -144,4 +144,11 @@ pub trait VineHost: Send + Sync {
 	/// inserted; `false` for unknown type names (no-op embedders always return
 	/// `false`).
 	fn RegisterLanguageProvider(&self, Handle:u32, TypeName:&str, Payload:&Value) -> bool;
+
+	/// Persists a resource-state snapshot for an SCM group in the embedder's
+	/// SCM marker registry. `ScmHandle` is the provider handle,
+	/// `GroupId` identifies the group within that provider, and
+	/// `ResourceStates` is the raw JSON array of resource state objects.
+	/// No-op for embedders without SCM marker support.
+	fn UpdateScmGroupMarkers(&self, ScmHandle:u32, GroupId:&str, ResourceStates:&Value);
 }
