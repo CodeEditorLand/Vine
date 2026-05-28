@@ -11,10 +11,10 @@
 //! - [`ValidateSocketAddress`] - port-and-format pre-flight check.
 //! - [`SpawnBindTask`] - detached `tokio::spawn` that runs
 //!   `Router::serve(Address)` until process termination.
-//! - [`SpawnBindTaskWithShutdown`] - same shape but takes a shutdown
-//!   future so daemons can drain in-flight calls before exit.
-//! - [`Notification`] - one-entry-point-per-file Cocoon → Mountain
-//!   notification handlers dispatched against [`crate::Host::VineHost`].
+//! - [`SpawnBindTaskWithShutdown`] - same shape but takes a shutdown future so
+//!   daemons can drain in-flight calls before exit.
+//! - [`Notification`] - one-entry-point-per-file Cocoon → Mountain notification
+//!   handlers dispatched against [`crate::Host::VineHost`].
 //!
 //! ## Embedder call pattern
 //!

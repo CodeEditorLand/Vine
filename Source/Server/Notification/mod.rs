@@ -11,8 +11,8 @@
 //! - Wire string `outputChannel.create` → atom file `OutputChannelCreate.rs`
 //!   with `pub async fn OutputChannelCreate(...)`.
 //! - Snake_case / dotted wire strings collapse to PascalCase file names.
-//! - The function name mirrors the file name verbatim so a grep for
-//!   `fn <Name>` lands in exactly one place.
+//! - The function name mirrors the file name verbatim so a grep for `fn <Name>`
+//!   lands in exactly one place.
 //!
 //! ## Signature contract
 //!
@@ -27,12 +27,12 @@
 //!
 //! - `Host` is the embedder seam. For pure renderer-event relays it gives
 //!   access to `EmitToRenderer`; richer handlers reach into the embedder's
-//!   application state via `Host.ApplicationState()` and downcasting to
-//!   the embedder-specific sub-trait.
-//! - `Parameter` is the raw JSON payload Cocoon sent; each atom extracts
-//!   the fields it needs and validates locally.
-//! - Return `()` - atoms that need to fail just log via `dev_log!`; the
-//!   caller always returns `Empty` to Cocoon because notifications are
+//!   application state via `Host.ApplicationState()` and downcasting to the
+//!   embedder-specific sub-trait.
+//! - `Parameter` is the raw JSON payload Cocoon sent; each atom extracts the
+//!   fields it needs and validates locally.
+//! - Return `()` - atoms that need to fail just log via `dev_log!`; the caller
+//!   always returns `Empty` to Cocoon because notifications are
 //!   fire-and-forget.
 
 pub mod Support;
