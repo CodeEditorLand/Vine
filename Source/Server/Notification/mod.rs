@@ -162,3 +162,19 @@ pub mod UnregisterDebugConfigurationProvider;
 pub mod UnregisterExternalUriOpener;
 
 pub mod UnregisterFileSystemProvider;
+
+// --- Terminal lifecycle ---
+
+pub mod TerminalLifecycle;
+
+pub mod WindowCreateTerminal;
+
+// --- SCM provider registration ---
+
+pub mod RegisterScmProvider;
+
+pub mod RegisterScmResourceGroup;
+
+// --- Language-feature provider registration ---
+
+pub mod RegisterLanguageProvider;

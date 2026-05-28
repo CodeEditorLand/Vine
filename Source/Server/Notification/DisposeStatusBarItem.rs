@@ -1,5 +1,6 @@
 //! Cocoon → `disposeStatusBarItem` notification.
-//! Forwarded onto `sky://statusbar/dispose-entry` so the Sky shim removes the DOM node.
+//! Forwarded onto `sky://statusbar/dispose-entry` so the Sky shim removes the
+//! DOM node.
 
 use serde_json::{Value, json};
 

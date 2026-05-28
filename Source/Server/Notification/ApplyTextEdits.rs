@@ -11,11 +11,7 @@ use crate::{Host::VineHost, dev_log};
 pub async fn ApplyTextEdits(Host:&dyn VineHost, Parameter:&Value) {
 	let Uri = Parameter.get("uri").and_then(Value::as_str).unwrap_or("").to_string();
 
-	let EditCount = Parameter
-		.get("edits")
-		.and_then(Value::as_array)
-		.map(|A| A.len())
-		.unwrap_or(0);
+	let EditCount = Parameter.get("edits").and_then(Value::as_array).map(|A| A.len()).unwrap_or(0);
 
 	dev_log!("model", "[ApplyTextEdits] uri={} edits={}", Uri, EditCount);
 

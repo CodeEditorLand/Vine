@@ -82,9 +82,7 @@ pub async fn DecorationTypeLifecycle(Host:&dyn VineHost, MethodName:&str, Parame
 
 	let Ch = GetOrInitChannel();
 
-	let _ = Ch.Sender.send(DecorationItem {
-		Emitter:Host.RendererEmitter(),
-		Channel:EventName,
-		Payload:Parameter.clone(),
-	});
+	let _ =
+		Ch.Sender
+			.send(DecorationItem { Emitter:Host.RendererEmitter(), Channel:EventName, Payload:Parameter.clone() });
 }

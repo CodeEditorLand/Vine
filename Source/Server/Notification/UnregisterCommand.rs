@@ -19,8 +19,5 @@ pub async fn UnregisterCommand(Host:&dyn VineHost, Parameter:&Value) {
 
 	dev_log!("command-register", "[UnregisterCommand] id={}", CommandId);
 
-	Host.EmitToRenderer(
-		"sky://command/unregister",
-		json!({ "id": CommandId, "commandId": CommandId }),
-	);
+	Host.EmitToRenderer("sky://command/unregister", json!({ "id": CommandId, "commandId": CommandId }));
 }

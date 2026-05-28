@@ -15,11 +15,11 @@
 //! ## Why this is safe
 //!
 //! - Per-channel buffer means ordering is preserved within a channel.
-//! - Append-only semantics mean partial-payload visibility cannot expose
-//!   torn writes - the buffered text is always a prefix of the eventual
-//!   full payload.
-//! - The flusher task running on the tokio runtime keeps the same
-//!   back-pressure shape the per-call path had.
+//! - Append-only semantics mean partial-payload visibility cannot expose torn
+//!   writes - the buffered text is always a prefix of the eventual full
+//!   payload.
+//! - The flusher task running on the tokio runtime keeps the same back-pressure
+//!   shape the per-call path had.
 //!
 //! ## Disable hook
 //!

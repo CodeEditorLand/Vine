@@ -12,10 +12,13 @@ pub async fn StatusBarMessage(Host:&dyn VineHost, Parameter:&Value) {
 
 	let HideAfter = Parameter.get("hideAfter").and_then(Value::as_u64);
 
-	Host.EmitToRenderer("sky://statusbar/set-message", json!({
-		"text": Text,
-		"hideAfter": HideAfter,
-	}));
+	Host.EmitToRenderer(
+		"sky://statusbar/set-message",
+		json!({
+			"text": Text,
+			"hideAfter": HideAfter,
+		}),
+	);
 
 	dev_log!("grpc", "[StatusBar] message len={}", Text.len());
 }

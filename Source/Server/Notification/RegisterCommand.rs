@@ -3,9 +3,9 @@
 //! 1. Insert a `Proxied` handler into the embedder's command dispatch registry
 //!    via `VineHost::RegisterCommandInRegistry` (synchronous; allows
 //!    `commands.executeCommand` to route back to Cocoon immediately).
-//! 2. Push the command descriptor into a channel-drain coalescer that emits
-//!    one `sky://command/register` batch per 16 ms frame, avoiding 1000+
-//!    individual renderer events during extension boot.
+//! 2. Push the command descriptor into a channel-drain coalescer that emits one
+//!    `sky://command/register` batch per 16 ms frame, avoiding 1000+ individual
+//!    renderer events during extension boot.
 //!
 //! The coalescer holds a captured `Arc<dyn RendererEmitter>` so the drain
 //! task never borrows the full host across await points.
@@ -74,18 +74,12 @@ pub async fn RegisterCommand(Host:&dyn VineHost, Parameter:&Value) {
 		return;
 	}
 
-	let Kind = Parameter
-		.get("kind")
-		.and_then(Value::as_str)
-		.unwrap_or("command")
-		.to_string();
+	let Kind = Parameter.get("kind").and_then(Value::as_str).unwrap_or("command").to_string();
 
 	// Synchronous registry insert so executeCommand works immediately.
 	Host.RegisterCommandInRegistry(CommandId, "cocoon-main");
 
 	// Queue for batched Sky emit.
 	let Ch = GetOrInitChannel(Host.RendererEmitter());
-	let _ = Ch
-		.Sender
-		.send(json!({ "id": CommandId, "commandId": CommandId, "kind": Kind }));
+	let _ = Ch.Sender.send(json!({ "id": CommandId, "commandId": CommandId, "kind": Kind }));
 }

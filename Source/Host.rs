@@ -50,7 +50,8 @@ pub trait IPCProvider: Send + Sync {
 	fn SendRequest(&self, Channel:&str, Payload:Value) -> futures::future::BoxFuture<'_, crate::Error::Result<Value>>;
 
 	/// Fire-and-forget notification on the named channel.
-	/// `Method` is the gRPC method name inside the channel (e.g. `"$onDidChangeBreakpoints"`).
+	/// `Method` is the gRPC method name inside the channel (e.g.
+	/// `"$onDidChangeBreakpoints"`).
 	fn SendNotification(&self, Channel:&str, Method:&str, Payload:Value);
 }
 
@@ -96,11 +97,51 @@ pub trait VineHost: Send + Sync {
 	fn UnregisterProvider(&self, Handle:u32);
 
 	/// Inserts a proxied command into the embedder's command dispatch registry.
-	/// `SideCarIdentifier` is the gRPC sidecar to proxy to (e.g. `"cocoon-main"`).
-	/// No-op for embedders without a command registry.
+	/// `SideCarIdentifier` is the gRPC sidecar to proxy to (e.g.
+	/// `"cocoon-main"`). No-op for embedders without a command registry.
 	fn RegisterCommandInRegistry(&self, CommandId:&str, SideCarIdentifier:&str);
 
 	/// Removes a command from the embedder's dispatch registry.
 	/// No-op for embedders without a command registry.
 	fn UnregisterCommandInRegistry(&self, CommandId:&str);
+
+	// --- Terminal operations ---
+
+	/// Spawns a background task that sends `Text` to the PTY identified by
+	/// `TerminalId`. No-op for embedders without terminal support.
+	fn SpawnSendTextToTerminal(&self, TerminalId:u64, Text:String);
+
+	/// Spawns a background task that disposes the PTY identified by
+	/// `TerminalId`. No-op for embedders without terminal support.
+	fn SpawnDisposeTerminal(&self, TerminalId:u64);
+
+	/// Creates a new PTY terminal with the given options JSON and returns
+	/// `Some({ "id": u64, "pid": u64, "name": string })` on success, `None`
+	/// on failure or for embedders without terminal support.
+	fn CreateTerminal<'a>(&'a self, Options:&'a Value) -> futures::future::BoxFuture<'a, Option<Value>>;
+
+	// --- SCM operations ---
+
+	/// Registers an SCM provider in the embedder's `ProviderRegistration`
+	/// table. Called once per `vscode.scm.createSourceControl(...)`
+	/// invocation.
+	fn RegisterScmInRegistry(&self, Handle:u32, ScmId:&str, Label:&str, ExtId:&str);
+
+	/// Forwards a `CreateSourceControl` call to the embedder's
+	/// `SourceControlManagementProvider`. Errors are logged internally.
+	fn CreateSourceControl<'a>(&'a self, Payload:Value) -> futures::future::BoxFuture<'a, ()>;
+
+	/// Forwards an `UpdateSourceControlGroup` call to the embedder's
+	/// `SourceControlManagementProvider`. Errors are logged internally.
+	fn UpdateSourceControlGroup<'a>(&'a self, ScmHandle:u32, Payload:Value) -> futures::future::BoxFuture<'a, ()>;
+
+	// --- Language-feature provider registration ---
+
+	/// Registers a language-feature provider by normalised type name.
+	/// `TypeName` is the wire method stripped of `register_` prefix and
+	/// optional `_provider` suffix (e.g. `"hover"`, `"completion_item"`).
+	/// Returns `true` if the type was recognised and the registration was
+	/// inserted; `false` for unknown type names (no-op embedders always return
+	/// `false`).
+	fn RegisterLanguageProvider(&self, Handle:u32, TypeName:&str, Payload:&Value) -> bool;
 }

@@ -14,11 +14,14 @@ pub async fn SetStatusBarText(Host:&dyn VineHost, Parameter:&Value) {
 
 	let Tooltip = Parameter.get("tooltip").and_then(Value::as_str).unwrap_or("");
 
-	Host.EmitToRenderer("sky://statusbar/set-entry", json!({
-		"id": Id,
-		"text": Text,
-		"tooltip": Tooltip,
-	}));
+	Host.EmitToRenderer(
+		"sky://statusbar/set-entry",
+		json!({
+			"id": Id,
+			"text": Text,
+			"tooltip": Tooltip,
+		}),
+	);
 
 	dev_log!("grpc", "[StatusBar] set-text id={} len={}", Id, Text.len());
 }
