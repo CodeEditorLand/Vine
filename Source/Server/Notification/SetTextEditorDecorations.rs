@@ -48,9 +48,11 @@ fn GetOrInitChannel(Emitter:Arc<dyn RendererEmitter>) -> &'static DecoSetChannel
 				}
 
 				let Count = Buf.len();
+
 				let Batch:Vec<Value> = Buf.drain(..).collect();
 
 				Emitter.Emit("sky://decoration/set-ranges", json!({ "batch": Batch }));
+
 				dev_log!("sky-emit", "[DecoSet] emitted batch={}", Count);
 			}
 		});
@@ -61,5 +63,6 @@ fn GetOrInitChannel(Emitter:Arc<dyn RendererEmitter>) -> &'static DecoSetChannel
 
 pub async fn SetTextEditorDecorations(Host:&dyn VineHost, Parameter:&Value) {
 	let Ch = GetOrInitChannel(Host.RendererEmitter());
+
 	let _ = Ch.Sender.send(Parameter.clone());
 }

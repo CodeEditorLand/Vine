@@ -54,9 +54,11 @@ fn GetOrInitChannel(Emitter:Arc<dyn RendererEmitter>) -> &'static CommandBatchCh
 				}
 
 				let Count = Buf.len();
+
 				let Commands:Vec<Value> = Buf.drain(..).collect();
 
 				Emitter.Emit("sky://command/register", json!({ "commands": Commands }));
+
 				dev_log!("commands", "[RegisterCommand] batch={}", Count);
 			}
 		});
@@ -81,5 +83,6 @@ pub async fn RegisterCommand(Host:&dyn VineHost, Parameter:&Value) {
 
 	// Queue for batched Sky emit.
 	let Ch = GetOrInitChannel(Host.RendererEmitter());
+
 	let _ = Ch.Sender.send(json!({ "id": CommandId, "commandId": CommandId, "kind": Kind }));
 }

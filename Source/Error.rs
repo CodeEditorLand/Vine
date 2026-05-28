@@ -176,7 +176,9 @@ impl From<tonic::Status> for VineError {
 			tonic::Code::Unavailable => {
 				VineError::ConnectionFailed {
 					SideCarIdentifier:"unknown".to_string(),
+
 					Address:"unknown".to_string(),
+
 					Reason:Status.message().to_string(),
 				}
 			},

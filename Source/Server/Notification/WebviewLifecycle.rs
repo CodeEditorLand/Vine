@@ -21,7 +21,9 @@ pub async fn WebviewLifecycle(Host:&dyn VineHost, MethodName:&str, Parameter:&Va
 
 	let Suffix = match RawSuffix {
 		"setHtml" => "set-html",
+
 		"postMessage" => "postMessage",
+
 		Other => Other,
 	};
 
@@ -45,9 +47,13 @@ pub async fn WebviewLifecycle(Host:&dyn VineHost, MethodName:&str, Parameter:&Va
 			if let Some(Second) = Parameter.get(1) {
 				let Alias = match MethodName {
 					"webview.setHtml" => "html",
+
 					"webview.postMessage" => "message",
+
 					"webview.registerView" | "webview.unregisterView" => "viewId",
+
 					"webview.registerCustomEditor" | "webview.unregisterCustomEditor" | "webview.create" => "viewType",
+
 					_ => "value",
 				};
 

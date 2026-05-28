@@ -46,6 +46,7 @@ pub fn NowNano() -> u64 {
 pub fn IsEnabled(Tag:&str) -> bool {
 	let Filter = match std::env::var("LAND_DEV_LOG") {
 		Ok(Value) => Value,
+
 		Err(_) => return false,
 	};
 
@@ -68,6 +69,7 @@ pub fn IsEnabled(Tag:&str) -> bool {
 /// `env_logger` both pick this up automatically without further wiring.
 #[macro_export]
 macro_rules! dev_log {
+
 	($Tag:expr, $($Arg:tt)*) => {{
 		if cfg!(debug_assertions) && $crate::DevLog::IsEnabled($Tag) {
 			let Message = format!($($Arg)*);

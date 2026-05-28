@@ -106,6 +106,7 @@ fn GetOrInitChannel() -> &'static CoalesceChannel {
 				for (_, Pending) in Drain.drain(..) {
 					if let Ok(mut Guard) = Buffers.lock() {
 						let Slot = Guard.entry(Pending.Channel).or_default();
+
 						Slot.push_str(&Pending.Value);
 					}
 				}
@@ -119,6 +120,7 @@ fn GetOrInitChannel() -> &'static CoalesceChannel {
 				for (_, Pending) in LateDrain.drain(..) {
 					if let Ok(mut Guard) = Buffers.lock() {
 						let Slot = Guard.entry(Pending.Channel).or_default();
+
 						Slot.push_str(&Pending.Value);
 					}
 				}
