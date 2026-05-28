@@ -114,3 +114,51 @@ pub mod TreeRefresh;
 pub mod OpenExternal;
 
 pub mod SecurityIncident;
+
+// --- StatusBar lifecycle ---
+
+pub mod StatusBarLifecycle;
+
+pub mod StatusBarMessage;
+
+pub mod SetStatusBarText;
+
+pub mod DisposeStatusBarItem;
+
+// --- Debug lifecycle ---
+
+pub mod DebugLifecycle;
+
+// --- Editor text mutations ---
+
+pub mod ApplyTextEdits;
+
+pub mod SetTextEditorDecorations;
+
+// --- Extension host protocol ---
+
+pub mod ExtensionHostMessage;
+
+// --- Language configuration ---
+
+pub mod SetLanguageConfiguration;
+
+pub mod LanguagesSetDocumentLanguage;
+
+// --- Command registry ---
+
+pub mod RegisterCommand;
+
+pub mod UnregisterCommand;
+
+// --- Provider unregistration ---
+
+pub mod UnregisterAuthenticationProvider;
+
+pub mod UnregisterDebugAdapter;
+
+pub mod UnregisterDebugConfigurationProvider;
+
+pub mod UnregisterExternalUriOpener;
+
+pub mod UnregisterFileSystemProvider;

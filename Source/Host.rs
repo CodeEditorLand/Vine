@@ -50,7 +50,8 @@ pub trait IPCProvider: Send + Sync {
 	fn SendRequest(&self, Channel:&str, Payload:Value) -> futures::future::BoxFuture<'_, crate::Error::Result<Value>>;
 
 	/// Fire-and-forget notification on the named channel.
-	fn SendNotification(&self, Channel:&str, Payload:Value);
+	/// `Method` is the gRPC method name inside the channel (e.g. `"$onDidChangeBreakpoints"`).
+	fn SendNotification(&self, Channel:&str, Method:&str, Payload:Value);
 }
 
 /// Cheap-to-clone renderer event sink.
@@ -88,4 +89,18 @@ pub trait VineHost: Send + Sync {
 	/// re-enter the IPC bus (e.g. tree-view registration that needs to call
 	/// `sky:replay-events`).
 	fn IPCProvider(&self) -> Arc<dyn IPCProvider>;
+
+	/// Unregisters a provider by handle. Embedders that maintain a provider
+	/// registry route this to their `ProviderRegistration` table; embedders
+	/// without a registry silently discard.
+	fn UnregisterProvider(&self, Handle:u32);
+
+	/// Inserts a proxied command into the embedder's command dispatch registry.
+	/// `SideCarIdentifier` is the gRPC sidecar to proxy to (e.g. `"cocoon-main"`).
+	/// No-op for embedders without a command registry.
+	fn RegisterCommandInRegistry(&self, CommandId:&str, SideCarIdentifier:&str);
+
+	/// Removes a command from the embedder's dispatch registry.
+	/// No-op for embedders without a command registry.
+	fn UnregisterCommandInRegistry(&self, CommandId:&str);
 }
