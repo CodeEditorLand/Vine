@@ -153,19 +153,11 @@ pub mod UnregisterCommand;
 
 // --- Provider unregistration ---
 
-pub mod UnregisterAuthenticationProvider;
-
-pub mod UnregisterDebugAdapter;
-
-pub mod UnregisterDebugConfigurationProvider;
-
-pub mod UnregisterExternalUriOpener;
-
+// Unregister atoms with non-trivial logic only. Pure variants
+// (authentication, debug_adapter, debug_configuration, external_uri_opener,
+// remote_authority_resolver, task) call UnregisterByHandle directly from
+// Mountain's dispatcher - no wrapper file needed.
 pub mod UnregisterFileSystemProvider;
-
-pub mod UnregisterRemoteAuthorityResolver;
-
-pub mod UnregisterTaskProvider;
 
 pub mod UnregisterUriHandler;
 
