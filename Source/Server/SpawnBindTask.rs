@@ -1,11 +1,10 @@
-//! Spawn a detached tokio task that runs a tonic gRPC `Router` on the given
-//! address.
+//! Spawn a detached tokio task that runs a tonic gRPC `Router` on the
+//! given address.
 //!
-//! Synthesised from the `tokio::spawn(async move { … Server::builder() …
-//! serve(…).await … })` pattern in `Mountain/Source/Vine/Server/Initialize.rs`.
-//! Lifting it into the Vine crate lets every embedder (Mountain's
-//! `MountainVinegRPCService`, Air's `AirVinegRPCService`, future Rust Cocoon
-//! client) share one bind path with consistent dev-log instrumentation.
+//! Lifted into the Vine crate so every embedder (Mountain's
+//! `MountainVinegRPCService`, Air's `AirVinegRPCService`, any Rust-side
+//! Cocoon client) shares one bind path with consistent dev-log
+//! instrumentation.
 //!
 //! ## Why a `Router`, not a `Server` builder
 //!

@@ -1,12 +1,11 @@
 //! Spawn a detached tokio task that serves a tonic gRPC `Router` with
 //! graceful shutdown signalling.
 //!
-//! Synthesised from `Air/Source/Initialize/Service/Vine/StartService.rs`,
-//! which uses `tonic::transport::Server::serve_with_shutdown(...)` so the
-//! Air daemon can drain in-flight RPCs before exiting. Mountain's
-//! `Initialize.rs` uses the simpler [`crate::Server::SpawnBindTask::Fn`]
-//! that has no shutdown signal; both shapes are kept side-by-side here so
-//! embedders pick whichever matches their lifecycle model.
+//! Uses `tonic::transport::Server::serve_with_shutdown(...)` so daemon-
+//! style embedders can drain in-flight RPCs before exiting. The simpler
+//! [`crate::Server::SpawnBindTask::Fn`] runs without a shutdown signal;
+//! both shapes are kept side-by-side so embedders pick whichever matches
+//! their lifecycle model.
 //!
 //! ## Lifecycle
 //!

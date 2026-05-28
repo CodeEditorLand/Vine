@@ -1,15 +1,15 @@
 //! Validate a socket address string before binding.
 //!
-//! Ported verbatim from
-//! `Mountain/Source/Vine/Server/Initialize.rs::ValidateSocketAddress`.
-//! Catches three classes of error before the embedder spawns the bind task:
+//! Catches three classes of error before the embedder spawns the bind
+//! task:
 //!
 //! 1. Empty address strings (operator typo / missing env var).
 //! 2. Address strings longer than 256 characters (defensive cap).
 //! 3. Addresses that fail `parse::<SocketAddr>()` (malformed).
 //!
-//! Logs a warning - but does not reject - when the port is in the privileged
-//! range (< 1024), since Land's defaults all live above 50 000.
+//! Logs a warning - but does not reject - when the port is in the
+//! privileged range (< 1024), since Land's defaults all live above
+//! 50 000.
 
 use std::net::SocketAddr;
 

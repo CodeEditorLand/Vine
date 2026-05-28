@@ -1,9 +1,10 @@
 //! Default configuration constants for Vine gRPC servers.
 //!
-//! Mirrors `Mountain/Source/Vine/Server/Initialize.rs::ServerConfig` and is
-//! the canonical home for these values. Consumers (Mountain's
-//! `MountainVinegRPCService`, Air's `AirVinegRPCService`, future Cocoon
-//! Rust client) reference these constants instead of redefining them.
+//! Canonical home for the values every Vine bind site shares: default
+//! ports, connection timeout, max concurrent connection budget, max message
+//! size. Consumers (Mountain's `MountainVinegRPCService`, Air's
+//! `AirVinegRPCService`, any Rust-side Cocoon client) reference these
+//! constants instead of redefining them.
 
 use std::time::Duration;
 

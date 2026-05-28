@@ -1,39 +1,20 @@
 //! # Vine::Server
 //!
 //! Server-side gRPC scaffolding shared by every embedder that hosts a Vine
-//! service: Mountain (`MountainService`), Cocoon-Rust (future), Air
-//! (`AirService`). The pieces below are the generic boilerplate that every
-//! bind site needs; concrete service implementations stay in their owning
-//! crate (Mountain hosts `MountainVinegRPCService`, Air hosts
-//! `AirVinegRPCService`).
+//! service: Mountain (`MountainService`), Air (`AirService`), and Rust-side
+//! Cocoon. The pieces below are the boilerplate every bind site needs;
+//! concrete service implementations stay in their owning crate.
 //!
-//! ## Synthesis status (2026-05-28)
+//! ## Modules
 //!
 //! - [`Constants`] - default ports / timeouts / message-size cap.
-//! - [`ValidateSocketAddress`] - port-and-format pre-flight check (was
-//!   `Mountain::Vine::Server::Initialize::ValidateSocketAddress`).
-//! - [`SpawnBindTask`] - the detached `tokio::spawn` that runs
-//!   `Router::serve(Address)` with consistent dev-log instrumentation
-//!   (extracted from `Mountain::Vine::Server::Initialize::Initialize`).
-//!
-//! ## Pending synthesis
-//!
-//! `Mountain/Source/Vine/Server/MountainVinegRPCService.rs` and the ~90
-//! `Source/Vine/Server/Notification/*` handlers are intentionally NOT
-//! ported in this slice. Those depend on Mountain-specific runtime types
-//! (`Arc<MountainEnvironment>`, `tauri::AppHandle`, `ApplicationRunTime`)
-//! and the right abstraction (a `VineHost` extension carrying the provider
-//! surface each handler reaches into) is still being designed. The
-//! atomization is part of the stable surface; **do not collapse handlers
-//! into mega-modules during port**.
-//!
-//! Critical perf work that must survive the synthesis port:
-//!
-//! - `DecorationTypeLifecycle.rs` - channel-drain debounce (was 16 ms sleep)
-//! - `ProgressReport.rs` - channel-drain debounce (was 16 ms sleep)
-//! - `RegisterCommand.rs` - channel-drain debounce (was 16 ms sleep)
-//! - `EnqueueTreeViewEmit.rs` (in `RPC/CocoonService/TreeView/`) - batched
-//!   `sky://tree-view/create` emit with `views: [...]` payload
+//! - [`ValidateSocketAddress`] - port-and-format pre-flight check.
+//! - [`SpawnBindTask`] - detached `tokio::spawn` that runs
+//!   `Router::serve(Address)` until process termination.
+//! - [`SpawnBindTaskWithShutdown`] - same shape but takes a shutdown
+//!   future so daemons can drain in-flight calls before exit.
+//! - [`Notification`] - one-entry-point-per-file Cocoon → Mountain
+//!   notification handlers dispatched against [`crate::Host::VineHost`].
 //!
 //! ## Embedder call pattern
 //!
