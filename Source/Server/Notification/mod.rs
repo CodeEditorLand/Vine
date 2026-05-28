@@ -1,75 +1,31 @@
 //! # Vine::Server::Notification
 //!
-//! Cocoon → Mountain notification handlers, one entry-point per file.
-//! Each atom encapsulates exactly one wire-method's side effects so the
-//! main `send_cocoon_notification` dispatcher in the embedder's
-//! `MountainServiceServer` impl stays a thin match that routes into these
-//! files.
+//! Cocoon → Mountain notification handlers with non-trivial logic.
+//! Pure relay atoms (single RelayToSky::Fn call, single EmitToRenderer,
+//! or single dev_log!) are inlined directly in the Mountain dispatcher
+//! rather than given their own file.
 //!
-//! ## Naming convention
-//!
-//! - Wire string `outputChannel.create` → atom file `OutputChannelCreate.rs`
-//!   with `pub async fn OutputChannelCreate(...)`.
-//! - Snake_case / dotted wire strings collapse to PascalCase file names.
-//! - The function name mirrors the file name verbatim so a grep for `fn <Name>`
-//!   lands in exactly one place.
-//!
-//! ## Signature contract
-//!
-//! Every atom takes the same two parameters:
-//!
-//! ```ignore
-//! pub async fn <Atom>(
-//!     Host: &dyn crate::Host::VineHost,
-//!     Parameter: &serde_json::Value,
-//! );
-//! ```
-//!
-//! - `Host` is the embedder seam. For pure renderer-event relays it gives
-//!   access to `EmitToRenderer`; richer handlers reach into the embedder's
-//!   application state via `Host.ApplicationState()` and downcasting to the
-//!   embedder-specific sub-trait.
-//! - `Parameter` is the raw JSON payload Cocoon sent; each atom extracts the
-//!   fields it needs and validates locally.
-//! - Return `()` - atoms that need to fail just log via `dev_log!`; the caller
-//!   always returns `Empty` to Cocoon because notifications are
-//!   fire-and-forget.
+//! Every handler here has at least one of:
+//! - Payload reshape / field extraction
+//! - Channel-drain coalescer (OnceLock flusher)
+//! - Multiple side effects
+//! - Non-obvious sky-event mapping
 
 pub mod Support;
 
-// --- Pure renderer-event relays (Output / Progress fan-out) ---
-
-pub mod OutputAppend;
+// --- Output: coalescer + payload-reshape ---
 
 pub mod OutputAppendLine;
 
 pub mod OutputChannelAppend;
 
-pub mod OutputChannelClear;
-
 pub mod OutputChannelCoalesce;
-
-pub mod OutputChannelCreate;
-
-pub mod OutputChannelDispose;
 
 pub mod OutputChannelHide;
 
-pub mod OutputChannelReplace;
-
-pub mod OutputChannelShow;
-
-pub mod OutputClear;
-
-pub mod OutputCreate;
-
-pub mod OutputDispose;
-
 pub mod OutputReplace;
 
-pub mod OutputShow;
-
-pub mod ProgressComplete;
+// --- Progress: channel-drain coalescer + payload reshape ---
 
 pub mod ProgressEnd;
 
@@ -77,45 +33,29 @@ pub mod ProgressReport;
 
 pub mod ProgressStart;
 
-pub mod ProgressUpdate;
-
-// --- Webview lifecycle ---
+// --- Webview ---
 
 pub mod WebviewDispose;
 
 pub mod WebviewPostMessage;
 
-pub mod WebviewReady;
+pub mod WebviewLifecycle;
 
-// --- Window / Workspace renderer events ---
+// --- Window / Workspace ---
 
 pub mod WindowShowMessage;
-
-pub mod WindowShowTextDocument;
-
-pub mod WorkspaceApplyEdit;
 
 // --- Decoration batching ---
 
 pub mod DecorationTypeLifecycle;
 
-// --- Extension lifecycle events ---
-
-pub mod ExtensionActivated;
-
-pub mod ExtensionDeactivated;
-
-// --- Tree view refresh ---
-
-pub mod TreeRefresh;
-
-// --- Misc renderer relays ---
+// --- Misc with logic ---
 
 pub mod OpenExternal;
 
 pub mod SecurityIncident;
 
-// --- StatusBar lifecycle ---
+// --- StatusBar ---
 
 pub mod StatusBarLifecycle;
 
@@ -125,7 +65,7 @@ pub mod SetStatusBarText;
 
 pub mod DisposeStatusBarItem;
 
-// --- Debug lifecycle ---
+// --- Debug ---
 
 pub mod DebugLifecycle;
 
@@ -135,15 +75,9 @@ pub mod ApplyTextEdits;
 
 pub mod SetTextEditorDecorations;
 
-// --- Extension host protocol ---
-
-pub mod ExtensionHostMessage;
-
 // --- Language configuration ---
 
 pub mod SetLanguageConfiguration;
-
-pub mod LanguagesSetDocumentLanguage;
 
 // --- Command registry ---
 
@@ -151,20 +85,17 @@ pub mod RegisterCommand;
 
 pub mod UnregisterCommand;
 
-// --- Provider unregistration ---
+// --- Provider unregistration (multi-step logic only) ---
 
-// Only the atom with genuine multi-step logic: DJB-31 handle recomputation,
-// UnregisterProvider, sky relay, and log. Scheme-log-only variants
-// (file_system, uri_handler) are inlined directly in Mountain's dispatcher.
 pub mod UnregisterScmProvider;
 
-// --- Terminal lifecycle ---
+// --- Terminal ---
 
 pub mod TerminalLifecycle;
 
 pub mod WindowCreateTerminal;
 
-// --- SCM provider registration ---
+// --- SCM registration ---
 
 pub mod RegisterScmProvider;
 
@@ -173,10 +104,6 @@ pub mod RegisterScmResourceGroup;
 // --- Language-feature provider registration ---
 
 pub mod RegisterLanguageProvider;
-
-// --- Webview lifecycle ---
-
-pub mod WebviewLifecycle;
 
 // --- SCM group update ---
 
