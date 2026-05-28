@@ -1,12 +1,9 @@
 //! # Vine::DevLog
 //!
-//! Tag-gated, debug-only logging macro. Mountain's mature equivalent at
-//! `Mountain/Source/IPC/DevLog/` carries dedup-state, path aliasing, and
-//! file-sink routing - all coupled to Mountain's `IPC` module tree. Vine's
-//! `dev_log!` is the lightweight portable subset: it gates on
-//! `cfg!(debug_assertions)` and the `LAND_DEV_LOG` environment variable, then
-//! emits through the `log` crate so the embedder's configured logger (Air's
-//! `env_logger`, Mountain's tracing layer, …) decides where it lands.
+//! Tag-gated, debug-only logging macro. Gates on `cfg!(debug_assertions)`
+//! and the `LAND_DEV_LOG` environment variable, then emits through the
+//! `log` crate so the embedder's configured logger (Air's `env_logger`,
+//! Mountain's tracing layer, …) decides where it lands.
 //!
 //! ## Usage
 //!
@@ -31,9 +28,7 @@
 /// Monotonic process-relative nanosecond timestamp.
 ///
 /// Used by Vine notification fan-out to stamp every frame without paying for
-/// a `SystemTime::now()` syscall per call. Mountain's mature equivalent at
-/// `IPC::DevLog::NowNano::Fn` carries the same semantics; this is the
-/// portable Vine copy.
+/// a `SystemTime::now()` syscall per call.
 pub fn NowNano() -> u64 {
 	use std::time::Instant;
 

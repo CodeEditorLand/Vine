@@ -8,53 +8,44 @@
 	unused_assignments
 )]
 
-//! # Vine 🌿 - The gRPC Protocol Layer for Land 🏞️
+//! # Vine 🌿 - gRPC Protocol Layer for Land 🏞️
 //!
-//! Vine is the canonical home of the gRPC IPC schema and runtime that wires
+//! Vine is the canonical home of the gRPC IPC schema + runtime that wires
 //! the Land elements together:
 //!
-//! - **Mountain** (Tauri editor host) - runs Vine's server side; routes
-//!   notifications from Cocoon and Air into Tauri's renderer.
-//! - **Cocoon** (Node.js extension host) - speaks Vine to invoke VS Code-shaped
-//!   operations on Mountain.
+//! - **Mountain** (Tauri editor host) - hosts the `MountainService` gRPC
+//!   server; routes notifications from Cocoon and Air into Tauri's renderer.
+//! - **Cocoon** (Node.js extension host) - speaks Vine to invoke VS
+//!   Code-shaped operations on Mountain.
 //! - **Air** (background daemon) - speaks Vine as a client to query Mountain
-//!   for editor state when running indexing / update / download tasks.
-//!
-//! ## Synthesis status (2026-05-28)
-//!
-//! This crate is the destination of Track-B task #1 from
-//! `.hermes/plan/Mountain-Crate-Split.md`. It is being synthesised from
-//! `Mountain/Source/Vine/`, which today remains the source of truth and the
-//! production code path. The migration runs in three phases:
-//!
-//! 1. **Synthesis** (this commit set) - `Element/Vine` exposes the canonical
-//!    protocol surface as a standalone crate. Mountain's in-tree module is
-//!    untouched.
-//! 2. **Consume** (next session) - Mountain gains a `MountainVineHost` impl and
-//!    re-exports `Vine::*` from `Source/Vine/` as a `#[deprecated]` shim. Air's
-//!    `Source/Vine/` collapses to the same shim shape.
-//! 3. **Drop shim** (after Cocoon TS regen + Air client conversion verified) -
-//!    Mountain stops re-exporting; `Element/Vine` is the only home.
+//!   for editor state when running indexing / update / download tasks; also
+//!   hosts its own `AirService` gRPC server on `[::1]:50053`.
 //!
 //! ## Module layout
 //!
-//! - [`Error`] - canonical [`VineError`](Error::VineError) variants and `From`
-//!   conversions for `serde_json`, `tonic::transport`, `tonic::Status`,
+//! - [`Error`] - canonical [`VineError`](Error::VineError) variants and
+//!   `From` conversions for `serde_json`, `tonic::transport`, `tonic::Status`,
 //!   `http::uri::InvalidUri`, and `std::net::AddrParseError`.
-//! - [`Host`] - the `VineHost` trait + `IPCProvider` + `ApplicationStateAccess`
-//!   seam between Vine and its embedder runtime.
-//! - [`Generated`] - prost-built message types + tonic clients and servers,
+//! - [`Host`] - the [`VineHost`](Host::VineHost) trait,
+//!   [`IPCProvider`](Host::IPCProvider), and
+//!   [`ApplicationStateAccess`](Host::ApplicationStateAccess) - the seam
+//!   between Vine handlers and any embedder runtime.
+//! - [`Generated`] - prost-built message types + tonic clients and servers
 //!   produced from [`Proto/Vine.proto`](../Proto/Vine.proto) by `build.rs`.
-//! - [`Client`] - reusable client building blocks (cargo feature `client`).
-//! - [`Server`] - reusable server scaffolding (cargo feature `server`).
+//! - [`Client`] - client building blocks (cargo feature `client`).
+//! - [`Server`] - server scaffolding + notification handler tree (cargo
+//!   feature `server`).
+//! - [`Multiplexer`] - bidirectional envelope multiplexer
+//!   (`OpenChannelFromMountain` / `OpenChannelFromCocoon` per
+//!   LAND-PATCH B7-S6 P14.1; cargo feature `multiplexer`).
 //!
 //! ## Cargo features
 //!
 //! | Feature | Default | Pulls in |
 //! | --- | :---: | --- |
-//! | `client` | ✅ | `Source/Client/` - thin wrappers around tonic-generated client stubs |
-//! | `server` | ✅ | `Source/Server/` - notification-dispatch primitives + handler scaffolding |
-//! | `multiplexer` |  | the bidirectional envelope multiplexer (LAND-PATCH B7-S6 P14.1) |
+//! | `client` | ✅ | `Source/Client/` - tonic-generated client stub wrappers + connection pool |
+//! | `server` | ✅ | `Source/Server/` - bind helpers + notification handler tree |
+//! | `multiplexer` |  | bidirectional streaming envelope multiplexer |
 //!
 //! ## Port allocation
 //!
@@ -90,11 +81,9 @@ pub const ProtocolVersion:u32 = 1;
 pub const DefaultMaxMessageSize:usize = 4 * 1024 * 1024;
 
 /// Default request timeout, in milliseconds, applied to every
-/// `SendRequestToSideCar` invocation that does not pass an explicit override.
-///
-/// Mountain's mature implementation uses 15 000 ms; the Cradle session
-/// reduced `tree:getChildren` to 1 500 ms via per-call override. Both are
-/// expressible against this default.
+/// `SendRequestToSideCar` invocation that does not pass an explicit
+/// override. Per-call overrides are supported - long-running tree-view
+/// fetches use ~1 500 ms, indexing queries use the default.
 pub const DefaultRequestTimeoutMs:u64 = 15_000;
 
 /// Default Mountain Vine server bind address.
@@ -110,5 +99,6 @@ pub const DefaultAirAddress:&str = "[::1]:50053";
 /// consumers can write `use Vine::VineError;` without spelling out the
 /// `Error::` module path.
 pub use Error::{Result, VineError};
+
 /// Re-export the embedder seam types at the crate root for the same reason.
 pub use Host::{ApplicationStateAccess, IPCProvider, VineHost};

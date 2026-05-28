@@ -3,11 +3,6 @@
 //! Canonical, structured error types for every operation that flows through
 //! Vine - the gRPC IPC layer that connects Mountain, Cocoon, and Air.
 //!
-//! Synthesised from `Mountain/Source/Vine/Error.rs` per Track-B task #1 of
-//! `.hermes/plan/Mountain-Crate-Split.md`. The variant set + `From` impls
-//! match Mountain bit-for-bit so consumers compile unchanged when they later
-//! switch from Mountain's in-tree copy to this crate.
-//!
 //! ## Error Categories
 //!
 //! ### Connection Errors

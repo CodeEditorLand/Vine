@@ -1,21 +1,15 @@
 //! Bidirectional streaming multiplexer for the Vine gRPC bus.
 //!
-//! Owns one bidirectional h2 stream per sidecar. Inbound notifications
-//! fan out to the process-wide broadcast
-//! (`Vine::Client::SubscribeNotifications`); inbound responses route to the
-//! matching pending-request `oneshot` sender. Inbound reverse-RPC requests and
-//! cancellations are TODO for a follow-up phase.
+//! Owns one bidirectional h2 stream per sidecar. Inbound notifications fan
+//! out to the process-wide broadcast
+//! ([`crate::Client::SubscribeNotifications::Fn`]); inbound responses route
+//! to the matching pending-request `oneshot` sender. Inbound reverse-RPC
+//! requests and cancellations are accepted but currently dropped - the
+//! unary path remains authoritative until the streaming handler tree on
+//! the Cocoon side is enabled.
 //!
-//! This is the P14.1 foundation of Patch 14 - it lands the open(),
-//! Notify(), Request(), and ReadPump skeleton so subsequent phases can
-//! wire `SendNotification` / `SendRequest` to consult the multiplexer
-//! when `LAND_VINE_STREAMING=1` is set.
-//!
-//! Synthesised from `Mountain/Source/Vine/Multiplexer.rs` per
-//! `.hermes/plan/Vine-Synthesis-Audit.md`. Path-only differences from
-//! Mountain: `super::Error::VineError` → `crate::Error::VineError`,
-//! `super::Client::PublishNotificationFromMux` →
-//! `crate::Client::PublishNotificationFromMux`.
+//! Activated when `LAND_VINE_STREAMING=1` is set and the `multiplexer`
+//! cargo feature is on; this is the LAND-PATCH B7-S6 P14.1 foundation.
 
 use std::{
 	collections::HashMap,
@@ -293,19 +287,18 @@ async fn ReadPump(mut Stream:Streaming<Envelope>, State:Arc<Multiplexer>) {
 
 			Payload::Request(_) => {
 
-				// TODO P14.1.1: dispatch the inbound (reverse-RPC)
-				// request to the same handler tree the unary path
-				// uses, then enqueue the GenericResponse onto Sink.
-				// For now we drop, which is safe: the unary path is
-				// still authoritative until phase P14.4 lands the
-				// streaming handler tree on Cocoon side.
+				// Inbound reverse-RPC dispatch is intentionally a no-op
+				// here: the unary path remains authoritative until the
+				// streaming handler tree on the Cocoon side is enabled.
+				// Dropped frames are safe - the peer falls back to the
+				// unary RPC after the request-id correlation timeout.
 			},
 
 			Payload::Cancel(_) => {
 
-				// TODO P14.1.2: signal abort for the in-flight
-				// handler. For now no-op (the unary path doesn't
-				// support cancel either).
+				// Cancel propagation is a no-op; the unary path doesn't
+				// support cancellation either, so accepting and dropping
+				// preserves equivalence with the non-streaming fallback.
 			},
 		}
 	}
