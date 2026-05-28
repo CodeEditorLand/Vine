@@ -1,16 +1,15 @@
-//! Send a request and await a response. Validates method-name length
-//! and message size, prefers the streaming multiplexer when
+//! Send a request and await a response. Validates method-name length and
+//! message size, prefers the streaming multiplexer when
 //! `LAND_VINE_STREAMING=1` is on and the `multiplexer` cargo feature is
 //! enabled (falls through to unary on any failure except the authoritative
 //! streaming-path timeout), enforces a per-call timeout via
 //! `tokio::time::timeout`, and updates per-connection activity / failure
 //! metadata on completion.
 //!
-//! Per `.hermes/plan/Vine-Synthesis-Audit.md`, this is the **reference
-//! impl** for envelope-cancellation + timeout. The 15 000 ms default lives
-//! in `crate::DefaultRequestTimeoutMs`; this file falls back to
-//! `Shared::DEFAULT_TIMEOUT_MS` when the caller passes `0`, preserving
-//! Mountain's behaviour.
+//! The hard upper bound on per-call timeouts is
+//! [`crate::DefaultRequestTimeoutMs`] (15 000 ms); when the caller passes
+//! `0` for `TimeoutMilliseconds` the unary path falls back to
+//! [`Shared::DEFAULT_TIMEOUT_MS`] (5 000 ms).
 
 use std::time::Duration;
 

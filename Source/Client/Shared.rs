@@ -1,10 +1,6 @@
 //! Module-private state for the Vine client: connection pool, per-
 //! connection metadata, the broadcast fan-out, the shutdown flag, plus
 //! the constants and message-size validator every entry-point shares.
-//!
-//! Synthesised verbatim from `Mountain/Source/Vine/Client/Shared.rs` per
-//! `.hermes/plan/Vine-Synthesis-Audit.md`. Differences from Mountain are
-//! path-only (`crate::Vine::*` → `crate::*`).
 
 use std::{
 	collections::HashMap,
