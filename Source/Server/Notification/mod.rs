@@ -163,6 +163,14 @@ pub mod UnregisterExternalUriOpener;
 
 pub mod UnregisterFileSystemProvider;
 
+pub mod UnregisterRemoteAuthorityResolver;
+
+pub mod UnregisterTaskProvider;
+
+pub mod UnregisterUriHandler;
+
+pub mod UnregisterScmProvider;
+
 // --- Terminal lifecycle ---
 
 pub mod TerminalLifecycle;
