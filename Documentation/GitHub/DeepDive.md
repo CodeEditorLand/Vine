@@ -2,7 +2,7 @@
 
 This document provides the technical foundation for the Vine gRPC protocol layer
 within the Land ecosystem. **Vine** defines the strongly-typed inter-process
-communication contracts used between Mountain, Cocoon, Grove, and Air.
+communication contracts used between Mountain and Cocoon, with Air as an additional gRPC consumer.
 
 ---
 
@@ -10,15 +10,13 @@ communication contracts used between Mountain, Cocoon, Grove, and Air.
 
 Vine is a contract-first protocol layer. The `.proto` files are the source of
 truth; generated Rust code from `tonic`/`prost` is used by Mountain for the
-server implementation and by Cocoon/Grove for client stubs.
+server implementation and by Cocoon for client stubs.
 
 ```mermaid
 graph TB
     subgraph "Vine - Protocol Layer"
         VineProto["Vine.proto\nMountain ↔ Cocoon"]
         SpineProto["Spine.proto\nExtension Host Coordination"]
-        GroveProto["Grove.proto\nMountain ↔ Grove"]
-        AirProto["Air.proto\nMountain ↔ Air Daemon"]
         MessageTypes["Message/\nShared message definitions"]
         ServiceDefs["Service/\ngRPC service interfaces"]
         ClientStubs["Client/\nGenerated client code"]
@@ -26,23 +24,16 @@ graph TB
 
     subgraph "Mountain - gRPC Server Host"
         VineServer["Vine gRPC Server\ntonic implementation"]
-        AirServer["Air gRPC Server\ntonic implementation"]
     end
 
     subgraph "Clients"
         CocoonClient["Cocoon gRPC Client\n@grpc/grpc-js"]
-        GroveClient["Grove gRPC Client\ntonic client"]
-        AirClient["Air daemon server\n(Mountain connects as client)"]
     end
 
     VineProto --> VineServer
     VineProto --> CocoonClient
     SpineProto --> VineServer
     SpineProto --> CocoonClient
-    GroveProto --> VineServer
-    GroveProto --> GroveClient
-    AirProto --> AirServer
-    AirProto --> AirClient
 ```
 
 ---
@@ -53,7 +44,6 @@ graph TB
 | :------------------ | :------------------------------------------------------------------------- |
 | `Proto/Vine.proto`  | Core protocol: Mountain ↔ Cocoon commands, events, handshake               |
 | `Proto/Spine.proto` | Extension host coordination: action/response pattern for command execution |
-| `Proto/Grove.proto` | Grove-specific extensions: WASM host function calls, extension lifecycle   |
 | `Source/lib.rs`     | Library root; re-exports generated types                                   |
 | `Source/Message/`   | Structured message type definitions shared across services                 |
 | `Source/Service/`   | gRPC service trait implementations                                         |
@@ -102,8 +92,6 @@ sequenceDiagram
 | :----------------- | :-------- | :---------------- | :---------------------------------------------------------------------- |
 | **Mountain**       | Server    | tonic gRPC server | Hosts Vine and Air gRPC services; handles all incoming RPC calls        |
 | **Cocoon**         | Client    | `@grpc/grpc-js`   | Node.js client connecting to Mountain's Vine server on port 50052       |
-| **Grove**          | Client    | tonic gRPC client | Rust client connecting to Mountain's Grove service                      |
-| **Air**            | Server    | tonic gRPC server | Hosts the Air daemon service on port 50053; Mountain connects as client |
 
 ---
 
@@ -112,10 +100,9 @@ sequenceDiagram
 | Parameter        | Value               | Description                                                        |
 | :--------------- | :------------------ | :----------------------------------------------------------------- |
 | Vine/Cocoon port | `50052`             | Mountain gRPC server port for extension host communication         |
-| Air port         | `50053`             | Air daemon gRPC port; Mountain connects as client                  |
 | Transport        | TCP (loopback)      | All gRPC connections use `[::1]` (IPv6 loopback)                   |
 | TLS              | Disabled (loopback) | No TLS for local IPC; Mist DNS isolation provides network boundary |
 
 Protocol buffer files are compiled at build time by `prost-build` in Mountain's
 `build.rs`. The generated Rust types are used directly by Mountain's `Vine/` and
-`Air/` server modules.
+the Air daemon's own server modules.

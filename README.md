@@ -152,7 +152,6 @@ standalone directory. The future `Vine` package will centralize these:
 | File               | Location (today)                                 | Purpose                                           |
 | :----------------- | :----------------------------------------------- | :------------------------------------------------ |
 | `Vine.proto`       | `Mountain/Proto/Vine.proto`                      | Core `Mountain`↔`Cocoon` gRPC service definitions |
-| `Grove.proto`      | `Grove/Proto/Grove.proto`                        | `Grove`-specific extensions for `WASM` hosting    |
 | Server impl        | `Mountain/Source/Vine/`                          | Rust-side gRPC server (`tonic`)                   |
 | Client impl        | `Cocoon/Source/Services/Mountain/gRPC/Client.ts` | TypeScript-side gRPC client                       |
 | `RouteManifest.ts` | `Cocoon/Source/Generated/RouteManifest.ts`       | Auto-generated routing tier enumeration           |
@@ -172,8 +171,6 @@ When fully implemented, the protocol structure will include:
   Core `Mountain`↔`Cocoon` communication
 - **`Proto/Spine.proto`** - Extension host coordination protocol
   (action/response pattern for command execution)
-- **[`Proto/Grove.proto`](https://github.com/CodeEditorLand/Grove/tree/Current/Proto/Grove.proto)** -
-  `Grove`-specific extensions for `WASM` extension host integration
 - **`Source/`** - Rust implementation
 - **`Source/Message/`** - Message type definitions
 - **`Source/Service/`** - gRPC service implementations
