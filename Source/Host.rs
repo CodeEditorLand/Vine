@@ -53,6 +53,20 @@ pub trait IPCProvider: Send + Sync {
 	fn SendNotification(&self, Channel:&str, Payload:Value);
 }
 
+/// Cheap-to-clone renderer event sink.
+///
+/// Handlers with long-lived flushers (the channel-drain coalescers used by
+/// `ProgressReport`, `DecorationTypeLifecycle`, `OutputChannelCoalesce`)
+/// capture an `Arc<dyn RendererEmitter>` once and reuse it across awaits.
+/// Embedders implement this trait on a tiny struct that holds whatever
+/// transport handle is needed (e.g. `tauri::AppHandle`), independent of
+/// the full [`VineHost`] surface.
+pub trait RendererEmitter: Send + Sync + 'static {
+	/// Emits `Payload` on the renderer's `Channel`. Embedders without a
+	/// renderer leave this a no-op.
+	fn Emit(&self, Channel:&str, Payload:Value);
+}
+
 /// The embedder-facing seam between Vine and its host runtime.
 ///
 /// Implementations belong in the embedder crate (Mountain, Air, …), not in
@@ -64,6 +78,11 @@ pub trait VineHost: Send + Sync {
 	/// Emits a JSON event on the named renderer channel. No-op for embedders
 	/// that have no renderer (e.g. Air).
 	fn EmitToRenderer(&self, Channel:&str, Payload:Value);
+
+	/// Returns a cheap-to-clone renderer event sink. Used by handlers
+	/// with long-lived flushers that need to emit from a background
+	/// task without borrowing the full host.
+	fn RendererEmitter(&self) -> Arc<dyn RendererEmitter>;
 
 	/// Returns the cross-channel IPC provider. Used by handlers that need to
 	/// re-enter the IPC bus (e.g. tree-view registration that needs to call

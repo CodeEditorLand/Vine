@@ -37,13 +37,25 @@
 
 pub mod Support;
 
-// --- Pure renderer-event relays ---
+// --- Pure renderer-event relays (Output / Progress fan-out) ---
 
 pub mod OutputAppend;
 
+pub mod OutputAppendLine;
+
+pub mod OutputChannelAppend;
+
 pub mod OutputChannelClear;
 
+pub mod OutputChannelCoalesce;
+
+pub mod OutputChannelCreate;
+
 pub mod OutputChannelDispose;
+
+pub mod OutputChannelHide;
+
+pub mod OutputChannelReplace;
 
 pub mod OutputChannelShow;
 
@@ -53,6 +65,52 @@ pub mod OutputCreate;
 
 pub mod OutputDispose;
 
+pub mod OutputReplace;
+
 pub mod OutputShow;
 
 pub mod ProgressComplete;
+
+pub mod ProgressEnd;
+
+pub mod ProgressReport;
+
+pub mod ProgressStart;
+
+pub mod ProgressUpdate;
+
+// --- Webview lifecycle ---
+
+pub mod WebviewDispose;
+
+pub mod WebviewPostMessage;
+
+pub mod WebviewReady;
+
+// --- Window / Workspace renderer events ---
+
+pub mod WindowShowMessage;
+
+pub mod WindowShowTextDocument;
+
+pub mod WorkspaceApplyEdit;
+
+// --- Decoration batching ---
+
+pub mod DecorationTypeLifecycle;
+
+// --- Extension lifecycle events ---
+
+pub mod ExtensionActivated;
+
+pub mod ExtensionDeactivated;
+
+// --- Tree view refresh ---
+
+pub mod TreeRefresh;
+
+// --- Misc renderer relays ---
+
+pub mod OpenExternal;
+
+pub mod SecurityIncident;

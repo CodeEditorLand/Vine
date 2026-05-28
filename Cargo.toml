@@ -38,6 +38,7 @@ lazy_static = { workspace = true }
 parking_lot = { workspace = true }
 once_cell = { workspace = true }
 dashmap = { workspace = true }
+open = { workspace = true }
 
 [build-dependencies]
 tonic-build = { workspace = true }
