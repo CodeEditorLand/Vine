@@ -271,7 +271,7 @@ async fn ReadPump(mut Stream:Streaming<Envelope>, State:Arc<Multiplexer>) {
 					serde_json::from_slice(&N.parameter).unwrap_or(Value::Null)
 				};
 
-				crate::Client::PublishNotificationFromMux::Fn(&State.SideCarIdentifier, &N.method, &Parameters);
+				crate::Client::PublishNotification::Fn(&State.SideCarIdentifier, &N.method, &Parameters);
 			},
 
 			Payload::Response(R) => {

@@ -47,8 +47,6 @@ pub mod MarkShutdown;
 
 pub mod NotificationFrame;
 
-pub mod PublishNotificationFromMux;
-
 pub mod SendNotification;
 
 pub mod SendRequest;
