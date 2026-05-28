@@ -45,7 +45,7 @@ The gRPC Protocol Layer for Land &#x2001;🏞️
 Welcome to **Vine**, the gRPC protocol definition and communication
 specification for the **Land Code Editor** ecosystem. Vine defines the
 strongly-typed IPC layer used for communication between `Mountain` (Rust
-backend) and `Cocoon` (Node.js extension host), as well as the planned `Grove`
+backend) and `Cocoon` (Node.js extension host)
 (Rust/WASM extension host).
 
 **Vine** is engineered to:
@@ -119,11 +119,6 @@ graph LR
     subgraph MOUNTAIN["Mountain ⛰️ - Server-side impl (Source/Vine/)"]
         direction TB
         VineServer["Vine gRPC Server (tonic)"]:::mountain
-        VineMux["Multiplexer.rs - envelope routing"]:::mountain
-        VineClient["Client.rs - Mountain→Cocoon calls"]:::mountain
-        VineGenerated["Generated/ - prost bindings"]:::mountain
-        VineServer --> VineMux
-        VineMux --> VineClient
     end
 
     subgraph COCOON["Cocoon 🦋 - Client-side impl"]
@@ -131,15 +126,10 @@ graph LR
         GRPCServer["Services/gRPC/Server/ - CocoonService impl"]:::cocoon
     end
 
-    subgraph GROVE["Grove 🌳 - WASM host (planned)"]
-        GroveTransport["Transport/gRPCTransport"]:::grove
-    end
-
     MountainSvc -.defines.-> VineServer
     CocoonSvc -.defines.-> GRPCServer
     VineServer <-- bidirectional gRPC :50052 --> GRPCClient
-    VineClient --> GRPCServer
-    MountainSvc -.planned.-> GroveTransport
+    VineServer --> GRPCServer
 ```
 
 ---
