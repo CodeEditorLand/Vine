@@ -88,11 +88,11 @@ graph TB
 
 ### Protocol Files 📋
 
-| File          | Location                             | Defines                                |
-| ------------- | ------------------------------------ | -------------------------------------- |
-| `Vine.proto`  | `Element/Mountain/Proto/Vine.proto`  | Core Mountain<->Cocoon gRPC services   |
-| `Spine.proto` | `Element/Mountain/Proto/Spine.proto` | Extension host coordination protocol   |
-| `Air.proto`   | (in-source in Air Element)           | Mountain<->Air background services     |
+| File          | Location                             | Defines                              |
+| ------------- | ------------------------------------ | ------------------------------------ |
+| `Vine.proto`  | `Element/Mountain/Proto/Vine.proto`  | Core Mountain<->Cocoon gRPC services |
+| `Spine.proto` | `Element/Mountain/Proto/Spine.proto` | Extension host coordination protocol |
+| `Air.proto`   | (in-source in Air Element)           | Mountain<->Air background services   |
 
 ---
 

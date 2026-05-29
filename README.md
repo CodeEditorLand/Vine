@@ -45,8 +45,7 @@ The gRPC Protocol Layer for Land &#x2001;🏞️
 Welcome to **Vine**, the gRPC protocol definition and communication
 specification for the **Land Code Editor** ecosystem. Vine defines the
 strongly-typed IPC layer used for communication between `Mountain` (Rust
-backend) and `Cocoon` (Node.js extension host)
-(Rust/WASM extension host).
+backend) and `Cocoon` (Node.js extension host) (Rust/WASM extension host).
 
 **Vine** is engineered to:
 

@@ -2,7 +2,8 @@
 
 This document provides the technical foundation for the Vine gRPC protocol layer
 within the Land ecosystem. **Vine** defines the strongly-typed inter-process
-communication contracts used between Mountain and Cocoon, with Air as an additional gRPC consumer.
+communication contracts used between Mountain and Cocoon, with Air as an
+additional gRPC consumer.
 
 ---
 
@@ -88,10 +89,10 @@ sequenceDiagram
 
 ## Integration Points
 
-| Connecting Element | Direction | Mechanism         | Description                                                             |
-| :----------------- | :-------- | :---------------- | :---------------------------------------------------------------------- |
-| **Mountain**       | Server    | tonic gRPC server | Hosts Vine and Air gRPC services; handles all incoming RPC calls        |
-| **Cocoon**         | Client    | `@grpc/grpc-js`   | Node.js client connecting to Mountain's Vine server on port 50052       |
+| Connecting Element | Direction | Mechanism         | Description                                                       |
+| :----------------- | :-------- | :---------------- | :---------------------------------------------------------------- |
+| **Mountain**       | Server    | tonic gRPC server | Hosts Vine and Air gRPC services; handles all incoming RPC calls  |
+| **Cocoon**         | Client    | `@grpc/grpc-js`   | Node.js client connecting to Mountain's Vine server on port 50052 |
 
 ---
 
