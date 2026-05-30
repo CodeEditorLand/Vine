@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Vine::Client"><title>Vine::Client - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="Vine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (cced03bfd 2026-05-28)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module Client</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../Vine/index.html">Vine</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module Client</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#vineclient" title="Vine::Client">Vine::Client</a><ul><li><a href="#behaviours" title="Behaviours">Behaviours</a></li></ul></li></ul><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate Vine</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">Vine</a></div><h1>Module <span>Client</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/Vine/Client/mod.rs.html#1-64">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="vineclient"><a class="doc-anchor" href="#vineclient">§</a>Vine::Client</h2>
+<p>Client-side gRPC wrappers for embedders that need to <em>call</em> Vine
+services (Air talking to Mountain, Cocoon-Rust talking to Mountain, …).
+One entry-point per file:</p>
+<ul>
+<li><a href="MarkShutdown/fn.Fn.html" title="fn Vine::Client::MarkShutdown::Fn"><code>MarkShutdown::Fn</code></a> / <a href="IsShuttingDown/fn.Fn.html" title="fn Vine::Client::IsShuttingDown::Fn"><code>IsShuttingDown::Fn</code></a> - process-wide flag.</li>
+<li><a href="NotificationFrame/struct.Struct.html" title="struct Vine::Client::NotificationFrame::Struct"><code>NotificationFrame::Struct</code></a> - broadcast payload.</li>
+<li><a href="SubscribeNotifications/fn.Fn.html" title="fn Vine::Client::SubscribeNotifications::Fn"><code>SubscribeNotifications::Fn</code></a> / <a href="SubscriberCount/fn.Fn.html" title="fn Vine::Client::SubscriberCount::Fn"><code>SubscriberCount::Fn</code></a> - fan-out access.</li>
+<li><a href="ConnectToSideCar/fn.Fn.html" title="fn Vine::Client::ConnectToSideCar::Fn"><code>ConnectToSideCar::Fn</code></a> / <a href="DisconnectFromSideCar/fn.Fn.html" title="fn Vine::Client::DisconnectFromSideCar::Fn"><code>DisconnectFromSideCar::Fn</code></a> - pool lifecycle.
+Driven by <a href="TryConnectSingle/fn.Fn.html" title="fn Vine::Client::TryConnectSingle::Fn"><code>TryConnectSingle::Fn</code></a> (single attempt).</li>
+<li><a href="IsClientConnected/fn.Fn.html" title="fn Vine::Client::IsClientConnected::Fn"><code>IsClientConnected::Fn</code></a> / <a href="WaitForClientConnection/fn.Fn.html" title="fn Vine::Client::WaitForClientConnection::Fn"><code>WaitForClientConnection::Fn</code></a> -
+boot-race-friendly readiness checks.</li>
+<li><a href="CheckSideCarHealth/fn.Fn.html" title="fn Vine::Client::CheckSideCarHealth::Fn"><code>CheckSideCarHealth::Fn</code></a> - pool + metadata health summary.</li>
+<li><a href="SendRequest/fn.Fn.html" title="fn Vine::Client::SendRequest::Fn"><code>SendRequest::Fn</code></a> / <a href="SendNotification/fn.Fn.html" title="fn Vine::Client::SendNotification::Fn"><code>SendNotification::Fn</code></a> - wire dispatch with
+optional streaming-multiplexer fast path under <code>LAND_VINE_STREAMING=1</code>
+when the <code>multiplexer</code> cargo feature is enabled.</li>
+<li><a href="PublishNotification/fn.Fn.html" title="fn Vine::Client::PublishNotification::Fn"><code>PublishNotification::Fn</code></a> (private) and
+[<code>PublishNotificationFromMux::Fn</code>] (<code>pub(crate)</code>) - broadcast publishers.</li>
+<li><a href="Shared/index.html" title="mod Vine::Client::Shared"><code>Shared</code></a> - module-private state (statics, helpers, constants).</li>
+</ul>
+<h3 id="behaviours"><a class="doc-anchor" href="#behaviours">§</a>Behaviours</h3>
+<ul>
+<li>3-attempt exponential backoff (50 ms / 100 ms / 200 ms base schedule) in
+<a href="ConnectToSideCar/fn.Fn.html" title="fn Vine::Client::ConnectToSideCar::Fn"><code>ConnectToSideCar::Fn</code></a>.</li>
+<li><code>Arc&lt;Notify&gt;</code> connection-ready wake-up (no polling) in
+<a href="WaitForClientConnection/fn.Fn.html" title="fn Vine::Client::WaitForClientConnection::Fn"><code>WaitForClientConnection::Fn</code></a>.</li>
+<li>5 000 ms unary default timeout, bounded by
+<a href="../constant.DefaultRequestTimeoutMs.html" title="constant Vine::DefaultRequestTimeoutMs"><code>crate::DefaultRequestTimeoutMs</code></a> at 15 000 ms; per-call override on
+<a href="SendRequest/fn.Fn.html" title="fn Vine::Client::SendRequest::Fn"><code>SendRequest::Fn</code></a>.</li>
+<li>Atomic-counter request IDs (<code>AtomicU64</code>, no <code>SystemTime</code> syscall) in
+<a href="SendRequest/fn.Fn.html" title="fn Vine::Client::SendRequest::Fn"><code>SendRequest::Fn</code></a>.</li>
+<li>h2 transport tuning (4 MB stream / 16 MB connection windows;
+<code>LAND_TONIC_TUNED=0</code> to disable) in <a href="TryConnectSingle/fn.Fn.html" title="fn Vine::Client::TryConnectSingle::Fn"><code>TryConnectSingle::Fn</code></a>.</li>
+</ul>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="CheckSideCarHealth/index.html" title="mod Vine::Client::CheckSideCarHealth">Check<wbr>Side<wbr>CarHealth</a></dt><dd>Health check: connection exists in the pool, last activity within
+<code>HEALTH_CHECK_INTERVAL_MS</code>, and failure count below the retry
+threshold.</dd><dt><a class="mod" href="ConnectToSideCar/index.html" title="mod Vine::Client::ConnectToSideCar">Connect<wbr>ToSide<wbr>Car</a></dt><dd>Establish a gRPC connection to a Cocoon sidecar with exponential
+back-off retry. On success initialises the per-connection metadata
+tracked by <code>Shared::CONNECTION_METADATA</code>.</dd><dt><a class="mod" href="DisconnectFromSideCar/index.html" title="mod Vine::Client::DisconnectFromSideCar">Disconnect<wbr>From<wbr>Side<wbr>Car</a></dt><dd>Disconnect from a sidecar process. Removes the entry from both the
+connection pool and the metadata tracker.</dd><dt><a class="mod" href="IsClientConnected/index.html" title="mod Vine::Client::IsClientConnected">IsClient<wbr>Connected</a></dt><dd>Whether the named sidecar currently has a live entry in the
+connection pool. Cheap read of the shared map; no RPC issued. Useful
+for boot-race callers that need to know whether <code>SendRequest</code> would
+short-circuit <em>before</em> paying the serialization + lock-acquire cost.</dd><dt><a class="mod" href="IsShuttingDown/index.html" title="mod Vine::Client::IsShuttingDown">IsShutting<wbr>Down</a></dt><dd>Whether the Vine client has been marked shutting down.</dd><dt><a class="mod" href="MarkShutdown/index.html" title="mod Vine::Client::MarkShutdown">Mark<wbr>Shutdown</a></dt><dd>Flip the global Vine-client shutdown flag. Embedders call this
+immediately before SIGKILL’ing the sidecar so any inflight notification
+attempted after the kill window returns silently with <code>Ok(())</code> instead
+of logging a <code>Connection refused</code> error.</dd><dt><a class="mod" href="NotificationFrame/index.html" title="mod Vine::Client::NotificationFrame">Notification<wbr>Frame</a></dt><dd>One observed notification frame fanned out from <code>SendNotification</code>
+(or, once the streaming-channel multiplexer is live, from
+<code>Multiplexer</code>). Subscribers consume frames from the broadcast channel
+managed by <code>Shared::NOTIFICATION_BROADCAST</code>.</dd><dt><a class="mod" href="PublishNotification/index.html" title="mod Vine::Client::PublishNotification">Publish<wbr>Notification</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Internal: publish a notification to the broadcast. Called from
+<code>SendNotification::Fn</code> after the wire send succeeds, and from the
+streaming multiplexer once it lands. <code>try_send</code> semantics - no
+awaiting, no failure surfaced (a slow subscriber must not stall
+the producer).</dd><dt><a class="mod" href="SendNotification/index.html" title="mod Vine::Client::SendNotification">Send<wbr>Notification</a></dt><dd>Fire-and-forget notification to a sidecar. No response, no per-call
+timeout. Prefers the streaming multiplexer under
+<code>LAND_VINE_STREAMING=1</code> when the <code>multiplexer</code> cargo feature is
+enabled; falls through to unary on any failure. After a successful
+wire send, fans out via <code>PublishNotification::Fn</code> so broadcast
+subscribers (Effect-TS fibers, OTel emitters, future Mist-WS bridge,
+dev log) can observe the same flow concurrently.</dd><dt><a class="mod" href="SendRequest/index.html" title="mod Vine::Client::SendRequest">Send<wbr>Request</a></dt><dd>Send a request and await a response. Validates method-name length and
+message size, prefers the streaming multiplexer when
+<code>LAND_VINE_STREAMING=1</code> is on and the <code>multiplexer</code> cargo feature is
+enabled (falls through to unary on any failure except the authoritative
+streaming-path timeout), enforces a per-call timeout via
+<code>tokio::time::timeout</code>, and updates per-connection activity / failure
+metadata on completion.</dd><dt><a class="mod" href="Shared/index.html" title="mod Vine::Client::Shared">Shared</a></dt><dd>Module-private state for the Vine client: connection pool, per-
+connection metadata, the broadcast fan-out, the shutdown flag, plus
+the constants and message-size validator every entry-point shares.</dd><dt><a class="mod" href="SubscribeNotifications/index.html" title="mod Vine::Client::SubscribeNotifications">Subscribe<wbr>Notifications</a></dt><dd>Subscribe to the global notification fan-out. Each call returns a
+fresh receiver that observes every notification fanned out AFTER
+subscribe time (broadcast semantics; no historical replay). Drop the
+receiver to unsubscribe.</dd><dt><a class="mod" href="SubscriberCount/index.html" title="mod Vine::Client::SubscriberCount">Subscriber<wbr>Count</a></dt><dd>Number of currently-active broadcast subscribers. Diagnostic; useful
+for validating that subscribers haven’t leaked.</dd><dt><a class="mod" href="TryConnectSingle/index.html" title="mod Vine::Client::TryConnectSingle">TryConnect<wbr>Single</a></dt><dd>Single connection attempt without retry logic. Tunes h2 transport
+windows for loopback-to-Cocoon traffic (4 MB stream / 16 MB connection)
+so a single rust-analyzer diagnostic emit (200-500 KB) doesn’t cause
+<code>WINDOW_UPDATE</code> ping-pong.</dd><dt><a class="mod" href="WaitForClientConnection/index.html" title="mod Vine::Client::WaitForClientConnection">Wait<wbr>ForClient<wbr>Connection</a></dt><dd>Await Cocoon’s gRPC connection without polling. <code>GetConnectionNotify</code>
+returns a shared <code>tokio::sync::Notify</code> that <code>ConnectToSideCar</code> fires
+once the handshake succeeds; <code>WaitForClientConnection</code> simply awaits
+it under <code>tokio::time::timeout</code>. If the sidecar is already connected
+when we enter (typical for the second-and-later callers) <code>notified()</code>
+returns immediately because <code>notify_waiters</code> has already fired.</dd></dl></section></div></main></body></html>

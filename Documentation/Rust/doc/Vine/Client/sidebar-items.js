@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["CheckSideCarHealth","ConnectToSideCar","DisconnectFromSideCar","IsClientConnected","IsShuttingDown","MarkShutdown","NotificationFrame","PublishNotification","SendNotification","SendRequest","Shared","SubscribeNotifications","SubscriberCount","TryConnectSingle","WaitForClientConnection"]};

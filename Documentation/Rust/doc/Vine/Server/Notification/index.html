@@ -1,0 +1,93 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Vine::Server::Notification"><title>Vine::Server::Notification - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="Vine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (cced03bfd 2026-05-28)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module Notification</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../Vine/index.html">Vine</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module Notification</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#vineservernotification" title="Vine::Server::Notification">Vine::Server::Notification</a></li></ul><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In Vine::<wbr>Server</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">Vine</a>::<wbr><a href="../index.html">Server</a></div><h1>Module <span>Notification</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/Vine/Server/Notification/mod.rs.html#1-110">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="vineservernotification"><a class="doc-anchor" href="#vineservernotification">§</a>Vine::Server::Notification</h2>
+<p>Cocoon → Mountain notification handlers with non-trivial logic.
+Pure relay atoms (single RelayToSky::Fn call, single EmitToRenderer,
+or single dev_log!) are inlined directly in the Mountain dispatcher
+rather than given their own file.</p>
+<p>Every handler here has at least one of:</p>
+<ul>
+<li>Payload reshape / field extraction</li>
+<li>Channel-drain coalescer (OnceLock flusher)</li>
+<li>Multiple side effects</li>
+<li>Non-obvious sky-event mapping</li>
+</ul>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="ApplyTextEdits/index.html" title="mod Vine::Server::Notification::ApplyTextEdits">Apply<wbr>Text<wbr>Edits</a></dt><dd>Cocoon → <code>window.applyTextEdits</code> notification.
+Emitted when an extension calls <code>editor.edit(editBuilder =&gt; {...})</code>.
+Cocoon’s TextEditor shim collects the edits and sends them here.
+Mountain relays <code>sky://editor/apply-text-edits</code> so Sky can apply them
+via <code>ICodeEditorService.listCodeEditors()</code> → <code>editor.executeEdits(...)</code>.</dd><dt><a class="mod" href="DebugLifecycle/index.html" title="mod Vine::Server::Notification::DebugLifecycle">Debug<wbr>Lifecycle</a></dt><dd>Cocoon → <code>debug.addBreakpoints</code> / <code>debug.removeBreakpoints</code> /
+<code>debug.consoleAppend</code> notifications.
+Fans on <code>sky://debug/&lt;suffix&gt;</code> so the Sky-side debug view picks up
+breakpoint changes and console output from the extension’s
+<code>vscode.debug.*</code> surface.
+For breakpoint mutations specifically, also fans back to Cocoon so
+<code>vscode.debug.onDidChangeBreakpoints</code> subscribers in OTHER extensions
+observe the change. Without this round-trip, only the extension that
+called <code>addBreakpoints</code>/<code>removeBreakpoints</code> knows about its own write.</dd><dt><a class="mod" href="DecorationTypeLifecycle/index.html" title="mod Vine::Server::Notification::DecorationTypeLifecycle">Decoration<wbr>Type<wbr>Lifecycle</a></dt><dd>Cocoon <code>window.createTextEditorDecorationType</code> /
+<code>window.disposeTextEditorDecorationType</code> notifications. Forwards the
+payload on <code>sky://decoration/&lt;suffix&gt;</code> as a batch; Sky demultiplexes
+back to per-decoration <code>cel:decoration:*</code> CustomEvents.</dd><dt><a class="mod" href="DisposeStatusBarItem/index.html" title="mod Vine::Server::Notification::DisposeStatusBarItem">Dispose<wbr>Status<wbr>BarItem</a></dt><dd>Cocoon → <code>disposeStatusBarItem</code> notification.
+Forwarded onto <code>sky://statusbar/dispose-entry</code> so the Sky shim removes the
+DOM node.</dd><dt><a class="mod" href="OpenExternal/index.html" title="mod Vine::Server::Notification::OpenExternal">Open<wbr>External</a></dt><dd>Cocoon <code>openExternal</code> notification - extension called
+<code>vscode.env.openExternal(uri)</code>. Delegates to the platform default
+handler via the <code>opener</code> crate. Fire-and-forget; success/failure is
+logged but not surfaced back to the extension.</dd><dt><a class="mod" href="OutputAppendLine/index.html" title="mod Vine::Server::Notification::OutputAppendLine">Output<wbr>Append<wbr>Line</a></dt><dd>Cocoon <code>output.appendLine</code> notification. Appends <code>text</code> to the
+named output channel; we suffix the newline here so the downstream
+<code>sky://output/append</code> listener stays a single append code path (no
+dedicated <code>appendLine</code> listener in Sky).</dd><dt><a class="mod" href="OutputChannelAppend/index.html" title="mod Vine::Server::Notification::OutputChannelAppend">Output<wbr>Channel<wbr>Append</a></dt><dd>Cocoon <code>outputChannel.append</code> notification. Twin of <code>output.append</code>;
+see <code>OutputCreate.rs</code> for the duplicate-wire rationale.</dd><dt><a class="mod" href="OutputChannelCoalesce/index.html" title="mod Vine::Server::Notification::OutputChannelCoalesce">Output<wbr>Channel<wbr>Coalesce</a></dt><dd>Per-channel coalescing buffer for <code>outputChannel.append</code> notifications.</dd><dt><a class="mod" href="OutputChannelHide/index.html" title="mod Vine::Server::Notification::OutputChannelHide">Output<wbr>Channel<wbr>Hide</a></dt><dd>Cocoon <code>outputChannel.hide</code> notification. Forwards to Sky as
+<code>sky://output/show { visible: false, channel }</code> so the workbench
+panel can dismiss the channel via the same handler that processes
+<code>show()</code> calls.</dd><dt><a class="mod" href="OutputReplace/index.html" title="mod Vine::Server::Notification::OutputReplace">Output<wbr>Replace</a></dt><dd>Cocoon <code>output.replace</code> notification - swap the channel’s entire
+contents. Mapped to <code>clear</code> + <code>append</code> since Sky has no dedicated
+<code>sky://output/replace</code> listener yet.</dd><dt><a class="mod" href="ProgressEnd/index.html" title="mod Vine::Server::Notification::ProgressEnd">Progress<wbr>End</a></dt><dd>Cocoon <code>progress.end</code> notification. Fires once per
+<code>vscode.window.withProgress(...)</code> call when the task settles.
+Forwarded onto <code>sky://notification/progress-end</code>.</dd><dt><a class="mod" href="ProgressReport/index.html" title="mod Vine::Server::Notification::ProgressReport">Progress<wbr>Report</a></dt><dd>Cocoon <code>progress.report</code> notification.</dd><dt><a class="mod" href="ProgressStart/index.html" title="mod Vine::Server::Notification::ProgressStart">Progress<wbr>Start</a></dt><dd>Cocoon <code>progress.start</code> notification. Fires at the top of every
+<code>vscode.window.withProgress(...)</code> call. Normalised onto
+<code>sky://notification/progress-begin</code>.</dd><dt><a class="mod" href="RegisterCommand/index.html" title="mod Vine::Server::Notification::RegisterCommand">Register<wbr>Command</a></dt><dd>Cocoon → <code>registerCommand</code> notification.
+Two side effects per call:</dd><dt><a class="mod" href="RegisterLanguageProvider/index.html" title="mod Vine::Server::Notification::RegisterLanguageProvider">Register<wbr>Language<wbr>Provider</a></dt><dd>Cocoon → <code>register_*</code> / <code>register_*_provider</code> notification dispatcher.</dd><dt><a class="mod" href="RegisterScmProvider/index.html" title="mod Vine::Server::Notification::RegisterScmProvider">Register<wbr>ScmProvider</a></dt><dd>Cocoon → <code>register_scm_provider</code> notification.</dd><dt><a class="mod" href="RegisterScmResourceGroup/index.html" title="mod Vine::Server::Notification::RegisterScmResourceGroup">Register<wbr>ScmResource<wbr>Group</a></dt><dd>Cocoon → <code>register_scm_resource_group</code> notification.</dd><dt><a class="mod" href="SecurityIncident/index.html" title="mod Vine::Server::Notification::SecurityIncident">Security<wbr>Incident</a></dt><dd>Cocoon <code>security.incident</code> notification - Cocoon-side security
+policy flagged a breach (extension violated permission set, blocked
+filesystem access, etc.). Land has no central security dashboard
+yet; the atom surfaces the incident via <code>dev_log!</code> and re-emits on
+<code>sky://security/incident</code> for future listeners.</dd><dt><a class="mod" href="SetLanguageConfiguration/index.html" title="mod Vine::Server::Notification::SetLanguageConfiguration">SetLanguage<wbr>Configuration</a></dt><dd>Cocoon → <code>set_language_configuration</code> notification.
+Carries brackets / indent rules / word-pattern / comments.
+Forwarded on <code>sky://language/configure</code>; Monaco’s config side reads
+the payload and calls <code>monaco.languages.setLanguageConfiguration(...)</code>.</dd><dt><a class="mod" href="SetStatusBarText/index.html" title="mod Vine::Server::Notification::SetStatusBarText">SetStatus<wbr>BarText</a></dt><dd>Cocoon → <code>setStatusBarText</code> notification.
+Pure text-only fast path for <code>vscode.window.setStatusBarMessage(...)</code>.
+Distinct from the typed <code>statusBar.update</code> notification (which carries
+colour/tooltip/command fields). Forwards onto <code>sky://statusbar/set-entry</code>.</dd><dt><a class="mod" href="SetTextEditorDecorations/index.html" title="mod Vine::Server::Notification::SetTextEditorDecorations">SetText<wbr>Editor<wbr>Decorations</a></dt><dd>Cocoon → <code>window.setTextEditorDecorations</code> notification.
+Channel-drain batching: ~5-200 calls per extension per second during
+scroll; one renderer event per frame (16 ms window, drain stragglers).
+Uses <code>Arc&lt;dyn RendererEmitter&gt;</code> captured once from
+<code>VineHost::RendererEmitter()</code> so the drain task never holds a reference
+to the full host across await points.</dd><dt><a class="mod" href="StatusBarLifecycle/index.html" title="mod Vine::Server::Notification::StatusBarLifecycle">Status<wbr>BarLifecycle</a></dt><dd>Cocoon → <code>statusBar.update</code> / <code>statusBar.dispose</code> notifications.
+Derives the Sky event name from the wire method suffix and emits on
+<code>sky://statusbar/&lt;suffix&gt;</code>. Canonical prefix is <code>sky://statusbar/</code> (no
+hyphen) to match every other emit site in the statusbar group.</dd><dt><a class="mod" href="StatusBarMessage/index.html" title="mod Vine::Server::Notification::StatusBarMessage">Status<wbr>BarMessage</a></dt><dd>Cocoon → <code>statusBar.message</code> notification.
+Emitted when an extension calls <code>vscode.window.setStatusBarMessage</code>
+(one-shot text, optional auto-hide). Canonical channel is
+<code>sky://statusbar/set-message</code>.</dd><dt><a class="mod" href="Support/index.html" title="mod Vine::Server::Notification::Support">Support</a></dt><dd>Vine::Server::Notification::Support</dd><dt><a class="mod" href="TerminalLifecycle/index.html" title="mod Vine::Server::Notification::TerminalLifecycle">Terminal<wbr>Lifecycle</a></dt><dd>Cocoon → <code>terminal.sendText</code> / <code>terminal.show</code> / <code>terminal.hide</code> /
+<code>terminal.dispose</code> notifications.</dd><dt><a class="mod" href="UnregisterCommand/index.html" title="mod Vine::Server::Notification::UnregisterCommand">Unregister<wbr>Command</a></dt><dd>Cocoon → <code>unregisterCommand</code> notification.
+Removes the proxied <code>CommandHandler</code> from the embedder’s dispatch registry
+so subsequent <code>commands.executeCommand</code> no longer routes back to the
+extension. Also notifies Sky so the workbench command-service view and
+Mountain’s registry stay in sync when an extension disposes a command.</dd><dt><a class="mod" href="UnregisterScmProvider/index.html" title="mod Vine::Server::Notification::UnregisterScmProvider">Unregister<wbr>ScmProvider</a></dt><dd>Cocoon → <code>unregister_scm_provider</code> notification.
+Emitted when <code>vscode.scm.createSourceControl(...).dispose()</code> fires.
+Resolves the provider handle: uses the explicit <code>handle</code> field when
+Cocoon sends it, otherwise recomputes the DJB-31 hash of <code>scmId</code>
+that <code>RegisterScmProvider</code> used when it originally registered the provider
+(necessary because Cocoon’s dispose path only carries the string id).</dd><dt><a class="mod" href="UpdateScmGroup/index.html" title="mod Vine::Server::Notification::UpdateScmGroup">Update<wbr>ScmGroup</a></dt><dd>Cocoon → <code>update_scm_group</code> notification.
+Fire-and-forget resource-state update for an SCM group. Two side effects:</dd><dt><a class="mod" href="WebviewDispose/index.html" title="mod Vine::Server::Notification::WebviewDispose">Webview<wbr>Dispose</a></dt><dd>Cocoon <code>webview.dispose</code> notification - extension disposed a
+webview panel or the user closed the tab. Sky’s webview shim
+listens on <code>sky://webview/dispose</code> and tears down the DOM container
+and unregisters the handle.</dd><dt><a class="mod" href="WebviewLifecycle/index.html" title="mod Vine::Server::Notification::WebviewLifecycle">Webview<wbr>Lifecycle</a></dt><dd>Cocoon → <code>webview.setTitle</code> / <code>webview.setIconPath</code> / <code>webview.setHtml</code> /
+<code>webview.postMessage</code> / <code>webview.updateView</code> / <code>webview.viewState</code> /
+<code>webview.dispose</code> notifications.</dd><dt><a class="mod" href="WebviewPostMessage/index.html" title="mod Vine::Server::Notification::WebviewPostMessage">Webview<wbr>Post<wbr>Message</a></dt><dd>Cocoon <code>webview.postMessage</code> notification - extension called
+<code>WebviewPanel.webview.postMessage(...)</code>. Stock VS Code delivers
+this as a DOM <code>message</code> event inside the webview iframe; Land emits
+on <code>sky://webview/postMessage</code> and lets the Sky bridge relay into
+the specific webview DOM container keyed on <code>{ handle, message }</code>.</dd><dt><a class="mod" href="WindowCreateTerminal/index.html" title="mod Vine::Server::Notification::WindowCreateTerminal">Window<wbr>Create<wbr>Terminal</a></dt><dd>Cocoon → <code>window.createTerminal</code> notification.
+Spawns a PTY via <code>VineHost::CreateTerminal</code>, then emits
+<code>sky://terminal/create</code> with the provider-minted <code>{ id, pid, name }</code>.</dd><dt><a class="mod" href="WindowShowMessage/index.html" title="mod Vine::Server::Notification::WindowShowMessage">Window<wbr>Show<wbr>Message</a></dt><dd>Cocoon <code>window.showMessage</code> notification - fire-and-forget toast.
+Distinct from <code>Window.ShowMessage</code> (capitalised, round-trip
+request); this is the notification form that does not wait for a
+button selection.</dd></dl></section></div></main></body></html>

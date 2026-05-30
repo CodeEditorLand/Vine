@@ -1,0 +1,4 @@
+/*
+  Access-Control-Allow-Origin: *
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors https://editor.land https://*.editor.land

@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Vine::Error"><title>Vine::Error - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="Vine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.0-nightly (cced03bfd 2026-05-28)" data-channel="nightly" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module Error</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../Vine/index.html">Vine</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module Error</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#vineerror" title="Vine::Error">Vine::Error</a><ul><li><a href="#error-categories" title="Error Categories">Error Categories</a></li></ul></li></ul><h3><a href="#enums">Module Items</a></h3><ul class="block"><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate Vine</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">Vine</a></div><h1>Module <span>Error</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/Vine/Error.rs.html#1-192">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="vineerror"><a class="doc-anchor" href="#vineerror">§</a>Vine::Error</h2>
+<p>Canonical, structured error types for every operation that flows through
+Vine - the gRPC IPC layer that connects Mountain, Cocoon, and Air.</p>
+<h3 id="error-categories"><a class="doc-anchor" href="#error-categories">§</a>Error Categories</h3><h4 id="connection-errors"><a class="doc-anchor" href="#connection-errors">§</a>Connection Errors</h4>
+<ul>
+<li><code>ClientNotConnected</code>: Sidecar not in connection pool</li>
+<li><code>ConnectionFailed</code>: Unable to establish connection</li>
+<li><code>ConnectionLost</code>: Established connection was lost</li>
+</ul>
+<h4 id="rpc-errors"><a class="doc-anchor" href="#rpc-errors">§</a>RPC Errors</h4>
+<ul>
+<li><code>RPCError</code>: Generic gRPC status error</li>
+<li><code>RequestTimeout</code>: Request exceeded configured timeout</li>
+<li><code>RequestCanceled</code>: Request was explicitly canceled</li>
+</ul>
+<h4 id="serialization-errors"><a class="doc-anchor" href="#serialization-errors">§</a>Serialization Errors</h4>
+<ul>
+<li><code>SerializationError</code>: JSON serialization/deserialization failure</li>
+<li><code>MessageTooLarge</code>: Message exceeds size limits</li>
+<li><code>InvalidMessageFormat</code>: Message format validation failed</li>
+</ul>
+<h4 id="transport-errors"><a class="doc-anchor" href="#transport-errors">§</a>Transport Errors</h4>
+<ul>
+<li><code>TonicTransportError</code>: Low-level tonic transport failure</li>
+<li><code>InvalidUri</code>: Invalid URI format</li>
+<li><code>AddressParseError</code>: Invalid socket address format</li>
+</ul>
+<h4 id="internal-errors"><a class="doc-anchor" href="#internal-errors">§</a>Internal Errors</h4>
+<ul>
+<li><code>InternalLockError</code>: Mutex poisoned (panic in another thread)</li>
+<li><code>InvalidState</code>: Invalid internal state detected</li>
+</ul>
+</div></details><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.VineError.html" title="enum Vine::Error::VineError">Vine<wbr>Error</a></dt><dd>A comprehensive error enum for the Vine IPC layer.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.Result.html" title="type Vine::Error::Result">Result</a></dt><dd>Convenience <code>Result</code> alias for Vine operations.</dd></dl></section></div></main></body></html>

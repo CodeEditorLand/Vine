@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["COALESCE_WINDOW","MAX_BUFFERED_BYTES"],"fn":["FlushOne","GetOrInitChannel","IsDisabled","TryEnqueue"],"static":["COALESCE_CHANNEL"],"struct":["CoalesceChannel","PendingAppend"]};

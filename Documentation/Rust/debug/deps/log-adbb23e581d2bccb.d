@@ -1,0 +1,8 @@
+/Volumes/CORSAIR/Developer/macOS/Application/CodeEditorLand/Land/Element/Cache/Documentation/Rust/debug/deps/log-adbb23e581d2bccb.d: /Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/lib.rs /Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/macros.rs /Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/serde.rs /Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/__private_api.rs
+
+/Volumes/CORSAIR/Developer/macOS/Application/CodeEditorLand/Land/Element/Cache/Documentation/Rust/debug/deps/liblog-adbb23e581d2bccb.rmeta: /Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/lib.rs /Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/macros.rs /Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/serde.rs /Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/__private_api.rs
+
+/Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/lib.rs:
+/Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/macros.rs:
+/Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/serde.rs:
+/Volumes/CORSAIR/Tool/macOS/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/__private_api.rs:
