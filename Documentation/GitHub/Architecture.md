@@ -98,105 +98,100 @@ graph TB
 
 ## Protocol Buffers 📋
 
-### Vine.proto 📋
+### Vine.proto
 
 ```protobuf
 syntax = "proto3";
-package land.playform.cloud.vine;
+package Vine;
 
-service ExtensionHost {
-    // Lifecycle
-    rpc Initialize(InitRequest) returns (InitResponse);
-    rpc Shutdown(ShutdownRequest) returns (ShutdownResponse);
-    rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
-
-    // Extension Management
-    rpc ActivateExtension(ActivateRequest) returns (ActivateResponse);
-    rpc DeactivateExtension(DeactivateRequest) returns (DeactivateResponse);
-
-    // Commands
-    rpc ExecuteCommand(CommandRequest) returns (CommandResponse);
-    rpc RegisterCommand(RegisterCommandRequest) returns (RegisterCommandResponse);
-
-    // Language Features
-    rpc ProvideHover(HoverRequest) returns (HoverResponse);
-    rpc ProvideCompletions(CompletionRequest) returns (CompletionResponse);
-    rpc ProvideDefinition(DefinitionRequest) returns (DefinitionResponse);
-    rpc ProvideReferences(ReferencesRequest) returns (ReferencesResponse);
-    rpc ProvideCodeActions(CodeActionRequest) returns (CodeActionResponse);
-    rpc ProvideCodeLenses(CodeLensRequest) returns (CodeLensResponse);
-    rpc ProvideDocumentFormatting(FormattingRequest) returns (FormattingResponse);
-    rpc ProvideSignatureHelp(SignatureHelpRequest) returns (SignatureHelpResponse);
-    rpc ProvideCallHierarchy(CallHierarchyRequest) returns (CallHierarchyResponse);
-
-    // Webview
-    rpc CreateWebviewPanel(CreateWebviewRequest) returns (CreateWebviewResponse);
-    rpc SendWebviewMessage(SendWebviewMessageRequest) returns (SendWebviewMessageResponse);
-    rpc DisposeWebviewPanel(DisposeWebviewRequest) returns (DisposeWebviewResponse);
-
-    // Diagnostics
-    rpc SetDiagnostics(DiagnosticsRequest) returns (DiagnosticsResponse);
-    rpc ClearDiagnostics(ClearDiagnosticsRequest) returns (ClearDiagnosticsResponse);
-
-    // Notifications
-    rpc ShowMessage(ShowMessageRequest) returns (ShowMessageResponse);
-    rpc LogMessage(LogMessageRequest) returns (LogMessageResponse);
-}
-```
-
-### Spine.proto 📋
-
-The `Spine` protocol defines extension host coordination with an action/response
-pattern:
-
-```protobuf
-package land.playform.cloud.spine;
-
-service Spine {
-    rpc PerformAction(ActionRequest) returns (ActionResponse);
-    rpc CancelAction(CancelRequest) returns (CancelResponse);
-    rpc StreamActions(ActionStreamRequest) returns (stream ActionResponse);
+service MountainService {
+    rpc ProcessCocoonRequest(GenericRequest) returns (GenericResponse);
+    rpc SendCocoonNotification(GenericNotification) returns (Empty);
+    rpc CancelOperation(CancelOperationRequest) returns (Empty);
+    rpc OpenChannelFromCocoon(stream Envelope) returns (stream Envelope);
 }
 
-message ActionRequest {
-    string action_id = 1;
-    string effect_type = 2;      // Discriminated union key
-    bytes effect_data = 3;       // Serialized ActionEffect payload
-    string caller_id = 4;
-    int64 timeout_ms = 5;
+service CocoonService {
+    rpc ProcessMountainRequest(GenericRequest) returns (GenericResponse);
+    rpc SendMountainNotification(GenericNotification) returns (Empty);
+    rpc CancelOperation(CancelOperationRequest) returns (Empty);
+    rpc OpenChannelFromMountain(stream Envelope) returns (stream Envelope);
+    rpc InitialHandshake(Empty) returns (Empty);
+    rpc InitExtensionHost(InitExtensionHostRequest) returns (Empty);
+    rpc RegisterCommand(RegisterCommandRequest) returns (Empty);
+    rpc ExecuteContributedCommand(ExecuteCommandRequest) returns (ExecuteCommandResponse);
+    rpc UnregisterCommand(UnregisterCommandRequest) returns (Empty);
+    rpc RegisterHoverProvider(RegisterProviderRequest) returns (Empty);
+    rpc ProvideHover(ProvideHoverRequest) returns (ProvideHoverResponse);
+    rpc RegisterCompletionItemProvider(RegisterProviderRequest) returns (Empty);
+    rpc ProvideCompletionItems(ProvideCompletionItemsRequest) returns (ProvideCompletionItemsResponse);
+    rpc RegisterDefinitionProvider(RegisterProviderRequest) returns (Empty);
+    rpc ProvideDefinition(ProvideDefinitionRequest) returns (ProvideDefinitionResponse);
+    rpc RegisterReferenceProvider(RegisterProviderRequest) returns (Empty);
+    rpc ProvideReferences(ProvideReferencesRequest) returns (ProvideReferencesResponse);
+    rpc RegisterCodeActionsProvider(RegisterProviderRequest) returns (Empty);
+    rpc ProvideCodeActions(ProvideCodeActionsRequest) returns (ProvideCodeActionsResponse);
+    rpc RegisterDocumentHighlightProvider(RegisterProviderRequest) returns (Empty);
+    rpc ProvideDocumentHighlights(ProvideDocumentHighlightsRequest) returns (ProvideDocumentHighlightsResponse);
+    rpc RegisterDocumentSymbolProvider(RegisterProviderRequest) returns (Empty);
+    rpc ProvideDocumentSymbols(ProvideDocumentSymbolsRequest) returns (ProvideDocumentSymbolsResponse);
+    rpc RegisterWorkspaceSymbolProvider(RegisterProviderRequest) returns (Empty);
+    rpc ProvideWorkspaceSymbols(ProvideWorkspaceSymbolsRequest) returns (ProvideWorkspaceSymbolsResponse);
 }
 
-message ActionResponse {
-    string action_id = 1;
-    bool success = 2;
-    bytes result_data = 3;       // Serialized result
-    string error_message = 4;
-    int64 duration_ms = 5;
-}
+message Empty {}
+message Envelope { ... }
+message GenericRequest { ... }
+message GenericResponse { ... }
+message GenericNotification { ... }
+message RPCError { ... }
+message CancelOperationRequest { ... }
+message Position { ... }
+message Range { ... }
+message Uri { ... }
+message WorkspaceFolder { ... }
+message CompletionItem { ... }
+message Location { ... }
 ```
 
 ---
 
-## Service Definitions 🔌
+## Service Definitions
 
-### ExtensionHost Service (Mountain <-> Cocoon) 🔗
+### MountainService (`Cocoon` -> `Mountain`)
 
-| RPC                   | Direction          | Trigger              | Purpose                             |
-| --------------------- | ------------------ | -------------------- | ----------------------------------- |
-| `Initialize`          | Mountain -> Cocoon | After handshake      | Send InitData, start extension host |
-| `Shutdown`            | Mountain -> Cocoon | App quit             | Graceful extension host shutdown    |
-| `Heartbeat`           | Bidirectional      | Every 5 seconds      | Connection health monitoring        |
-| `ActivateExtension`   | Mountain -> Cocoon | Extension activation | Activate a VS Code extension        |
-| `DeactivateExtension` | Mountain -> Cocoon | Extension disposal   | Deactivate extension                |
-| `ExecuteCommand`      | Cocoon -> Mountain | Extension command    | Execute registered command          |
-| `RegisterCommand`     | Cocoon -> Mountain | Extension startup    | Register command handler            |
-| `ProvideHover`        | Cocoon -> Mountain | User hover           | Request hover information           |
-| `ProvideCompletions`  | Cocoon -> Mountain | User types           | Request completion items            |
-| `ProvideDefinition`   | Cocoon -> Mountain | User clicks          | Request definition location         |
-| `CreateWebviewPanel`  | Cocoon -> Mountain | Extension            | Create webview panel                |
-| `SendWebviewMessage`  | Cocoon -> Mountain | Extension            | Send message to webview             |
-| `SetDiagnostics`      | Cocoon -> Mountain | Extension            | Update diagnostic markers           |
-| `ShowMessage`         | Cocoon -> Mountain | Extension            | Show message to user                |
+| RPC                      | Direction              | Purpose                                |
+| ------------------------ | ---------------------- | -------------------------------------- |
+| `ProcessCocoonRequest`   | `Cocoon` -> `Mountain` | Generic request-response               |
+| `SendCocoonNotification` | `Cocoon` -> `Mountain` | Fire-and-forget event                  |
+| `CancelOperation`        | `Cocoon` -> `Mountain` | Cancel an in-flight request            |
+| `OpenChannelFromCocoon`  | `Cocoon` -> `Mountain` | LAND-PATCH B7-S6 P2 multiplexed stream |
+
+### CocoonService (`Mountain` -> `Cocoon`)
+
+| RPC                         | Direction              | Purpose                                |
+| --------------------------- | ---------------------- | -------------------------------------- |
+| `ProcessMountainRequest`    | `Mountain` -> `Cocoon` | Generic request-response               |
+| `SendMountainNotification`  | `Mountain` -> `Cocoon` | Fire-and-forget notification           |
+| `CancelOperation`           | `Mountain` -> `Cocoon` | Cancel an in-flight request            |
+| `OpenChannelFromMountain`   | `Mountain` -> `Cocoon` | LAND-PATCH B7-S6 P2 multiplexed stream |
+| `InitExtensionHost`         | `Mountain` -> `Cocoon` | Send workspace / extensions / config   |
+| `ExecuteContributedCommand` | `Mountain` -> `Cocoon` | Execute an extension command           |
+| `ProvideHover`              | `Mountain` -> `Cocoon` | Request hover from provider            |
+| `ProvideCompletionItems`    | `Mountain` -> `Cocoon` | Request completion items               |
+| `ProvideDefinition`         | `Mountain` -> `Cocoon` | Request definition location            |
+| `ProvideReferences`         | `Mountain` -> `Cocoon` | Request reference locations            |
+| `ProvideCodeActions`        | `Mountain` -> `Cocoon` | Request code actions                   |
+| `ProvideDocumentHighlights` | `Mountain` -> `Cocoon` | Request document highlights            |
+| `ProvideDocumentSymbols`    | `Mountain` -> `Cocoon` | Request document symbols               |
+| `ProvideWorkspaceSymbols`   | `Mountain` -> `Cocoon` | Request workspace symbols              |
+
+`Air` speaks `Vine` via its own `AirService` (see `Element/Air/Proto/Air.proto`)
+on port `50053`.
+
+Streaming (`OpenChannelFromMountain` / `OpenChannelFromCocoon`) replaces the
+older unary path for any caller that needs concurrent dispatch. Unary RPCs are
+preserved for backward compatibility.
 
 ### Spine Service (Cocoon -> Mountain) 🔗
 
@@ -331,11 +326,11 @@ impl ExtensionHost for VineServiceImpl {
 
 ## Port Allocation 🔢
 
-| Service            | Port  | Transport    | Components                         |
-| ------------------ | ----- | ------------ | ---------------------------------- |
-| ExtensionHost      | 50051 | TCP loopback | Mountain (server), Cocoon (client) |
-| Spirte/Action      | 50051 | TCP loopback | Mountain (server), Cocoon (client) |
-| BackgroundServices | 50053 | TCP loopback | Air (server)                       |
+| Service       | Port  | Transport    | Components                         |
+| ------------- | ----- | ------------ | ---------------------------------- |
+| Mountain Vine | 50051 | TCP loopback | Mountain (server), Cocoon (client) |
+| Cocoon Vine   | 50052 | TCP loopback | Cocoon (server), Mountain (client) |
+| Air Vine      | 50053 | TCP loopback | Air (server)                       |
 
 Ports can be overridden via environment variables:
 

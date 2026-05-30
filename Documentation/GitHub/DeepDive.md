@@ -9,50 +9,51 @@ additional gRPC consumer.
 
 ## Architecture
 
-Vine is a contract-first protocol layer. The `.proto` files are the source of
-truth; generated Rust code from `tonic`/`prost` is used by Mountain for the
-server implementation and by Cocoon for client stubs.
+Vine is a contract-first protocol layer. The `.proto` file is the source of
+truth; generated Rust code via `prost-build`/`tonic` is shared by Mountain, Air,
+and Cocoon.
 
 ```mermaid
 graph TB
     subgraph "Vine - Protocol Layer"
-        VineProto["Vine.proto\nMountain ↔ Cocoon"]
-        SpineProto["Spine.proto\nExtension Host Coordination"]
+        VineProto["Vine.proto\nMountain ↔ Cocoon\n(Vine Pro colocated)"]
         MessageTypes["Message/\nShared message definitions"]
         ServiceDefs["Service/\ngRPC service interfaces"]
         ClientStubs["Client/\nGenerated client code"]
     end
 
     subgraph "Mountain - gRPC Server Host"
-        VineServer["Vine gRPC Server\ntonic implementation"]
+        VineServer["Vine gRPC Server\ntonic implementation:50051"]
     end
 
     subgraph "Clients"
-        CocoonClient["Cocoon gRPC Client\n@grpc/grpc-js"]
+        CocoonClient["Cocoon gRPC Client\nNode.js service connector"]
+        AirClient["Air gRPC Client\nbackground daemon consumer"]
     end
 
     VineProto --> VineServer
     VineProto --> CocoonClient
-    SpineProto --> VineServer
-    SpineProto --> CocoonClient
+    VineProto --> AirClient
 ```
 
 ---
 
 ## Key Modules
 
-| Path                | Description                                                                |
-| :------------------ | :------------------------------------------------------------------------- |
-| `Proto/Vine.proto`  | Core protocol: Mountain ↔ Cocoon commands, events, handshake               |
-| `Proto/Spine.proto` | Extension host coordination: action/response pattern for command execution |
-| `Source/lib.rs`     | Library root; re-exports generated types                                   |
-| `Source/Message/`   | Structured message type definitions shared across services                 |
-| `Source/Service/`   | gRPC service trait implementations                                         |
-| `Source/Client/`    | Protocol client helpers for consumer crates                                |
+| Path                    | Description                                                              |
+| :---------------------- | :----------------------------------------------------------------------- |
+| `Proto/Vine.proto`      | Canonical protocol schema (only schema shipped)                          |
+| `Source/Library.rs`     | Crate root: port constants, protocol version, constants                  |
+| `Source/Host.rs`        | `VineHost` + `IPCProvider` embedder seam                                 |
+| `Source/Generated/`     | prost-built types + tonic clients/servers from `Proto/Vine.proto`        |
+| `Source/Client/`        | Connection helpers, request/notification dispatch, sidecar health checks |
+| `Source/Server/`        | Bind helpers + notification handler tree                                 |
+| `Source/Multiplexer.rs` | Bidirectional streaming envelope multiplexer (`LAND_VINE_STREAMING=1`)   |
+| `Source/Error.rs`       | Canonical `VineError` variants                                           |
 
-The current protocol implementation resides in Mountain's `Vine/` directory
-(server side) and in Cocoon's `Services/MountainGRPCClient.ts` (client side).
-The Vine Element is the canonical home for the `.proto` definitions.
+The protocol implementation spans Mountain's `Source/RPC/Vine/` (server), Air's
+Vine client modules, and Cocoon's `Source/Effect/RPCServer.ts` (client). The
+Vine Element owns the schema and shared Rust types.
 
 ---
 
@@ -89,21 +90,27 @@ sequenceDiagram
 
 ## Integration Points
 
-| Connecting Element | Direction | Mechanism         | Description                                                       |
-| :----------------- | :-------- | :---------------- | :---------------------------------------------------------------- |
-| **Mountain**       | Server    | tonic gRPC server | Hosts Vine and Air gRPC services; handles all incoming RPC calls  |
-| **Cocoon**         | Client    | `@grpc/grpc-js`   | Node.js client connecting to Mountain's Vine server on port 50052 |
+| Connecting Element | Direction       | Mechanism                  | Description                                                        |
+| :----------------- | :-------------- | :------------------------- | :----------------------------------------------------------------- |
+| **Mountain**       | Server          | tonic gRPC server          | Hosts Vine server on `50051`; handles incoming RPC from Cocoon/Air |
+| **Cocoon**         | Client          | Node.js `grpc-js` / Bridge | Connects to Mountain's Vine server                                 |
+| **Air**            | Server + Client | tonic gRPC                 | Hosts AirService on `50053`; also connects back to Mountain        |
+
+**Listening addresses:**
+
+| Service       | Address       |
+| :------------ | :------------ |
+| Mountain Vine | `[::1]:50051` |
+| Cocoon Vine   | `[::1]:50052` |
+| Air Vine      | `[::1]:50053` |
 
 ---
 
 ## Configuration
 
-| Parameter        | Value               | Description                                                        |
-| :--------------- | :------------------ | :----------------------------------------------------------------- |
-| Vine/Cocoon port | `50052`             | Mountain gRPC server port for extension host communication         |
-| Transport        | TCP (loopback)      | All gRPC connections use `[::1]` (IPv6 loopback)                   |
-| TLS              | Disabled (loopback) | No TLS for local IPC; Mist DNS isolation provides network boundary |
+| Parameter | Value                  | Description                                      |
+| :-------- | :--------------------- | :----------------------------------------------- |
+| Transport | TCP loopback           | `[::1]` only; no external exposure               |
+| TLS       | Disabled for local IPC | Mist DNS isolation enforces the network boundary |
 
-Protocol buffer files are compiled at build time by `prost-build` in Mountain's
-`build.rs`. The generated Rust types are used directly by Mountain's `Vine/` and
-the Air daemon's own server modules.
+Addresses are listed in [Integration Points](#integration-points).
