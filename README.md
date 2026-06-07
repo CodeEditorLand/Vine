@@ -2,8 +2,7 @@
 	<tr>
 		<td align="left" valign="middle">
 			<h3 align="left">
-				Vine
-				🌿
+				Vine&#x2001;🌿
 			</h3>
 		</td>
 		<td align="left" valign="middle">
@@ -25,8 +24,7 @@
 		<td align="left" valign="middle">
 			<h3 align="left">
 				<a href="https://Land.PlayForm.Cloud" target="_blank">
-					Land
-					🏞️
+					Land&#x2001;🏞️
 				</a>
 			</h3>
 		</td>
@@ -86,7 +84,7 @@ backend) and `Cocoon` (Node.js extension host) (Rust/WASM extension host).
 
 ---
 
-## `Vine` in the Land Ecosystem&#x2001;🌿 + &#x2001;🏞️
+## `Vine` in the Land Ecosystem 🌿 + 🏞️
 
 | Component          | Role & Key Responsibilities                                  |
 | :----------------- | :----------------------------------------------------------- |

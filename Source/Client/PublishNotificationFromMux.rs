@@ -7,5 +7,6 @@ use serde_json::Value;
 use crate::Client::PublishNotification;
 
 pub(crate) fn Fn(SideCarIdentifier:&str, Method:&str, Parameters:&Value) {
+
 	PublishNotification::Fn(SideCarIdentifier, Method, Parameters);
 }

@@ -8,5 +8,6 @@ use serde_json::Value;
 use crate::Host::VineHost;
 
 pub async fn ExtensionHostMessage(Host:&dyn VineHost, Parameter:&Value) {
+
 	Host.EmitToRenderer("cocoon:extensionHostReply", Parameter.clone());
 }
