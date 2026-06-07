@@ -6,7 +6,6 @@ use serde_json::Value;
 use crate::{Host::VineHost, Server::Notification::Support::UnregisterByHandle, dev_log};
 
 pub async fn UnregisterUriHandler(Host:&dyn VineHost, Parameter:&Value) {
-
 	let Scheme = Parameter.get("scheme").and_then(Value::as_str).unwrap_or("");
 
 	dev_log!("provider-register", "[ProviderUnregister] uri_handler scheme={}", Scheme);
