@@ -383,6 +383,6 @@ protoc \
 ---
 
 **Project Maintainers:** Source Open
-([Source/Open@Land.PlayForm.Cloud](mailto:Source/Open@Land.PlayForm.Cloud)) |
+([Source/Open@editor.land](mailto:Source/Open@editor.land)) |
 [GitHub Repository](https://github.com/CodeEditorLand/Vine) |
 [Report an Issue](https://github.com/CodeEditorLand/Vine/issues)
