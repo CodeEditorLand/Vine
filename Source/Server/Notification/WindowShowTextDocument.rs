@@ -7,6 +7,5 @@ use serde_json::Value;
 use crate::Host::VineHost;
 
 pub async fn WindowShowTextDocument(Host:&dyn VineHost, Parameter:&Value) {
-
 	Host.EmitToRenderer("sky://window/showTextDocument", Parameter.clone());
 }

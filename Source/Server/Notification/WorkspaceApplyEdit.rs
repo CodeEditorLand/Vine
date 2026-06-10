@@ -8,6 +8,5 @@ use serde_json::Value;
 use crate::Host::VineHost;
 
 pub async fn WorkspaceApplyEdit(Host:&dyn VineHost, Parameter:&Value) {
-
 	Host.EmitToRenderer("sky://workspace/applyEdit", Parameter.clone());
 }
