@@ -23,6 +23,8 @@ pub mod OutputChannelCoalesce;
 
 pub mod OutputChannelHide;
 
+pub mod OutputChannelReplace;
+
 pub mod OutputReplace;
 
 // --- Progress: channel-drain coalescer + payload reshape ---
