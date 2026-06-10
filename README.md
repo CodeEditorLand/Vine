@@ -12,18 +12,18 @@
 		</td>
 		<td align="left" valign="middle">
 			<h3 align="left">
-				<a href="https://Land.PlayForm.Cloud" target="_blank">
+				<a href="https://editor.land" target="_blank">
 					<picture>
-						<source media="(prefers-color-scheme: dark)" srcset="https://PlayForm.Cloud/Dark/Image/GitHub/Land.svg" />
-						<source media="(prefers-color-scheme: light)" srcset="https://PlayForm.Cloud/Image/GitHub/Land.svg" />
-						<img width="28" alt="Land Logo" src="https://PlayForm.Cloud/Image/GitHub/Land.svg" />
+						<source media="(prefers-color-scheme: dark)" srcset="https://editor.land/Dark/Image/GitHub/Land.svg" />
+						<source media="(prefers-color-scheme: light)" srcset="https://editor.land/Image/GitHub/Land.svg" />
+						<img width="28" alt="Land Logo" src="https://editor.land/Image/GitHub/Land.svg" />
 					</picture>
 				</a>
 			</h3>
 		</td>
 		<td align="left" valign="middle">
 			<h3 align="left">
-				<a href="https://Land.PlayForm.Cloud" target="_blank">
+				<a href="https://editor.land" target="_blank">
 					Land&#x2001;🏞️
 				</a>
 			</h3>
@@ -38,7 +38,7 @@
 The gRPC Protocol Layer for Land &#x2001;🏞️
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
-[<img src="https://land.playform.cloud/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
+[<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Status](https://img.shields.io/badge/Status-Under%20Development-yellow.svg)](https://github.com/CodeEditorLand/Vine)
 
 Welcome to **Vine**, the gRPC protocol definition and communication
 specification for the **Land Code Editor** ecosystem. Vine defines the
@@ -208,9 +208,9 @@ Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" 
 
 ## See Also
 
-- [Vine Documentation](https://land.playform.cloud/Doc/vine)
-- [Architecture Overview](https://land.playform.cloud/Doc/architecture)
-- [Why gRPC](https://land.playform.cloud/Doc/why-grpc)
+- [Vine Documentation](https://editor.land/Doc/vine)
+- [Architecture Overview](https://editor.land/Doc/architecture)
+- [Why gRPC](https://editor.land/Doc/why-grpc)
 - [Mountain](https://github.com/CodeEditorLand/Mountain)
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon)
 - Spine Contract
@@ -284,12 +284,12 @@ Commons Fund grant.
 	<tbody>
 		<tr>
 			<td align="left" valign="middle">
-				<a href="https://Land.PlayForm.Cloud">
+				<a href="https://editor.land">
 					<img width="60" src="https://raw.githubusercontent.com/CodeEditorLand/Asset/refs/heads/Current/Logo/Land.svg" alt="Land" />
 				</a>
 			</td>
 			<td align="left" valign="middle">
-				<a href="https://PlayForm.Cloud">
+				<a href="https://editor.land">
 					<img width="76" src="https://raw.githubusercontent.com/PlayForm/Asset/refs/heads/Current/Logo/PlayForm.svg" alt="PlayForm" />
 				</a>
 			</td>
@@ -310,7 +310,7 @@ Commons Fund grant.
 ---
 
 **Project Maintainers**: Source Open
-([Source/Open@Land.PlayForm.Cloud](mailto:Source/Open@Land.PlayForm.Cloud)) |
+([Source/Open@editor.land](mailto:Source/Open@editor.land)) |
 [GitHub Repository](https://github.com/CodeEditorLand/Vine) |
 [Report an Issue](https://github.com/CodeEditorLand/Vine/issues) |
 [Security Policy](https://github.com/CodeEditorLand/Vine/security/policy)
