@@ -238,7 +238,7 @@ file.
 ## Changelog&#x2001;📜
 
 Stay updated with our progress! See
-[`CHANGELOG.md`](https://github.com/CodeEditorLand/Vine/tree/Current/) for a
+[`CHANGELOG.md`](https://github.com/CodeEditorLand/Vine/tree/Current/CHANGELOG.md) for a
 history of changes specific to **Vine**.
 
 ---
