@@ -208,9 +208,9 @@ Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" 
 
 ## See Also
 
-- [Vine Documentation](https://editor.land/Doc/vine)
-- [Architecture Overview](https://editor.land/Doc/architecture)
-- [Why gRPC](https://editor.land/Doc/why-grpc)
+- [Vine Documentation](https://Editor.Land/Doc/vine)
+- [Architecture Overview](https://Editor.Land/Doc/architecture)
+- [Why gRPC](https://Editor.Land/Doc/why-grpc)
 - [Mountain](https://github.com/CodeEditorLand/Mountain)
 - [Cocoon](https://github.com/CodeEditorLand/Cocoon)
 - Spine Contract
