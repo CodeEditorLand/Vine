@@ -25,10 +25,13 @@ pub type CocoonClient = CocoonServiceClient<tonic::transport::Channel>;
 pub const DEFAULT_TIMEOUT_MS:u64 = 5000;
 
 /// Maximum number of retry attempts for failed connections.
-pub const MAX_RETRY_ATTEMPTS:usize = 3;
+/// Air's gRPC server takes ~150-500 ms to bind after the process spawns,
+/// so 10 attempts at 200 ms base gives a ~5 s window (2^0+…+2^9 × 200 ms,
+/// capped by the Vine client's exponential backoff).
+pub const MAX_RETRY_ATTEMPTS:usize = 10;
 
-/// Base delay between retry attempts.
-pub const RETRY_BASE_DELAY_MS:u64 = 100;
+/// Base delay between retry attempts (ms).
+pub const RETRY_BASE_DELAY_MS:u64 = 200;
 
 /// Maximum message size for validation (4 MB to match the tonic default).
 pub const MAX_MESSAGE_SIZE_BYTES:usize = 4 * 1024 * 1024;
