@@ -1,9 +1,9 @@
 # Vine - Deep Dive
 
-Vine provides the technical foundation gRPC protocol layer
-within the Land ecosystem. **Vine** defines the strongly-typed inter-process
-communication contracts used between Mountain and Cocoon, with Air as an
-additional gRPC consumer.
+Vine provides the technical foundation gRPC protocol layer within the Land
+ecosystem. **Vine** defines the strongly-typed inter-process communication
+contracts used between Mountain and Cocoon, with Air as an additional gRPC
+consumer.
 
 ---
 

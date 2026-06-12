@@ -1,8 +1,8 @@
 # Vine: gRPC Protocol Layer 🌿
 
-`Vine` is the `gRPC` protocol definition and communication
-specification for the `Land` ecosystem. `Vine` defines the strongly-typed IPC
-layer used for communication between:
+`Vine` is the `gRPC` protocol definition and communication specification for the
+`Land` ecosystem. `Vine` defines the strongly-typed IPC layer used for
+communication between:
 
 - `Mountain` (`Rust` backend) - gRPC server
 - `Cocoon` (`Node.js` extension host) - gRPC client
