@@ -19,8 +19,8 @@ use crate::Client::{IsClientConnected, IsShuttingDown, Shared::GetConnectionNoti
 /// immediately; the slice only bounds the lost-wakeup worst case.
 const RECHECK_INTERVAL_MS:u64 = 100;
 
-/// Await Cocoon's gRPC connection without polling. `GetConnectionNotify` returns a shared `tokio::sync::Notify` that `Conne
-///
+/// Await Cocoon's gRPC connection without polling. `GetConnectionNotify`
+/// returns a shared `tokio::sync::Notify` that `Conne
 pub async fn Fn(SideCarIdentifier:&str, BudgetMilliseconds:u64) -> bool {
 	if IsShuttingDown::Fn() {
 		return false;

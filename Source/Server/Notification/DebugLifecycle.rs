@@ -12,7 +12,14 @@ use serde_json::{Value, json};
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : → `debug.addBreakpoints` / `debug.removeBreakpoints` / `debug.consoleAppend` notifications. Fans on `sky://debug/<suffix>` so the Sky-side debug view picks up breakpoint changes and console output from the extension's `vscode.debug.*` surface. For breakpoint mutations specifically, also fans back to so `vscode.debug.onDidChangeBreakpoints` subscribers in OTHER extensions observe the change. Without this round-trip, only the extension that called `addBreakpoints`/`removeBreakpoints` knows about its own write..
+/// Handles : → `debug.addBreakpoints` / `debug.removeBreakpoints` /
+/// `debug.consoleAppend` notifications. Fans on `sky://debug/<suffix>` so the
+/// Sky-side debug view picks up breakpoint changes and console output from the
+/// extension's `vscode.debug.*` surface. For breakpoint mutations specifically,
+/// also fans back to so `vscode.debug.onDidChangeBreakpoints` subscribers in
+/// OTHER extensions observe the change. Without this round-trip, only the
+/// extension that called `addBreakpoints`/`removeBreakpoints` knows about its
+/// own write..
 pub async fn DebugLifecycle(Host:&dyn VineHost, MethodName:&str, Parameter:&Value) {
 	let EventName = format!("sky://debug/{}", &MethodName["debug.".len()..]);
 

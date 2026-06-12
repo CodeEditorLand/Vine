@@ -6,7 +6,9 @@ use serde_json::{Value, json};
 
 use crate::Host::VineHost;
 
-/// Handles : `progress.start` Fires at the top of every `vscode.window.withProgress(...)` call. Normalised onto `sky://notification/progress-begin`..
+/// Handles : `progress.start` Fires at the top of every
+/// `vscode.window.withProgress(...)` call. Normalised onto
+/// `sky://notification/progress-begin`..
 pub async fn ProgressStart(Host:&dyn VineHost, Parameter:&Value) {
 	let Handle = Parameter.get("handle").and_then(Value::as_str).unwrap_or("");
 

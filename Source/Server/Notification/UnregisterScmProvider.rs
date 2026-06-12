@@ -9,7 +9,12 @@ use serde_json::{Value, json};
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : → `unregister_scm_provider` Emitted when `vscode.scm.createSourceControl(...).dispose()` fires. Resolves the provider handle: uses the explicit `handle` field when sends it, otherwise recomputes the DJB-31 hash of `scmId` that `RegisterScmProvider` used when it originally registered the provider (necessary because Cocoon's dispose path only carries the string id)..
+/// Handles : → `unregister_scm_provider` Emitted when
+/// `vscode.scm.createSourceControl(...).dispose()` fires. Resolves the provider
+/// handle: uses the explicit `handle` field when sends it, otherwise recomputes
+/// the DJB-31 hash of `scmId` that `RegisterScmProvider` used when it
+/// originally registered the provider (necessary because Cocoon's dispose path
+/// only carries the string id)..
 pub async fn UnregisterScmProvider(Host:&dyn VineHost, Parameter:&Value) {
 	let ScmId = Parameter
 		.get("scmId")

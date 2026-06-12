@@ -1,6 +1,6 @@
-//! Extension Host → `webview.setTitle` / `webview.setIconPath` / `webview.setHtml` /
-//! `webview.postMessage` / `webview.updateView` / `webview.viewState` /
-//! `webview.dispose` notifications.
+//! Extension Host → `webview.setTitle` / `webview.setIconPath` /
+//! `webview.setHtml` / `webview.postMessage` / `webview.updateView` /
+//! `webview.viewState` / `webview.dispose` notifications.
 //!
 //! Wire-shape canonicalisation: SkyBridge listeners read named keys
 //! (`Payload.viewId`, `Payload.html`, `Payload.message`). Cocoon's legacy
@@ -16,7 +16,16 @@ use serde_json::{Map, Value, json};
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : → `webview.setTitle` / `webview.setIconPath` / `webview.setHtml` / `webview.postMessage` / `webview.updateView` / `webview.viewState` / `webview.dispose` notifications.  Wire-shape canonicalisation: SkyBridge listeners read named keys (`Payload.viewId`, `Payload.html`, `Payload.message`). Cocoon's legacy positional `[Handle, Value]` arrays are projected to named aliases here so every producer shape lands on the same Sky channel. Mirrors the reshape `Track/Effect/CreateEffectForRequest/Webview.rs` applies on the request path.  Suffix mapping: `setHtml` → `set-html` (kebab) to match the typed-RPC channel; other suffixes pass through camelCase..
+/// Handles : → `webview.setTitle` / `webview.setIconPath` / `webview.setHtml` /
+/// `webview.postMessage` / `webview.updateView` / `webview.viewState` /
+/// `webview.dispose` notifications.  Wire-shape canonicalisation: SkyBridge
+/// listeners read named keys (`Payload.viewId`, `Payload.html`,
+/// `Payload.message`). Cocoon's legacy positional `[Handle, Value]` arrays are
+/// projected to named aliases here so every producer shape lands on the same
+/// Sky channel. Mirrors the reshape
+/// `Track/Effect/CreateEffectForRequest/Webview.rs` applies on the request
+/// path.  Suffix mapping: `setHtml` → `set-html` (kebab) to match the typed-RPC
+/// channel; other suffixes pass through camelCase..
 pub async fn WebviewLifecycle(Host:&dyn VineHost, MethodName:&str, Parameter:&Value) {
 	let RawSuffix = &MethodName["webview.".len()..];
 

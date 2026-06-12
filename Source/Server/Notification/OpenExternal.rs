@@ -7,7 +7,10 @@ use serde_json::Value;
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : `openExternal` notification: extension called `vscode.env.openExternal(uri)`. Delegates to the platform default handler via the `opener` crate. Fire-and-forget; success/failure is logged but not surfaced back to the extension..
+/// Handles : `openExternal` notification: extension called
+/// `vscode.env.openExternal(uri)`. Delegates to the platform default handler
+/// via the `opener` crate. Fire-and-forget; success/failure is logged but not
+/// surfaced back to the extension..
 pub async fn OpenExternal(_Host:&dyn VineHost, Parameter:&Value) {
 	let Uri = Parameter.get("uri").and_then(Value::as_str).unwrap_or("");
 

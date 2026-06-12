@@ -7,7 +7,10 @@ use serde_json::Value;
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : `webview.dispose` notification: extension disposed a webview panel or the user closed the tab. Sky's webview shim listens on `sky://webview/dispose` and tears down the DOM container and unregisters the handle..
+/// Handles : `webview.dispose` notification: extension disposed a webview panel
+/// or the user closed the tab. Sky's webview shim listens on
+/// `sky://webview/dispose` and tears down the DOM container and unregisters the
+/// handle..
 pub async fn WebviewDispose(Host:&dyn VineHost, Parameter:&Value) {
 	Host.EmitToRenderer("sky://webview/dispose", Parameter.clone());
 

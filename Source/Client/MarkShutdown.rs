@@ -5,6 +5,6 @@
 
 use crate::Client::Shared;
 
-/// Flip the global Vine-client shutdown flag. Embedders call this immediately before SIGKILL'ing the sidecar so any infligh
-///
+/// Flip the global Vine-client shutdown flag. Embedders call this immediately
+/// before SIGKILL'ing the sidecar so any infligh
 pub fn Fn() { Shared::ShutdownFlagStore(true); }

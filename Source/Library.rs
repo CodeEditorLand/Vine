@@ -17,9 +17,9 @@
 //!   routes notifications from the extension host into Tauri's renderer.
 //! - **Extension host** (Node.js) speaks Vine to invoke VS Code–shaped
 //!   operations on Mountain.
-//! - **Air** (background daemon) speaks Vine as a client to query Mountain
-//!   for editor state when running indexing, update, or download tasks; also
-//!   hosts its own AirService gRPC server on `[::1]:50053`.
+//! - **Air** (background daemon) speaks Vine as a client to query Mountain for
+//!   editor state when running indexing, update, or download tasks; also hosts
+//!   its own AirService gRPC server on `[::1]:50053`.
 //!
 //! ## Architecture reference
 //!

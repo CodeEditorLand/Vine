@@ -11,8 +11,8 @@ use crate::{
 	DevLog,
 };
 
-/// Internal: publish a notification to the broadcast. Called from `SendNotification::Fn` after the wire send succeeds, and 
-///
+/// Internal: publish a notification to the broadcast. Called from
+/// `SendNotification::Fn` after the wire send succeeds, and
 pub fn Fn(SideCarIdentifier:&str, Method:&str, Parameters:&Value) {
 	let Frame = NotificationFrame::Struct {
 		SideCarIdentifier:SideCarIdentifier.to_string(),

@@ -20,8 +20,8 @@ use crate::{
 	dev_log,
 };
 
-/// Establish a gRPC connection to a Cocoon sidecar with exponential back-off retry. On success initialises the per-connecti
-///
+/// Establish a gRPC connection to a Cocoon sidecar with exponential back-off
+/// retry. On success initialises the per-connecti
 pub async fn Fn(SideCarIdentifier:String, Address:String) -> Result<(), VineError> {
 	dev_log!(
 		"grpc",

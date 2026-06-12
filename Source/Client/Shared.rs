@@ -14,6 +14,7 @@ use std::{
 	time::Instant,
 };
 
+use dashmap::DashMap;
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
 use tokio::sync::Notify;
@@ -48,7 +49,7 @@ pub const MAX_MESSAGE_SIZE_BYTES:usize = 4 * 1024 * 1024;
 /// Health-check interval, in milliseconds.
 pub const HEALTH_CHECK_INTERVAL_MS:u64 = 30000;
 
-/// Connection timeout (currently unused — kept for the streaming variant).
+/// Connection timeout (currently unused - kept for the streaming variant).
 pub const CONNECTION_TIMEOUT_MS:u64 = 10000;
 
 /// Notification broadcast capacity (drop-oldest when full).
@@ -70,11 +71,14 @@ pub struct ConnectionMetadata {
 }
 
 lazy_static! {
+
 	/// Connection pool mapping sidecar identifiers to their gRPC clients.
 	///
 	/// Populated by `ConnectToSideCar` on success; consumed by
 	/// `SendRequest`, `SendNotification`, and `DisconnectFromSideCar`.
-	pub static ref SIDECAR_CLIENTS: Arc<Mutex<HashMap<String, CocoonClient>>> = Arc::new(Mutex::new(HashMap::new()));
+	/// Sharded `DashMap` so concurrent `SendRequest` client lookups
+	/// (parallel LSP calls) never serialize on a single global lock.
+	pub static ref SIDECAR_CLIENTS: DashMap<String, CocoonClient> = DashMap::new();
 
 	/// Per-connection metadata keyed by sidecar identifier.
 	///
@@ -108,7 +112,7 @@ static CONNECTION_NOTIFIERS:OnceLock<Arc<parking_lot::RwLock<HashMap<String, Arc
 ///
 /// # Parameters
 ///
-/// * `SideCarIdentifier` — identifies the sidecar whose notifier to fetch.
+/// * `SideCarIdentifier` - identifies the sidecar whose notifier to fetch.
 pub fn GetConnectionNotify(SideCarIdentifier:&str) -> Arc<Notify> {
 	let Map = CONNECTION_NOTIFIERS.get_or_init(|| Arc::new(parking_lot::RwLock::new(HashMap::new())));
 
@@ -135,7 +139,7 @@ pub fn GetConnectionNotify(SideCarIdentifier:&str) -> Arc<Notify> {
 ///
 /// # Parameters
 ///
-/// * `SideCarIdentifier` — identifies the sidecar whose notifier to fire.
+/// * `SideCarIdentifier` - identifies the sidecar whose notifier to fire.
 pub fn FireConnectionNotify(SideCarIdentifier:&str) {
 	if let Some(Map) = CONNECTION_NOTIFIERS.get() {
 		if let Some(Notifier) = Map.read().get(SideCarIdentifier) {
@@ -155,7 +159,7 @@ pub static SHUTDOWN_FLAG:AtomicBool = AtomicBool::new(false);
 ///
 /// # Parameters
 ///
-/// * `Value` — `true` to mark the client as shutting down.
+/// * `Value` - `true` to mark the client as shutting down.
 pub fn ShutdownFlagStore(Value:bool) { SHUTDOWN_FLAG.store(Value, Ordering::Relaxed); }
 
 /// Loads the current value of the process-wide shutdown flag.
@@ -172,7 +176,7 @@ pub fn ShutdownFlagLoad() -> bool { SHUTDOWN_FLAG.load(Ordering::Relaxed) }
 ///
 /// # Parameters
 ///
-/// * `SideCarIdentifier` — identifies the sidecar that experienced a failure.
+/// * `SideCarIdentifier` - identifies the sidecar that experienced a failure.
 pub fn RecordSideCarFailure(SideCarIdentifier:&str) {
 	let ShouldEvict = {
 		let mut Metadata = CONNECTION_METADATA.lock();
@@ -188,7 +192,7 @@ pub fn RecordSideCarFailure(SideCarIdentifier:&str) {
 		}
 	};
 
-	if ShouldEvict && SIDECAR_CLIENTS.lock().remove(SideCarIdentifier).is_some() {
+	if ShouldEvict && SIDECAR_CLIENTS.remove(SideCarIdentifier).is_some() {
 		crate::dev_log!(
 			"grpc",
 			"warn: [VineClient] evicting pooled client for sidecar '{}' after {} consecutive failures",
@@ -203,7 +207,7 @@ pub fn RecordSideCarFailure(SideCarIdentifier:&str) {
 ///
 /// # Parameters
 ///
-/// * `SideCarIdentifier` — identifies the sidecar whose metadata to update.
+/// * `SideCarIdentifier` - identifies the sidecar whose metadata to update.
 pub fn UpdateSideCarActivity(SideCarIdentifier:&str) {
 	let mut Metadata = CONNECTION_METADATA.lock();
 
@@ -224,8 +228,8 @@ pub fn UpdateSideCarActivity(SideCarIdentifier:&str) {
 ///
 /// # Parameters
 ///
-/// * `SubscriberIdentity` — label identifying the lagging subscriber.
-/// * `SkippedFrames` — number of frames that were dropped.
+/// * `SubscriberIdentity` - label identifying the lagging subscriber.
+/// * `SkippedFrames` - number of frames that were dropped.
 pub fn ReportNotificationLag(SubscriberIdentity:&str, SkippedFrames:u64) {
 	crate::dev_log!(
 		"grpc",
@@ -243,7 +247,7 @@ pub fn ReportNotificationLag(SubscriberIdentity:&str, SkippedFrames:u64) {
 ///
 /// # Parameters
 ///
-/// * `Data` — byte slice to validate.
+/// * `Data` - byte slice to validate.
 ///
 /// # Errors
 ///

@@ -6,7 +6,9 @@ use serde_json::{Value, json};
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : → `window.createTerminal` Spawns a PTY via `VineHost::CreateTerminal`, then emits `sky://terminal/create` with the provider-minted `{ id, pid, name }`..
+/// Handles : → `window.createTerminal` Spawns a PTY via
+/// `VineHost::CreateTerminal`, then emits `sky://terminal/create` with the
+/// provider-minted `{ id, pid, name }`..
 pub async fn WindowCreateTerminal(Host:&dyn VineHost, Parameter:&Value) {
 	let Handle = Parameter.get("handle").and_then(Value::as_str).unwrap_or("").to_string();
 

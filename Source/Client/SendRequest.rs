@@ -41,8 +41,8 @@ use crate::{
 	dev_log,
 };
 
-/// Send a request and await a response. Validates method-name length and message size, prefers the streaming multiplexer wh
-///
+/// Send a request and await a response. Validates method-name length and
+/// message size, prefers the streaming multiplexer wh
 pub async fn Fn(
 	SideCarIdentifier:&str,
 
@@ -77,10 +77,7 @@ pub async fn FnCancellable(
 	}
 
 	if *CancelSignal.borrow() {
-		return Err(VineError::RequestCanceled {
-			SideCarIdentifier:SideCarIdentifier.to_string(),
-			MethodName:Method,
-		});
+		return Err(VineError::RequestCanceled { SideCarIdentifier:SideCarIdentifier.to_string(), MethodName:Method });
 	}
 
 	let TimeoutDuration =
@@ -127,11 +124,7 @@ pub async fn FnCancellable(
 
 	ValidateMessageSize(&ParameterBytes)?;
 
-	let Client = {
-		let Pool = SIDECAR_CLIENTS.lock();
-
-		Pool.get(SideCarIdentifier).cloned()
-	};
+	let Client = SIDECAR_CLIENTS.get(SideCarIdentifier).map(|Entry| Entry.value().clone());
 
 	let Some(mut Client) = Client else {
 		return Err(VineError::ClientNotConnected(SideCarIdentifier.to_string()));
@@ -161,7 +154,9 @@ pub async fn FnCancellable(
 					Ok(_) => {
 						dev_log!(
 							"grpc",
+
 							"[VineClient::SendRequest] CancelOperation delivered for request {}",
+
 							RequestIdentifier
 						);
 					},
@@ -169,8 +164,11 @@ pub async fn FnCancellable(
 					Err(Status) => {
 						dev_log!(
 							"grpc",
+
 							"warn: [VineClient::SendRequest] CancelOperation for request {} failed: {}",
+
 							RequestIdentifier,
+
 							Status
 						);
 					},
@@ -179,9 +177,13 @@ pub async fn FnCancellable(
 
 			dev_log!(
 				"grpc",
+
 				"[VineClient::SendRequest] request {} ('{}::{}') cancelled by caller",
+
 				RequestIdentifier,
+
 				SideCarIdentifier,
+
 				MethodForLog
 			);
 

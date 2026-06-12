@@ -5,7 +5,8 @@ use serde_json::Value;
 
 use crate::{Host::VineHost, Server::Notification::Support::UnregisterByHandle, dev_log};
 
-/// Handles : `file_system` provider-unregistration atom. Logs the bound scheme so routing mismatches are visible after disposal..
+/// Handles : `file_system` provider-unregistration atom. Logs the bound scheme
+/// so routing mismatches are visible after disposal..
 pub async fn UnregisterFileSystemProvider(Host:&dyn VineHost, Parameter:&Value) {
 	let Scheme = Parameter.get("scheme").and_then(Value::as_str).unwrap_or("");
 

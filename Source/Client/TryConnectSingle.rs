@@ -17,8 +17,8 @@ use crate::{
 	dev_log,
 };
 
-/// Single connection attempt without retry logic. Tunes h2 transport windows for loopback-to-Cocoon traffic (4 MB stream / 
-///
+/// Single connection attempt without retry logic. Tunes h2 transport windows
+/// for loopback-to-Cocoon traffic (4 MB stream /
 pub async fn Fn(SideCarIdentifier:&str, Endpoint:&str) -> Result<(), VineError> {
 	let EndpointURL = if Endpoint.starts_with("http://") || Endpoint.starts_with("https://") {
 		Endpoint.to_string()
@@ -56,11 +56,7 @@ pub async fn Fn(SideCarIdentifier:&str, Endpoint:&str) -> Result<(), VineError> 
 		.max_decoding_message_size(MAX_MESSAGE_SIZE_BYTES)
 		.max_encoding_message_size(MAX_MESSAGE_SIZE_BYTES);
 
-	{
-		let mut Pool = SIDECAR_CLIENTS.lock();
-
-		Pool.insert(SideCarIdentifier.to_string(), Client.clone());
-	}
+	SIDECAR_CLIENTS.insert(SideCarIdentifier.to_string(), Client.clone());
 
 	#[cfg(feature = "multiplexer")]
 	{

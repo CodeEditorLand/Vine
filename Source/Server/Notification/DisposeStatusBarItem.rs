@@ -6,7 +6,8 @@ use serde_json::{Value, json};
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : → `disposeStatusBarItem` Forwarded onto `sky://statusbar/dispose-entry` so the Sky shim removes the DOM node..
+/// Handles : → `disposeStatusBarItem` Forwarded onto
+/// `sky://statusbar/dispose-entry` so the Sky shim removes the DOM node..
 pub async fn DisposeStatusBarItem(Host:&dyn VineHost, Parameter:&Value) {
 	let Id = Parameter.get("id").and_then(Value::as_str).unwrap_or("");
 

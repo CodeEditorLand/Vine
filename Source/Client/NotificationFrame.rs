@@ -11,7 +11,8 @@ pub struct Struct {
 	/// Identifies the originating sidecar (e.g. `"cocoon-main"`).
 	pub SideCarIdentifier:String,
 
-	/// gRPC method name for this notification (e.g. `"$onDidChangeTextDocument"`).
+	/// gRPC method name for this notification (e.g.
+	/// `"$onDidChangeTextDocument"`).
 	pub Method:String,
 
 	/// JSON payload deserialised from the wire.

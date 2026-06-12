@@ -5,8 +5,8 @@
 
 use crate::Client::{NotificationFrame, Shared};
 
-/// Subscribe to the global notification fan-out. Each call returns a fresh receiver that observes every notification fanned
-///
+/// Subscribe to the global notification fan-out. Each call returns a fresh
+/// receiver that observes every notification fanned
 pub fn Fn() -> tokio::sync::broadcast::Receiver<NotificationFrame::Struct> {
 	Shared::NOTIFICATION_BROADCAST.subscribe()
 }

@@ -8,7 +8,11 @@ use serde_json::Value;
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : `webview.postMessage` notification: extension called `WebviewPanel.webview.postMessage(...)`. Stock VS Code delivers this as a DOM `message` event inside the webview iframe; Land emits on `sky://webview/postMessage` and lets the Sky bridge relay into the specific webview DOM container keyed on `{ handle, message }`..
+/// Handles : `webview.postMessage` notification: extension called
+/// `WebviewPanel.webview.postMessage(...)`. Stock VS Code delivers this as a
+/// DOM `message` event inside the webview iframe; Land emits on
+/// `sky://webview/postMessage` and lets the Sky bridge relay into the specific
+/// webview DOM container keyed on `{ handle, message }`..
 pub async fn WebviewPostMessage(Host:&dyn VineHost, Parameter:&Value) {
 	Host.EmitToRenderer("sky://webview/postMessage", Parameter.clone());
 

@@ -9,8 +9,8 @@ use crate::{
 	Error::VineError,
 };
 
-/// Health check: connection exists in the pool, last activity within `HEALTH_CHECK_INTERVAL_MS`, and failure count below th
-///
+/// Health check: connection exists in the pool, last activity within
+/// `HEALTH_CHECK_INTERVAL_MS`, and failure count below th
 pub fn Fn(SideCarIdentifier:&str) -> Result<bool, VineError> {
 	let Metadata = CONNECTION_METADATA.lock();
 

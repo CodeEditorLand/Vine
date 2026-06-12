@@ -77,7 +77,13 @@ fn GetOrInitChannel() -> &'static DecorationChannel {
 	})
 }
 
-/// Handles : `window.createTextEditorDecorationType` / `window.disposeTextEditorDecorationType` notifications. Forwards the payload on `sky://decoration/<suffix>` as a batch; Sky demultiplexes back to per-decoration `cel:decoration:*` CustomEvents.  ~337 create + 317 dispose calls per session. Channel-drain pattern: a single long-lived flusher wakes on first item, drains, sleeps one frame (16 ms), drains stragglers, then emits one batched event per channel name. Zero spawns per call..
+/// Handles : `window.createTextEditorDecorationType` /
+/// `window.disposeTextEditorDecorationType` notifications. Forwards the payload
+/// on `sky://decoration/<suffix>` as a batch; Sky demultiplexes back to
+/// per-decoration `cel:decoration:*` CustomEvents.  ~337 create + 317 dispose
+/// calls per session. Channel-drain pattern: a single long-lived flusher wakes
+/// on first item, drains, sleeps one frame (16 ms), drains stragglers, then
+/// emits one batched event per channel name. Zero spawns per call..
 pub async fn DecorationTypeLifecycle(Host:&dyn VineHost, MethodName:&str, Parameter:&Value) {
 	let EventName = format!("sky://decoration/{}", &MethodName["window.".len()..]);
 

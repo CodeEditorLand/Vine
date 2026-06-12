@@ -12,7 +12,13 @@ use serde_json::{Value, json};
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : → `register_scm_resource_group`  Pairs with `RegisterScmProvider`. An SCM provider creates one or more resource groups (Git's "Changes", "Staged Changes", "Merge Changes"). Two side effects: 1. `VineHost::UpdateSourceControlGroup` seeds the group with an empty `resourceStates` list so subsequent `update_scm_group` calls find it. 2. `sky://scm/registerGroup` renderer event materialises the group header row in the SCM viewlet..
+/// Handles : → `register_scm_resource_group`  Pairs with `RegisterScmProvider`.
+/// An SCM provider creates one or more resource groups (Git's "Changes",
+/// "Staged Changes", "Merge Changes"). Two side effects: 1.
+/// `VineHost::UpdateSourceControlGroup` seeds the group with an empty
+/// `resourceStates` list so subsequent `update_scm_group` calls find it. 2.
+/// `sky://scm/registerGroup` renderer event materialises the group header row
+/// in the SCM viewlet..
 pub async fn RegisterScmResourceGroup(Host:&dyn VineHost, Parameter:&Value) {
 	let ScmHandle = Parameter
 		.get("scmHandle")

@@ -7,7 +7,9 @@ use serde_json::{Value, json};
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : `outputChannel.hide` Forwards to Sky as `sky://output/show { visible: false, channel }` so the workbench panel can dismiss the channel via the same handler that processes `show()` calls..
+/// Handles : `outputChannel.hide` Forwards to Sky as `sky://output/show {
+/// visible: false, channel }` so the workbench panel can dismiss the channel
+/// via the same handler that processes `show()` calls..
 pub async fn OutputChannelHide(Host:&dyn VineHost, Parameter:&Value) {
 	let Channel = Parameter
 		.get("channel")

@@ -4,9 +4,11 @@
 //! out to the process-wide broadcast
 //! ([`crate::Client::SubscribeNotifications::Fn`]); inbound responses route
 //! to the matching pending-request `oneshot` sender. Inbound reverse-RPC
-//! requests and cancellations are accepted but currently dropped - the
-//! unary path remains authoritative until the streaming handler tree on
-//! the Cocoon side is enabled.
+//! requests dispatch to the process-wide [`RequestHandlerFn`] installed via
+//! [`Multiplexer::InstallRequestHandler`], with the `GenericResponse` pushed
+//! back over the same stream under the original correlation id; when no
+//! handler is installed the frame is dropped with a warning. Cancellations
+//! are accepted but dropped.
 //!
 //! Activated when `LAND_VINE_STREAMING=1` is set and the `multiplexer`
 //! cargo feature is on; this is the LAND-PATCH B7-S6 P14.1 foundation.
@@ -48,6 +50,15 @@ use crate::{
 /// burning unbounded heap.
 const SINK_CAPACITY:usize = 1024;
 
+/// Handler for inbound reverse-RPC `Request` frames. The embedder
+/// (Mountain) installs one process-wide via
+/// [`Multiplexer::InstallRequestHandler`]; the read pump invokes it for
+/// every inbound `Payload::Request` and pushes the returned
+/// `GenericResponse` back over the stream under the original
+/// correlation id.
+pub type RequestHandlerFn =
+	Arc<dyn Fn(GenericRequest) -> futures::future::BoxFuture<'static, GenericResponse> + Send + Sync>;
+
 /// One multiplexer per sidecar connection. Holds the outbound sink,
 /// the pending-request correlation map, and a shared-state shutdown
 /// flag.
@@ -69,6 +80,11 @@ lazy_static! {
 	/// Lookup site for `SendNotification` / `SendRequest` to consult
 	/// when `LAND_VINE_STREAMING=1`.
 	static ref MULTIPLEXERS:Arc<Mutex<HashMap<String, Arc<Multiplexer>>>> = Arc::new(Mutex::new(HashMap::new()));
+
+	/// Process-wide reverse-RPC request handler. Read lazily by every
+	/// read pump on each inbound `Request` frame so installation order
+	/// relative to `Open` does not matter.
+	static ref REQUEST_HANDLER:Mutex<Option<RequestHandlerFn>> = Mutex::new(None);
 }
 
 impl Multiplexer {
@@ -122,6 +138,13 @@ impl Multiplexer {
 	/// stream closes.
 	pub fn Deregister(SideCarIdentifier:&str) { MULTIPLEXERS.lock().remove(SideCarIdentifier); }
 
+	/// Install the process-wide handler for inbound reverse-RPC
+	/// `Request` frames. The Multiplexer cannot depend on the
+	/// embedder's dispatch tree, so the embedder injects it here
+	/// (Mountain does this at gRPC-service construction). Replaces any
+	/// previously installed handler.
+	pub fn InstallRequestHandler(Handler:RequestHandlerFn) { *REQUEST_HANDLER.lock() = Some(Handler); }
+
 	/// Send a notification frame (fire-and-forget). Non-blocking
 	/// modulo Sink backpressure (capacity `SINK_CAPACITY`).
 	pub async fn Notify(&self, Method:String, Parameters:Value) -> Result<(), VineError> {
@@ -133,6 +156,8 @@ impl Multiplexer {
 
 		let Frame = Envelope {
 			payload:Some(Payload::Notification(GenericNotification { method:Method, parameter:Bytes })),
+
+			channel_id:0,
 		};
 
 		self.Sink
@@ -166,6 +191,8 @@ impl Multiplexer {
 				method:Method,
 				parameter:Bytes,
 			})),
+
+			channel_id:0,
 		};
 
 		if self.Sink.send(Frame).await.is_err() {
@@ -222,6 +249,8 @@ impl Multiplexer {
 			payload:Some(Payload::Cancel(CancelOperationRequest {
 				request_identifier_to_cancel:RequestIdentifier,
 			})),
+
+			channel_id:0,
 		};
 
 		let _ = self.Sink.send(Frame).await;
@@ -242,10 +271,13 @@ impl Multiplexer {
 /// Drains the inbound side of the bidirectional stream.
 ///
 /// Notifications fan out to the process-wide broadcast; responses wake
-/// the parked `Request` future. Reverse-RPC requests and cancellations
-/// are recorded for a follow-up phase but currently dropped — the unary
-/// path remains authoritative until the streaming handler tree on the
-/// extension host side is enabled.
+/// the parked `Request` future. Reverse-RPC requests dispatch to the
+/// installed [`RequestHandlerFn`] on a detached task (a slow handler
+/// must not stall the pump) with the response pushed back via the sink
+/// under the original correlation id; without an installed handler the
+/// frame is dropped with a warning. Cancellations are dropped - the
+/// unary path has no cancellation either, so accepting and dropping
+/// preserves equivalence with the non-streaming fallback.
 async fn ReadPump(mut Stream:Streaming<Envelope>, State:Arc<Multiplexer>) {
 	use futures_util::StreamExt;
 
@@ -293,13 +325,50 @@ async fn ReadPump(mut Stream:Streaming<Envelope>, State:Arc<Multiplexer>) {
 				// duplicate or post-cancel arrival; drop silently.
 			},
 
-			Payload::Request(_) => {
+			Payload::Request(R) => {
+				let Handler = REQUEST_HANDLER.lock().clone();
 
-				// Inbound reverse-RPC dispatch is intentionally a no-op
-				// here: the unary path remains authoritative until the
-				// streaming handler tree on the Cocoon side is enabled.
-				// Dropped frames are safe - the peer falls back to the
-				// unary RPC after the request-id correlation timeout.
+				match Handler {
+					Some(Handler) => {
+						let RequestIdentifier = R.request_identifier;
+
+						let Sink = State.Sink.clone();
+
+						let SideCarIdentifier = State.SideCarIdentifier.clone();
+
+						let ResponseFuture = Handler(R);
+
+						tokio::spawn(async move {
+							let mut Response = ResponseFuture.await;
+
+							if Response.request_identifier == 0 {
+								Response.request_identifier = RequestIdentifier;
+							}
+
+							let Frame = Envelope { payload:Some(Payload::Response(Response)), channel_id:0 };
+
+							if Sink.send(Frame).await.is_err() {
+								dev_log!(
+									"grpc",
+									"[Vine::Multiplexer] sink closed before response id={} sidecar={}",
+									RequestIdentifier,
+									SideCarIdentifier
+								);
+							}
+						});
+					},
+
+					None => {
+						dev_log!(
+							"grpc",
+							"warn: [Vine::Multiplexer] dropping inbound Request method={} id={} sidecar={}: no \
+							 request handler installed",
+							R.method,
+							R.request_identifier,
+							State.SideCarIdentifier
+						);
+					},
+				}
 			},
 
 			Payload::Cancel(_) => {

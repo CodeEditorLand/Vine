@@ -19,8 +19,8 @@ use crate::{
 	dev_log,
 };
 
-/// Fire-and-forget notification to a sidecar. No response, no per-call timeout. Prefers the streaming multiplexer under `LA
-///
+/// Fire-and-forget notification to a sidecar. No response, no per-call timeout.
+/// Prefers the streaming multiplexer under `LA
 pub async fn Fn(SideCarIdentifier:String, Method:String, Parameters:Value) -> Result<(), VineError> {
 	if IsShuttingDown::Fn() {
 		return Ok(());
@@ -69,11 +69,7 @@ pub async fn Fn(SideCarIdentifier:String, Method:String, Parameters:Value) -> Re
 
 	ValidateMessageSize(&ParameterBytes)?;
 
-	let mut Client = {
-		let Pool = SIDECAR_CLIENTS.lock();
-
-		Pool.get(&SideCarIdentifier).cloned()
-	};
+	let mut Client = SIDECAR_CLIENTS.get(&SideCarIdentifier).map(|Entry| Entry.value().clone());
 
 	if let Some(ref mut Client) = Client {
 		let MethodForPublish = Method.clone();

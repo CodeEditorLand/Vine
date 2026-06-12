@@ -14,7 +14,16 @@ use serde_json::{Value, json};
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : → `update_scm_group` Fire-and-forget resource-state update for an SCM group. Two side effects: 1. Persist the snapshot via `VineHost::UpdateScmGroupMarkers` so the boot-time replay (`sky:replay-events`) can re-emit it for late subscribers (without this, only live arrivals are visible). 2. `sky://scm/updateGroup` renderer event so the SCM viewlet updates without waiting for a request/response round-trip.  `group_handle` is `"<scm_handle>/<group_id>"` per `ScmNamespace.ts:77`. Splits on `/` to expose a flat `groupId` for the renderer payload; legacy `provider_id`/`group_id` flat keys are probed as fallback..
+/// Handles : → `update_scm_group` Fire-and-forget resource-state update for an
+/// SCM group. Two side effects: 1. Persist the snapshot via
+/// `VineHost::UpdateScmGroupMarkers` so the boot-time replay
+/// (`sky:replay-events`) can re-emit it for late subscribers (without this,
+/// only live arrivals are visible). 2. `sky://scm/updateGroup` renderer event
+/// so the SCM viewlet updates without waiting for a request/response
+/// round-trip.  `group_handle` is `"<scm_handle>/<group_id>"` per
+/// `ScmNamespace.ts:77`. Splits on `/` to expose a flat `groupId` for the
+/// renderer payload; legacy `provider_id`/`group_id` flat keys are probed as
+/// fallback..
 pub async fn UpdateScmGroup(Host:&dyn VineHost, Parameter:&Value) {
 	let ScmHandle = Parameter
 		.get("scmHandle")

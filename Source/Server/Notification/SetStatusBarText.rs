@@ -7,7 +7,10 @@ use serde_json::{Value, json};
 
 use crate::{Host::VineHost, dev_log};
 
-/// Handles : → `setStatusBarText` Pure text-only fast path for `vscode.window.setStatusBarMessage(...)`. Distinct from the typed `statusBar.update` notification (which carries colour/tooltip/command fields). Forwards onto `sky://statusbar/set-entry`..
+/// Handles : → `setStatusBarText` Pure text-only fast path for
+/// `vscode.window.setStatusBarMessage(...)`. Distinct from the typed
+/// `statusBar.update` notification (which carries colour/tooltip/command
+/// fields). Forwards onto `sky://statusbar/set-entry`..
 pub async fn SetStatusBarText(Host:&dyn VineHost, Parameter:&Value) {
 	let Id = Parameter.get("id").and_then(Value::as_str).unwrap_or("");
 
