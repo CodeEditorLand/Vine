@@ -1,4 +1,4 @@
-//! # Vine::Server
+//! # Server
 //!
 //! Server-side gRPC scaffolding shared by every embedder that hosts a Vine
 //! service: Mountain (MountainService), Air (AirService), and Rust-side

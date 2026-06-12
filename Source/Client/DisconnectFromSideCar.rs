@@ -7,6 +7,8 @@ use crate::{
 	dev_log,
 };
 
+/// Disconnect from a sidecar process. Removes the entry from both the connection pool and the metadata tracker.
+///
 pub fn Fn(SideCarIdentifier:String) -> Result<(), VineError> {
 	let mut Pool = SIDECAR_CLIENTS.lock();
 

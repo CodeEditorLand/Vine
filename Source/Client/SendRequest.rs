@@ -41,6 +41,8 @@ use crate::{
 	dev_log,
 };
 
+/// Send a request and await a response. Validates method-name length and message size, prefers the streaming multiplexer wh
+///
 pub async fn Fn(
 	SideCarIdentifier:&str,
 

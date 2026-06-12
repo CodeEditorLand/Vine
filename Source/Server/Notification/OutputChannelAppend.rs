@@ -1,4 +1,4 @@
-//! Cocoon `outputChannel.append` notification. Twin of `output.append`;
+//! Extension Host `outputChannel.append` notification. Twin of `output.append`;
 //! see `OutputCreate.rs` for the duplicate-wire rationale.
 //!
 //! Tries the per-channel coalescer first; falls back to legacy
@@ -10,6 +10,7 @@ use serde_json::Value;
 
 use crate::{Host::VineHost, Server::Notification::OutputChannelCoalesce, dev_log};
 
+/// Handles : `outputChannel.append` Twin of `output.append`; see `OutputCreate.rs` for the duplicate-wire rationale.  Tries the per-channel coalescer first; falls back to legacy per-append emit when `OutputCoalesce=0` is set or when the payload has no `value` field. Channel-aware dev_log tagging routes Git/SCM to `grpc`, everything else to `output-verbose`..
 pub async fn OutputChannelAppend(Host:&dyn VineHost, Parameter:&Value) {
 	let ChannelName = Parameter
 		.get("channel")

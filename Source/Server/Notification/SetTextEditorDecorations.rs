@@ -1,4 +1,4 @@
-//! Cocoon → `window.setTextEditorDecorations` notification.
+//! Extension Host → `window.setTextEditorDecorations` notification.
 //! Channel-drain batching: ~5-200 calls per extension per second during
 //! scroll; one renderer event per frame (16 ms window, drain stragglers).
 //! Uses `Arc<dyn RendererEmitter>` captured once from
@@ -61,6 +61,7 @@ fn GetOrInitChannel(Emitter:Arc<dyn RendererEmitter>) -> &'static DecoSetChannel
 	})
 }
 
+/// Handles : → `window.setTextEditorDecorations` Channel-drain batching: ~5-200 calls per extension per second during scroll; one renderer event per frame (16 ms window, drain stragglers). Uses `Arc<dyn RendererEmitter>` captured once from `VineHost::RendererEmitter()` so the drain task never holds a reference to the full host across await points..
 pub async fn SetTextEditorDecorations(Host:&dyn VineHost, Parameter:&Value) {
 	let Ch = GetOrInitChannel(Host.RendererEmitter());
 

@@ -1,4 +1,4 @@
-//! Cocoon → `terminal.sendText` / `terminal.show` / `terminal.hide` /
+//! Extension Host → `terminal.sendText` / `terminal.show` / `terminal.hide` /
 //! `terminal.dispose` notifications.
 //!
 //! Two concerns per invocation:
@@ -13,12 +13,13 @@ use serde_json::Value;
 
 use crate::{Host::VineHost, dev_log};
 
+/// Handles : → `terminal.sendText` / `terminal.show` / `terminal.hide` / `terminal.dispose` notifications.  Two concerns per invocation: 1. Relay `sky://terminal/<suffix>` to the renderer so the xterm panel can show/hide / print text / remove itself. 2. Drive the underlying PTY via `VineHost::SpawnSendTextToTerminal` or `VineHost::SpawnDisposeTerminal` so the OS process sees the text / receives SIGHUP on dispose. (No-op for embedders without terminal support.).
 pub async fn TerminalLifecycle(Host:&dyn VineHost, MethodName:&str, Parameter:&Value) {
 	let EventName = format!("sky://terminal/{}", &MethodName["terminal.".len()..]);
 
 	Host.EmitToRenderer(&EventName, Parameter.clone());
 
-	// Terminal handles from Cocoon arrive as `"terminal:N"`; strip the
+	// Terminal handles from Extension Host arrive as `"terminal:N"`; strip the
 	// prefix to recover the numeric id the provider expects.
 	let HandleNumeric = Parameter
 		.get("handle")

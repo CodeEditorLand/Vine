@@ -19,6 +19,8 @@ use crate::{
 	dev_log,
 };
 
+/// Fire-and-forget notification to a sidecar. No response, no per-call timeout. Prefers the streaming multiplexer under `LA
+///
 pub async fn Fn(SideCarIdentifier:String, Method:String, Parameters:Value) -> Result<(), VineError> {
 	if IsShuttingDown::Fn() {
 		return Ok(());

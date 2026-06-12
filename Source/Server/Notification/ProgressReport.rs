@@ -1,4 +1,4 @@
-//! Cocoon `progress.report` notification.
+//! Extension Host `progress.report` notification.
 //!
 //! The git extension alone fires 6000+ of these per session. Items are
 //! pushed into an `mpsc::unbounded_channel`; a single long-lived flusher
@@ -96,6 +96,7 @@ fn GetOrInitChannel() -> &'static ProgressChannel {
 	})
 }
 
+/// Handles : `progress.report`  The git extension alone fires 6000+ of these per session. Items are pushed into an `mpsc::unbounded_channel`; a single long-lived flusher task wakes on the first item, drains everything queued, sleeps one frame (16 ms), drains again, then emits one merged `sky://notification/progress-update` per progress handle. Per-handle merge: latest non-empty `message`, summed `increment`. Zero spawns per call; one renderer event per handle per frame..
 pub async fn ProgressReport(Host:&dyn VineHost, Parameter:&Value) {
 	let ProgressHandle = Parameter.get("handle").and_then(Value::as_str).unwrap_or("").to_string();
 

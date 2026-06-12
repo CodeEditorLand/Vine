@@ -1,4 +1,4 @@
-//! # Vine::Client
+//! # Client
 //!
 //! Client-side gRPC wrappers for embedders that need to *call* Vine
 //! services (Air talking to Mountain, extension host talking to Mountain,

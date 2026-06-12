@@ -43,7 +43,7 @@
 //! - [`Server`] — server scaffolding and notification handler tree (cargo
 //!   feature `server`).
 //! - [`Multiplexer`] — bidirectional envelope multiplexer
-//!   (OpenChannelFromMountain / OpenChannelFromCocoon per LAND-PATCH B7-S6
+//!   (OpenChannelFromMountain / OpenChannelFromSidecar per LAND-PATCH B7-S6
 //!   P14.1; cargo feature `multiplexer`).
 //!
 //! ## Cargo features
@@ -96,7 +96,7 @@ pub const DefaultRequestTimeoutMs:u64 = 15_000;
 /// Default Mountain Vine server bind address.
 pub const DefaultMountainAddress:&str = "[::1]:50051";
 
-/// Default Cocoon Vine server bind address.
+/// Default Extension Host Vine server bind address.
 pub const DefaultCocoonAddress:&str = "[::1]:50052";
 
 /// Default Air Vine server bind address.

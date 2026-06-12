@@ -1,4 +1,4 @@
-//! Cocoon → `register_scm_provider` notification.
+//! Extension Host → `register_scm_provider` notification.
 //!
 //! Three side effects, all best-effort and independent:
 //! 1. `VineHost::RegisterScmInRegistry` records the handle in the embedder's
@@ -14,7 +14,7 @@
 //! `register_scm_resource_group`, `update_scm_group`, and
 //! `unregister_scm_provider` notifications reference the SAME sequential
 //! handle. Falling back to a DJB hash of `ScmId` is only allowed when
-//! Cocoon omits the field (legacy callers).
+//! Extension Host omits the field (legacy callers).
 
 use serde_json::{Value, json};
 
@@ -55,6 +55,7 @@ fn BuildUrlFromComponents(O:&serde_json::Map<String, Value>) -> Option<String> {
 	Some(Url)
 }
 
+/// Handles : → `register_scm_provider`  Three side effects, all best-effort and independent: 1. `VineHost::RegisterScmInRegistry` records the handle in the embedder's `ProviderRegistration` table so future handle-keyed dispatches resolve. 2. `VineHost::CreateSourceControl` mutates the embedder's SCM marker state and emits `SkyEvent::SCMProviderAdded`: the canonical path the SCM view uses. 3. `Host.EmitToRenderer("sky://scm/register", ...)` covers renderer code that listens for the legacy simpler event shape.  Handle disambiguation: Cocoon's `ScmNamespace.ts` allocates a process-local sequential handle and includes it on the wire. Subsequent `register_scm_resource_group`, `update_scm_group`, and `unregister_scm_provider` notifications reference the SAME sequential handle. Falling back to a DJB hash of `ScmId` is only allowed when omits the field (legacy callers)..
 pub async fn RegisterScmProvider(Host:&dyn VineHost, Parameter:&Value) {
 	// Wire-shape: camelCase first (current Cocoon), snake_case fallback for
 	// transitional compatibility when Mountain is ahead of Cocoon.

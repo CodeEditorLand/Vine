@@ -17,6 +17,8 @@ use crate::{
 	dev_log,
 };
 
+/// Single connection attempt without retry logic. Tunes h2 transport windows for loopback-to-Cocoon traffic (4 MB stream / 
+///
 pub async fn Fn(SideCarIdentifier:&str, Endpoint:&str) -> Result<(), VineError> {
 	let EndpointURL = if Endpoint.starts_with("http://") || Endpoint.starts_with("https://") {
 		Endpoint.to_string()

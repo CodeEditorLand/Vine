@@ -5,6 +5,8 @@
 
 use crate::Client::{IsShuttingDown, Shared::SIDECAR_CLIENTS};
 
+/// Whether the named sidecar currently has a live entry in the connection pool. Cheap read of the shared map; no RPC issued
+///
 pub fn Fn(SideCarIdentifier:&str) -> bool {
 	if IsShuttingDown::Fn() {
 		return false;

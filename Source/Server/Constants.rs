@@ -13,9 +13,9 @@ use std::time::Duration;
 /// Mountain binds this port and listens for connections from Cocoon and Air.
 pub const DEFAULT_MOUNTAIN_PORT:u16 = 50051;
 
-/// Default port for the CocoonService gRPC server.
+/// Default port for the Extension Host gRPC server.
 ///
-/// Cocoon binds this port; Mountain connects as a client.
+/// The extension host binds this port; Mountain connects as a client.
 pub const DEFAULT_COCOON_PORT:u16 = 50052;
 
 /// Default port for the AirService gRPC server.

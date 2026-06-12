@@ -1,4 +1,4 @@
-//! Cocoon `output.appendLine` notification. Appends `text` to the
+//! Extension Host `output.appendLine` notification. Appends `text` to the
 //! named output channel; we suffix the newline here so the downstream
 //! `sky://output/append` listener stays a single append code path (no
 //! dedicated `appendLine` listener in Sky).
@@ -7,6 +7,8 @@ use serde_json::{Value, json};
 
 use crate::{Host::VineHost, dev_log};
 
+/// Handles `output.appendLine` by appending `text` plus a newline to the
+/// named channel and emitting on `sky://output/append`.
 pub async fn OutputAppendLine(Host:&dyn VineHost, Parameter:&Value) {
 	let Channel = Parameter.get("channel").and_then(Value::as_str).unwrap_or("");
 
