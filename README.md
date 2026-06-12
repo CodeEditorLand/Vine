@@ -39,31 +39,101 @@
 	</tr>
 </table>
 
-The gRPC protocol layer for the Land editor.
+The `gRPC` Protocol Layer for the Land Editor&#x2001;🏞️
+
+> **Every component in Land talks to every other component through a
+> well-defined, strongly-typed schema. That schema is Vine.**
+
+_"One `.proto` file. Every service. Type safety from compile time to wire."_
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
+[<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Crates.io](https://img.shields.io/crates/v/Vine.svg)](https://crates.io/crates/Vine)
+[<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Rust Version](https://img.shields.io/badge/Rust-1.75+-orange.svg)](https://www.rust-lang.org/)
+[<img src="https://editor.land/Image/ProtocolBuffers.svg" width="14" alt="Protocol Buffers" />](https://protobuf.dev/)&#x2001;[![gRPC](https://img.shields.io/badge/gRPC-tonic-blue.svg)](https://github.com/hyperium/tonic)
+
+**[Rust API Documentation](https://rust.documentation.vine.editor.land/)**&#x2001;📖
 
 ---
 
 ## Overview
 
-**Vine** is the gRPC protocol definition and communication specification for the
-**Land Code Editor** ecosystem. Vine defines the strongly-typed IPC layer used
-for communication between **Mountain** (Rust backend) and **Cocoon** (Node.js
-extension host / Rust/WASM extension host).
+**Vine** is the `gRPC` protocol definition, code-generation pipeline, and
+runtime scaffolding for the **Land** Code Editor ecosystem. It defines the
+strongly-typed IPC contracts used for all inter-component communication:
+**Mountain** (Rust backend shell), **Cocoon** (Node.js extension host),
+**Air** (background daemon), and **Grove** (Rust/WASM extension host).
 
-**Vine** is engineered to:
+All Land IPC converges on a single `.proto` file — `Proto/Vine.proto` — which
+declares every RPC method, message type, and streaming envelope the system
+needs. From that one source, `tonic-build` / `tonic-prost-build` generates
+Rust clients and servers; TypeScript-side consumers mirror the same
+definitions for the `Node.js` extension host.
 
-1. **Define Protocol Contracts:** Provide `.proto` files that specify the gRPC
-   service definitions for all inter-component communication.
-2. **Enable Strong Typing:** Ensure type-safe communication through Protocol
-   Buffers and generated Rust/TypeScript code.
-3. **Support Multiple Transports:** Design for transport agnosticism with
-   support for TCP, IPC, and WASM host functions.
-4. **Implement Health Monitoring:** Provide heartbeat and connection state
-   management for reliable communication.
+**Vine is engineered to:**
 
-## Architecture
+1. **Centralize Protocol Contracts** — One `.proto` file is the sole
+   authority for every gRPC service, message, and streaming envelope in
+   the Land ecosystem.
+2. **Generate Type-Safe Bindings** — `Prost`-backed Rust code is generated
+   at build time from `Proto/Vine.proto`, giving every consumer
+   compile-time guarantees against wire-format drift.
+3. **Provide Runtime Scaffolding** — Client connection pools, server bind
+   helpers, notification handler dispatch trees, and a bidirectional
+   envelope multiplexer ship as cargo features.
+4. **Support Multiple Embedders** — The `VineHost` trait abstracts the
+   embedder runtime (Mountain, Air, Cocoon-Rust) so a single handler
+   tree works against any host.
+
+---
+
+## Key Features&#x2001;🌿
+
+**Single-Source Protocol** — Every gRPC contract lives in `Proto/Vine.proto`,
+the canonical specification for `MountainService` (hosted by Mountain) and
+`CocoonService` (hosted by the Cocoon sidecar). `build.rs` feeds this file
+to `tonic-prost-build`, producing `Source/Generated/vine.rs` with all
+message types, clients, and server traits.
+
+**Feature-Gated Runtime** — The crate ships three cargo features:
+`client` (connection pool, request/notification dispatch, health checks),
+`server` (bind helpers, notification handler tree, socket validation),
+and `multiplexer` (bidirectional streaming envelope multiplexer dispatching
+traffic over `OpenChannelFromMountain` / `OpenChannelFromCocoon`).
+
+**Embedder-Agnostic Handler Tree** — The `VineHost` trait is the seam
+between Vine and its consumer runtime. Notification handlers operate on
+`&dyn VineHost`, so the same handler tree works in Mountain (Tauri
+renderer dispatch), Air (daemon-only, no renderer), or any future
+embedder. Every handler file lives under `Source/Server/Notification/`.
+
+**Client Connection Pool** — A `DashMap`-backed pool of tonic gRPC
+channels with exponential-backoff connection logic, subscriber fan-out
+for notification broadcast, and atomic shutdown signalling. Entries under
+`Source/Client/` cover every client-side operation.
+
+**Structured Error Types** — `VineError` enumerates every failure mode
+with recoverability predicates and `tonic::Status` mapping. Callers use
+`IsRecoverable()` to decide between retry, fallback, and surfacing.
+
+**Bidirectional Multiplexer** — `Source/Multiplexer.rs` implements the
+streaming envelope protocol (`OpenChannelFromCocoon` /
+`OpenChannelFromMountain`, per LAND-PATCH B7-S6 P14.1) for concurrent
+dispatch over a single HTTP/2 stream.
+
+---
+
+## Core Architecture Principles&#x2001;🏗️
+
+| Principle | Description | Key Components |
+|-----------|-------------|----------------|
+| **Single Authority** | One `.proto` file defines every contract. No duplication, no drift. | `Proto/Vine.proto`, `Source/Generated/`, `build.rs` |
+| **Type Safety** | `Prost`-generated code ensures every message, RPC, and streaming frame matches the proto schema at compile time. | `Source/Generated/vine.rs`, `tonic-prost-build` |
+| **Transport Agnosticism** | The `VineHost` trait and tonic's transport layer abstract the actual network substrate. Local `[::1]` or remote — same handler tree. | `VineHost` trait, tonic `Server`/`Channel` |
+| **Composability** | Each feature module (`client`, `server`, `multiplexer`) compiles independently so consumers pay only for what they use. | `Cargo.toml` features, `Source/Client/`, `Source/Server/`, `Source/Multiplexer.rs` |
+
+---
+
+## System Architecture&#x2001;
 
 ```mermaid
 graph LR
@@ -75,149 +145,312 @@ graph LR
 
     subgraph PROTO["Vine.proto - Contract Definition 🌿"]
         direction TB
-        MountainSvc["MountainService\nProcessCocoonRequest · SendCocoonNotification\nCancelOperation · OpenChannelFromCocoon (streaming)"]:::proto
-        CocoonSvc["CocoonService\nProcessMountainRequest · SendMountainNotification\nCancelOperation · OpenChannelFromMountain (streaming)"]:::proto
+        MountainSvc["MountainService&#x2001;ProcessCocoonRequest · SendCocoonNotification&#x2001;CancelOperation · OpenChannelFromCocoon (streaming)"]:::proto
+        CocoonSvc["CocoonService&#x2001;ProcessMountainRequest · SendMountainNotification&#x2001;CancelOperation · OpenChannelFromMountain (streaming)"]:::proto
     end
 
-    subgraph MOUNTAIN["Mountain ⛰️ - Server-side impl (Source/Vine/)"]
+    subgraph VINE["Vine 🌿 - Crate"]
         direction TB
-        VineServer["Vine gRPC Server (tonic)"]:::mountain
+        Generated["Generated/&#x2001;prost message types + tonic stubs"]:::vine
+        Client["Client/&#x2001;connection pool · dispatch · health checks"]:::vine
+        Server["Server/&#x2001;bind helpers · notification handler tree"]:::vine
+        Multiplexer["Multiplexer/&#x2001;bidirectional streaming envelope"]:::vine
+        HostTrait["Host/ (VineHost trait)&#x2001;embedder seam"]:::vine
+
+        Generated --- Client
+        Generated --- Server
+        Client --- Multiplexer
+        Server --- Multiplexer
+        Server --- HostTrait
     end
 
-    subgraph COCOON["Cocoon 🦋 - Client-side impl"]
+    subgraph MOUNTAIN["Mountain ⛰️"]
+        VineServer["Vine gRPC Server (tonic)&#x2001;hosts MountainService"]:::mountain
+    end
+
+    subgraph COCOON["Cocoon 🦋"]
         GRPCClient["Services/Mountain/gRPC/Client.ts"]:::cocoon
         GRPCServer["Services/gRPC/Server/ - CocoonService impl"]:::cocoon
+    end
+
+    subgraph GROVE_S["Grove 🌳"]
+        GroveClient["gRPCTransport.rs&#x2001;speaks Vine as client"]:::grove
     end
 
     MountainSvc -.defines.-> VineServer
     CocoonSvc -.defines.-> GRPCServer
     VineServer <-- bidirectional gRPC :50052 --> GRPCClient
     VineServer --> GRPCServer
+    VineServer <-- gRPC :50052 --> GroveClient
+    VineServer -- cargo dep --> VINE
 ```
 
-### Core Architecture Principles
+**Connection paths:**
 
-| Principle                 | Description                                                                         | Key Components Involved                   |
-| :------------------------ | :---------------------------------------------------------------------------------- | :---------------------------------------- |
-| **Contract-First**        | Define all service interfaces in `.proto` files before implementation.              | `Proto/*.proto`, protocol buffer compiler |
-| **Type Safety**           | Generate strongly-typed code from protocol definitions for compile-time guarantees. | Generated Rust/TypeScript code            |
-| **Transport Agnosticism** | Design protocol layer independent of specific transport implementation.             | `Transport` trait, strategy pattern       |
-| **Health Awareness**      | Built-in connection monitoring and heartbeat for reliability.                       | Health check messages, timeout handling   |
-
-## Key Components
-
-| Component      | Path                                             | Description                                                                                    |
-| -------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| gRPC Server    | `Mountain/Source/Vine/`                          | Rust-side gRPC server (tonic) hosted by **Mountain** for extension host communication.         |
-| gRPC Client    | `Cocoon/Source/Services/Mountain/gRPC/Client.ts` | TypeScript-side gRPC client used by **Cocoon** and **Grove** to communicate with **Mountain**. |
-| Core Protocol  | `Mountain/Proto/Vine.proto`                      | Core **Mountain**↔**Cocoon** gRPC service definitions.                                         |
-| Spine Protocol | (To be centralized)                              | Extension host coordination using action/response pattern for command execution.               |
-| Route Manifest | `Cocoon/Source/Generated/RouteManifest.ts`       | Auto-generated routing tier enumeration.                                                       |
-
-## In the Land Project
-
-**Vine** defines the contract for all inter-component gRPC communication. It is
-the protocol layer that connects the Land editor's components.
-
-**Vine** is part of the networking/IPC connectivity stack alongside **Air** 🪁
-(background daemon, uses Vine/gRPC on port 50053) and **Mist** 🌫️ (DNS
-isolation, used by Air's HTTP client).
-
-| Role               | Component                 | Port    | Details                                                            |
-| :----------------- | :------------------------ | :------ | :----------------------------------------------------------------- |
-| **gRPC Server**    | **Mountain** ⛰️           | `50052` | Hosts `Vine.proto` gRPC services for extension host communication. |
-| **gRPC Client**    | **Cocoon** 🦋             | -       | Consumes Mountain gRPC services, also hosts `CocoonService`.       |
-| **gRPC Client**    | **Grove** 🌳              | -       | Consumes Mountain gRPC services.                                   |
-| **Spine Protocol** | **Mountain** ↔ **Cocoon** | -       | Extension host coordination layer for command execution.           |
-
-### Protocol Structure
-
-The protocol definitions currently live inside the consuming components, not a
-standalone directory. The future **Vine** package will centralize these:
-
-| File               | Location (today)                                 | Purpose                                               |
-| :----------------- | :----------------------------------------------- | :---------------------------------------------------- |
-| `Vine.proto`       | `Mountain/Proto/Vine.proto`                      | Core **Mountain**↔**Cocoon** gRPC service definitions |
-| Server impl        | `Mountain/Source/Vine/`                          | Rust-side gRPC server (`tonic`)                       |
-| Client impl        | `Cocoon/Source/Services/Mountain/gRPC/Client.ts` | TypeScript-side gRPC client                           |
-| `RouteManifest.ts` | `Cocoon/Source/Generated/RouteManifest.ts`       | Auto-generated routing tier enumeration               |
-
-### Service Definitions
-
-The current protocol defines two bidirectional gRPC services:
-
-- **MountainService** - `ProcessCocoonRequest`, `SendCocoonNotification`,
-  `CancelOperation`, `OpenChannelFromCocoon` (streaming)
-- **CocoonService** - `ProcessMountainRequest`, `SendMountainNotification`,
-  `CancelOperation`, `OpenChannelFromMountain` (streaming)
-
-### Port Allocation
-
-| Process    | Port    | Protocol                    | Purpose                              |
-| :--------- | :------ | :-------------------------- | :----------------------------------- |
-| **Cocoon** | `50052` | `Vine.proto` (gRPC)         | VS Code extension hosting            |
-| **Air**    | `50053` | **Vine**/`Air.proto` (gRPC) | Daemon services - updates, downloads |
-
-## Getting Started
-
-### Current Status
-
-**Vine** is currently a placeholder for the gRPC protocol definitions. The
-actual protocol implementation resides in:
-
-- **Mountain**: gRPC server implementation in `Vine/` directory
-- **Cocoon**: gRPC client implementation in `Services/MountainGRPCClient.ts`
-
-### Future Usage
-
-When fully implemented, **Vine** will be used as:
-
-```toml
-[dependencies]
-Vine = { git = "https://github.com/CodeEditorLand/Vine.git", branch = "Current" }
-```
-
-**Key Dependencies (planned):**
-
-- `tonic`: Rust gRPC framework
-- `prost`: Protocol Buffers implementation
-- `@grpc/grpc-js`: Node.js gRPC client (for Cocoon)
-
-### Development Status
-
-| Feature           | Status                              |
-| ----------------- | ----------------------------------- |
-| Proto Definitions | ⏳ Planned                          |
-| gRPC Services     | ⏳ Planned                          |
-| Spine Protocol    | 📝 Specified (see SpineContract.md) |
-| Health Monitoring | ⏳ Planned                          |
-| Message Types     | ⏳ Planned                          |
-
-## API Reference
-
-When fully implemented, Rust API documentation will be available at
-`https://Rust.Documentation.editor.land/Vine/`.
-
-## Related Documentation
-
-- [Architecture Overview](https://github.com/CodeEditorLand/Vine/tree/Current/Documentation/GitHub/Architecture.md)
-    - Internal module structure
-- [Deep Dive](https://github.com/CodeEditorLand/Vine/tree/Current/Documentation/GitHub/DeepDive.md)
-    - In-depth technical details
-- [Land Documentation](../../Documentation/GitHub/README.md) - Complete
-  documentation index
-- **Air** 🪁 - Background daemon using Vine/gRPC on port 50053 -
-  [GitHub](https://github.com/CodeEditorLand/Air)
-- **Mist** 🌫️ - DNS isolation for the private network -
-  [GitHub](https://github.com/CodeEditorLand/Mist)
-- **Mountain** ⛰️ - gRPC server host -
-  [GitHub](https://github.com/CodeEditorLand/Mountain)
-- **Cocoon** 🦋 - gRPC client host -
-  [GitHub](https://github.com/CodeEditorLand/Cocoon)
+| Path | Protocol | Use Case |
+|------|----------|----------|
+| Mountain → Cocoon | `gRPC` on port 50052 | Backend-to-extension-host dispatch |
+| Cocoon → Mountain | `gRPC` on port 50051 | Extension invocation of editor operations |
+| Air → Mountain | `gRPC` on port 50051 | Daemon queries for indexing/update/download tasks |
+| Mountain → Air | `gRPC` on port 50053 | Editor-to-daemon service calls |
+| Grove → Mountain | `gRPC` on port 50052 | Native WASM extension host communication |
+| Multiplexer stream | HTTP/2 bidirectional streaming | Concurrent dispatch over single connection |
 
 ---
 
-## Funding
+## Key Components
+
+| Component | Path | Description |
+|-----------|------|-------------|
+| Proto Definition | `Proto/Vine.proto` | Canonical gRPC service and message definitions for the entire Land ecosystem |
+| Generated Bindings | `Source/Generated/vine.rs` | `tonic-prost-build` output: message types, client stubs, server traits |
+| Client Connection Pool | `Source/Client/` | `DashMap`-backed pool of tonic channels with exponential-backoff connect, notification fan-out, and health checks |
+| SendRequest | `Source/Client/SendRequest.rs` | Unary request dispatch with configurable timeout and streaming-multiplexer fast path |
+| SendNotification | `Source/Client/SendNotification.rs` | Fire-and-forget notification dispatch with broadcast fan-out |
+| Server Bind Helpers | `Source/Server/` | `SpawnBindTask`, `SpawnBindTaskWithShutdown`, `ValidateSocketAddress` — boilerplate every embedder needs |
+| Notification Handlers | `Source/Server/Notification/` | Per-file handler tree for Cocoon → Mountain notifications with payload reshaping, coalescing, and multi-step logic |
+| VineHost Trait | `Source/Host.rs` | Embedder seam: application state access, renderer emission, IPC provider, command/SCM/terminal/language registration |
+| Error Types | `Source/Error.rs` | `VineError` enum with recoverability predicates and `tonic::Status` mapping |
+| Multiplexer | `Source/Multiplexer.rs` | Bidirectional streaming envelope protocol (LAND-PATCH B7-S6 P14.1) |
+| Library Root | `Source/Library.rs` | Crate root: module declarations, protocol constants (`ProtocolVersion`, `DefaultMaxMessageSize`, default addresses) |
+
+---
+
+## Project Structure&#x2001;🗺️
+
+```
+Element/Vine/
+├── Proto/
+│   └── Vine.proto                   # Canonical gRPC contract (MountainService + CocoonService)
+├── Source/
+│   ├── Library.rs                   # Library root (rlib)
+│   ├── DevLog.rs                    # Development logging infrastructure
+│   ├── Error.rs                     # VineError enum + From impls + tonic::Status mapping
+│   ├── Host.rs                      # VineHost trait + IPCProvider + ApplicationStateAccess + RendererEmitter
+│   ├── Generated/
+│   │   ├── mod.rs                   # Module docs + re-exports
+│   │   └── vine.rs                  # prost-built message types + tonic clients/servers
+│   ├── Client/                      # Client-side gRPC wrappers (feature = "client")
+│   │   ├── mod.rs                   # Module docs + public module list
+│   │   ├── Shared.rs                # Module-private state (statics, helpers, constants)
+│   │   ├── MarkShutdown.rs          # Process-wide shutdown flag
+│   │   ├── IsShuttingDown.rs        # Shutdown flag reader
+│   │   ├── NotificationFrame.rs     # Broadcast payload struct
+│   │   ├── SubscribeNotifications.rs # Notification fan-out registration
+│   │   ├── SubscriberCount.rs       # Active subscriber counter
+│   │   ├── ConnectToSideCar.rs      # Pool-lifecycle connect (3-attempt backoff)
+│   │   ├── DisconnectFromSideCar.rs # Pool-lifecycle disconnect
+│   │   ├── TryConnectSingle.rs      # Single connection attempt with h2 tuning
+│   │   ├── IsClientConnected.rs     # Pool readiness check
+│   │   ├── WaitForClientConnection.rs # Boot-race-friendly async readiness
+│   │   ├── CheckSideCarHealth.rs    # Pool + metadata health summary
+│   │   ├── SendRequest.rs           # Unary request dispatch with timeout + streaming fast path
+│   │   ├── SendNotification.rs      # Fire-and-forget notification dispatch
+│   │   ├── PublishNotification.rs   # Private broadcast publisher
+│   │   └── PublishNotificationFromMux.rs # Pub(crate) multiplexer broadcast publisher
+│   ├── Server/                      # Server-side gRPC scaffolding (feature = "server")
+│   │   ├── mod.rs                   # Module docs + embedder call pattern
+│   │   ├── Constants.rs             # Default ports / timeouts / message-size cap
+│   │   ├── ValidateSocketAddress.rs # Port-and-format pre-flight check
+│   │   ├── SpawnBindTask.rs         # Detached tokio::spawn server runner
+│   │   ├── SpawnBindTaskWithShutdown.rs # Drain-capable server runner
+│   │   └── Notification/            # Cocoon → Mountain handler tree
+│   │       ├── mod.rs               # Handler module listing with logic annotations
+│   │       ├── Support/
+│   │       │   ├── mod.rs           # Shared handler utilities
+│   │       │   ├── RelayToSky.rs    # Single sky-event forward
+│   │       │   └── UnregisterByHandle.rs # Provider unregistration by handle
+│   │       ├── OutputAppendLine.rs  # Output channel append with payload reshape
+│   │       ├── OutputChannelAppend.rs
+│   │       ├── OutputChannelCoalesce.rs # Channel-drain coalescer
+│   │       ├── OutputChannelHide.rs
+│   │       ├── OutputChannelReplace.rs
+│   │       ├── OutputReplace.rs
+│   │       ├── ProgressStart.rs     # Progress lifecycle handlers with coalescing
+│   │       ├── ProgressReport.rs
+│   │       ├── ProgressEnd.rs
+│   │       ├── WebviewDispose.rs    # Webview lifecycle management
+│   │       ├── WebviewPostMessage.rs
+│   │       ├── WebviewLifecycle.rs
+│   │       ├── WebviewReady.rs
+│   │       ├── WindowShowMessage.rs # Window message display
+│   │       ├── DecorationTypeLifecycle.rs # Text-editor decoration batching
+│   │       ├── SetTextEditorDecorations.rs
+│   │       ├── ApplyTextEdits.rs    # Editor text mutations
+│   │       ├── SetLanguageConfiguration.rs # Language-feature configuration
+│   │       ├── RegisterCommand.rs   # Command registry operations
+│   │       ├── UnregisterCommand.rs
+│   │       ├── RegisterLanguageProvider.rs # Language-feature provider registration
+│   │       ├── StatusBarLifecycle.rs # StatusBar item lifecycle
+│   │       ├── StatusBarMessage.rs
+│   │       ├── SetStatusBarText.rs
+│   │       ├── DisposeStatusBarItem.rs
+│   │       ├── DebugLifecycle.rs    # Debug adapter lifecycle
+│   │       ├── TerminalLifecycle.rs # Terminal lifecycle management
+│   │       ├── WindowCreateTerminal.rs
+│   │       ├── RegisterScmProvider.rs # SCM provider registration
+│   │       ├── RegisterScmResourceGroup.rs
+│   │       ├── UnregisterScmProvider.rs
+│   │       ├── UpdateScmGroup.rs    # SCM group update dispatch
+│   │       ├── OpenExternal.rs      # External URI/URL opening
+│   │       ├── SecurityIncident.rs  # Security incident notification
+│   │       └── ...                  # Pure-relay atoms inlined in Mountain dispatcher
+│   └── Multiplexer.rs               # Bidirectional streaming envelope (feature = "multiplexer")
+├── build.rs                         # tonic-build + tonic-prost-build codegen
+├── Cargo.toml                       # Crate manifest with feature flags
+└── Documentation/
+    └── GitHub/
+        ├── Architecture.md          # Full protocol specification and module structure
+        └── DeepDive.md             # In-depth technical details
+```
+
+---
+
+## In the Land Project
+
+Vine is the `gRPC` contract layer that wires every Land component together.
+It is not the implementation — it is the specification and the shared
+runtime that all implementations conform to:
+
+| Component | Role | Port | Consumes Vine |
+|-----------|------|------|---------------|
+| **Mountain** ⛰️ | Desktop shell, hosts `MountainService` | 50051 | `server` feature |
+| **Cocoon** 🦋 | Node.js extension host, hosts `CocoonService` | 50052 | TypeScript mirror of proto |
+| **Air** 🪁 | Background daemon, hosts `AirService` | 50053 | `client` feature |
+| **Grove** 🌳 | Rust/WASM extension host | — | `client` feature via `gRPCTransport` |
+
+Vine is part of the Land networking/IPC connectivity stack alongside
+**Air** 🪁 (background daemon, uses Vine/gRPC on port 50053 for
+`AirService`) and **Mist** 🌫️ (DNS isolation, used by Air's HTTP client).
+
+The `VineHost` trait abstracts the embedder runtime so a single
+notification handler tree works across all consumers. Mountain wires
+`EmitToRenderer` to `tauri::WebviewWindow::emit`; Air leaves it as a
+no-op. The `client` feature gives every consumer a connection pool,
+health checks, and exponential-backoff reconnect — all driven by the
+same `Proto/Vine.proto` contract.
+
+---
+
+## Getting Started&#x2001;🚀
+
+### Prerequisites
+
+- **Rust** 1.75 or later
+- Protocol Buffer compiler (`protoc`, optional — only needed for
+  proto file modifications)
+
+### Build
+
+```bash
+cd Element/Vine
+cargo build --release
+```
+
+### Build with Features
+
+```bash
+# All features enabled
+cargo build --release --all-features
+
+# Server only (for embedders hosting a Vine service)
+cargo build --release --features server
+
+# Client only (for embedders calling Vine services)
+cargo build --release --features client
+
+# With bidirectional multiplexer
+cargo build --release --features server,client,multiplexer
+```
+
+### Available Features
+
+| Feature | Default | Description |
+|---------|:-------:|-------------|
+| `default` | — | Enables `server` and `client` |
+| `server` | ✅ | Server-side gRPC handler scaffolding (Mountain consumes this) |
+| `client` | ✅ | Client-side gRPC stubs and connection pool (Air, Grove consume this) |
+| `multiplexer` | | Bidirectional envelope multiplexer (LAND-PATCH B7-S6 P14.1) |
+
+### As a Library
+
+```rust
+use Vine::{
+    Client::{ConnectToSideCar, SendRequest, SendNotification},
+    Server::{Constants, SpawnBindTask, ValidateSocketAddress},
+    Error::VineError,
+};
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    // Server-side: bind a Vine service
+    let Address = ValidateSocketAddress::Fn("[::1]:50051", "MountainService")?;
+    let Service = MyMountainServiceImpl::new(state);
+    let Wrapped = MountainServiceServer::new(Service)
+        .max_decoding_message_size(Constants::MAX_MESSAGE_SIZE);
+    let Router = tonic::transport::Server::builder().add_service(Wrapped);
+    SpawnBindTask::Fn("MountainService".to_string(), Address, Router);
+
+    // Client-side: connect and dispatch
+    ConnectToSideCar::Fn("cocoon-main", "[::1]:50052").await?;
+    SendRequest::Fn("cocoon-main", "some-method", payload, None).await?;
+    Ok(())
+}
+```
+
+---
+
+## Security&#x2001;🔒
+
+Vine itself does not enforce security — it is a protocol layer. Security
+boundaries live in the embedders:
+
+| Layer | Mechanism |
+|-------|-----------|
+| **Transport** | `tonic` enforces HTTP/2 TLS when configured with certificates; Vine transports bind to `[::1]` (localhost) by default |
+| **Message validation** | `ValidateSocketAddress` pre-flight checks; `DefaultMaxMessageSize` (4 MB) enforced at the envelope boundary |
+| **Type safety** | `Prost`-generated code ensures every message conforms to the proto schema at compile time |
+| **Feature isolation** | Each cargo feature (`client`, `server`, `multiplexer`) compiles independently — embedders only compile what they use |
+
+For extension sandboxing, see **Grove** 🌳 (hardware-enforced `WASMtime`
+isolation). For renderer isolation, see **Mountain** ⛰️
+(process-per-window via Tauri).
+
+---
+
+## Compatibility
+
+Vine is designed to be compatible with:
+
+| Target | Integration |
+|--------|-------------|
+| **Mountain** | Hosts `MountainService`; implements `VineHost` with Tauri renderer dispatch |
+| **Cocoon** | TypeScript `@grpc/grpc-js` clients mirror `MountainService` and `CocoonService` proto definitions |
+| **Air** | Consumes `client` feature for daemon-side gRPC calls to Mountain |
+| **Grove** | Consumes `client` feature via `gRPCTransport` for native WASM extension host communication |
+| **tonic** | Built on `tonic` 0.x / `prost` — any tonic-compatible gRPC client can speak Vine |
+
+---
+
+## API Reference
+
+- **[Rust API Documentation](https://rust.documentation.vine.editor.land/)**&#x2001;📖
+
+---
+
+## Related Documentation
+
+- [Architecture Overview](https://github.com/CodeEditorLand/Vine/tree/Current/Documentation/GitHub/Architecture.md) — Internal module structure
+- [Deep Dive](https://github.com/CodeEditorLand/Vine/tree/Current/Documentation/GitHub/DeepDive.md) — In-depth technical details
+- [Land Documentation](../../Documentation/GitHub/README.md) — Complete documentation index
+- **Air** 🪁 — Background daemon using Vine/gRPC on port 50053 — [GitHub](https://github.com/CodeEditorLand/Air)
+- **Mist** 🌫️ — DNS isolation for the private network — [GitHub](https://github.com/CodeEditorLand/Mist)
+- **Mountain** ⛰️ — gRPC server host — [GitHub](https://github.com/CodeEditorLand/Mountain)
+- **Cocoon** 🦋 — gRPC client host — [GitHub](https://github.com/CodeEditorLand/Cocoon)
+
+---
+
+## Funding & Acknowledgements&#x2001;🙏🏻
 
 This project is funded through
 [NGI0 Commons Fund](https://NLnet.NL/commonsfund), a fund established by
