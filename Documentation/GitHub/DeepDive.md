@@ -1,6 +1,6 @@
 # Vine - Deep Dive
 
-This document provides the technical foundation for the Vine gRPC protocol layer
+Vine provides the technical foundation gRPC protocol layer
 within the Land ecosystem. **Vine** defines the strongly-typed inter-process
 communication contracts used between Mountain and Cocoon, with Air as an
 additional gRPC consumer.
@@ -114,3 +114,10 @@ sequenceDiagram
 | TLS       | Disabled for local IPC | Mist DNS isolation enforces the network boundary |
 
 Addresses are listed in [Integration Points](#integration-points).
+
+---
+
+**Project Maintainers:** Source Open
+([Source/Open@Editor.Land](mailto:Source/Open@Editor.Land)) |
+[GitHub Repository](https://github.com/CodeEditorLand/Land) |
+[Report an Issue](https://github.com/CodeEditorLand/Land/issues)

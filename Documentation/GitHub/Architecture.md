@@ -1,6 +1,6 @@
 # Vine: gRPC Protocol Layer 🌿
 
-This document describes `Vine`, the `gRPC` protocol definition and communication
+`Vine` is the `gRPC` protocol definition and communication
 specification for the `Land` ecosystem. `Vine` defines the strongly-typed IPC
 layer used for communication between:
 
@@ -383,6 +383,6 @@ protoc \
 ---
 
 **Project Maintainers:** Source Open
-([Source/Open@editor.land](mailto:Source/Open@editor.land)) |
-[GitHub Repository](https://github.com/CodeEditorLand/Vine) |
-[Report an Issue](https://github.com/CodeEditorLand/Vine/issues)
+([Source/Open@Editor.Land](mailto:Source/Open@Editor.Land)) |
+[GitHub Repository](https://github.com/CodeEditorLand/Land) |
+[Report an Issue](https://github.com/CodeEditorLand/Land/issues)
