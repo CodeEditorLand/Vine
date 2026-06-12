@@ -239,10 +239,13 @@ impl Multiplexer {
 	pub fn SideCarIdentifierBorrow(&self) -> &str { &self.SideCarIdentifier }
 }
 
-/// Drain the inbound side of the bidirectional stream. Notifications
-/// fan out to the process-wide broadcast; responses wake the parked
-/// `Request` future. Reverse-RPC requests and cancellations are
-/// recorded for a follow-up phase.
+/// Drains the inbound side of the bidirectional stream.
+///
+/// Notifications fan out to the process-wide broadcast; responses wake
+/// the parked `Request` future. Reverse-RPC requests and cancellations
+/// are recorded for a follow-up phase but currently dropped — the unary
+/// path remains authoritative until the streaming handler tree on the
+/// extension host side is enabled.
 async fn ReadPump(mut Stream:Streaming<Envelope>, State:Arc<Multiplexer>) {
 	use futures_util::StreamExt;
 

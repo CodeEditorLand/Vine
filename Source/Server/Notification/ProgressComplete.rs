@@ -1,3 +1,6 @@
+//! Cocoon `progress.complete` notification. Relays the payload to Sky
+//! as `sky://progress/complete`.
+
 use serde_json::Value;
 
 use crate::{Host::VineHost, Server::Notification::Support::RelayToSky};

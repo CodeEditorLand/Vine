@@ -1,23 +1,23 @@
 //! # Vine::Client
 //!
 //! Client-side gRPC wrappers for embedders that need to *call* Vine
-//! services (Air talking to Mountain, Cocoon-Rust talking to Mountain, …).
-//! One entry-point per file:
+//! services (Air talking to Mountain, extension host talking to Mountain,
+//! …). One entry-point per file:
 //!
-//! - [`MarkShutdown::Fn`] / [`IsShuttingDown::Fn`] - process-wide flag.
-//! - [`NotificationFrame::Struct`] - broadcast payload.
-//! - [`SubscribeNotifications::Fn`] / [`SubscriberCount::Fn`] - fan-out access.
-//! - [`ConnectToSideCar::Fn`] / [`DisconnectFromSideCar::Fn`] - pool lifecycle.
+//! - [`MarkShutdown::Fn`] / [`IsShuttingDown::Fn`] — process-wide flag.
+//! - [`NotificationFrame::Struct`] — broadcast payload.
+//! - [`SubscribeNotifications::Fn`] / [`SubscriberCount::Fn`] — fan-out access.
+//! - [`ConnectToSideCar::Fn`] / [`DisconnectFromSideCar::Fn`] — pool lifecycle.
 //!   Driven by [`TryConnectSingle::Fn`] (single attempt).
-//! - [`IsClientConnected::Fn`] / [`WaitForClientConnection::Fn`] -
+//! - [`IsClientConnected::Fn`] / [`WaitForClientConnection::Fn`] —
 //!   boot-race-friendly readiness checks.
-//! - [`CheckSideCarHealth::Fn`] - pool + metadata health summary.
-//! - [`SendRequest::Fn`] / [`SendNotification::Fn`] - wire dispatch with
+//! - [`CheckSideCarHealth::Fn`] — pool + metadata health summary.
+//! - [`SendRequest::Fn`] / [`SendNotification::Fn`] — wire dispatch with
 //!   optional streaming-multiplexer fast path under `LAND_VINE_STREAMING=1`
 //!   when the `multiplexer` cargo feature is enabled.
 //! - `PublishNotification::Fn` (private) and `PublishNotificationFromMux::Fn`
-//!   (`pub(crate)`) - broadcast publishers.
-//! - [`Shared`] - module-private state (statics, helpers, constants).
+//!   (`pub(crate)`) — broadcast publishers.
+//! - [`Shared`] — module-private state (statics, helpers, constants).
 //!
 //! ## Behaviours
 //!

@@ -1,3 +1,5 @@
+//! # Vine::Client::Shared
+//!
 //! Module-private state for the Vine client: connection pool, per-
 //! connection metadata, the broadcast fan-out, the shutdown flag, plus
 //! the constants and message-size validator every entry-point shares.
@@ -21,50 +23,72 @@ use crate::{Client::NotificationFrame, Error::VineError, Generated::cocoon_servi
 /// Cocoon gRPC client over a tonic transport channel.
 pub type CocoonClient = CocoonServiceClient<tonic::transport::Channel>;
 
-/// Default timeout for RPC calls.
+/// Default timeout for RPC calls, in milliseconds.
 pub const DEFAULT_TIMEOUT_MS:u64 = 5000;
 
 /// Maximum number of retry attempts for failed connections.
+///
 /// Air's gRPC server takes ~150-500 ms to bind after the process spawns,
 /// so 10 attempts at 200 ms base gives a ~5 s window (2^0+…+2^9 × 200 ms,
 /// capped by the Vine client's exponential backoff).
 pub const MAX_RETRY_ATTEMPTS:usize = 10;
 
-/// Base delay between retry attempts (ms).
+/// Base delay between retry attempts, in milliseconds.
 pub const RETRY_BASE_DELAY_MS:u64 = 200;
 
-/// Ceiling on the exponential retry backoff (ms). Without the clamp the
-/// doubling series reaches ~102 s by attempt 9 and holds boot for >3 min
-/// on a dead sidecar.
+/// Ceiling on the exponential retry backoff, in milliseconds.
+///
+/// Without this clamp the doubling series reaches ~102 s by attempt 9
+/// and holds boot for >3 min on a dead sidecar.
 pub const MAX_BACKOFF_MS:u64 = 5000;
 
 /// Maximum message size for validation (4 MB to match the tonic default).
 pub const MAX_MESSAGE_SIZE_BYTES:usize = 4 * 1024 * 1024;
 
-/// Health-check interval.
+/// Health-check interval, in milliseconds.
 pub const HEALTH_CHECK_INTERVAL_MS:u64 = 30000;
 
-/// Connection timeout (currently unused - kept for the streaming variant).
+/// Connection timeout (currently unused — kept for the streaming variant).
 pub const CONNECTION_TIMEOUT_MS:u64 = 10000;
 
-/// Notification broadcast capacity (drop-oldest when full). 4096 covers
-/// the worst-case storms (sky://diagnostics/changed at 50-200/s during
-/// rust-analyzer cargo-check) with margin.
+/// Notification broadcast capacity (drop-oldest when full).
+///
+/// 4096 covers the worst-case storms (sky://diagnostics/changed at
+/// 50-200/s during rust-analyzer cargo-check) with margin.
 pub const NOTIFICATION_BROADCAST_CAPACITY:usize = 4096;
 
-/// Connection metadata tracking health and last activity.
+/// Per-sidecar connection metadata tracking health and last activity.
 pub struct ConnectionMetadata {
+	/// Instant of the most recent successful RPC activity.
 	pub LastActivity:Instant,
 
+	/// Consecutive failure count since last success.
 	pub FailureCount:usize,
 
+	/// Whether the connection is currently considered healthy.
 	pub IsHealthy:bool,
 }
 
 lazy_static! {
+	/// Connection pool mapping sidecar identifiers to their gRPC clients.
+	///
+	/// Populated by `ConnectToSideCar` on success; consumed by
+	/// `SendRequest`, `SendNotification`, and `DisconnectFromSideCar`.
 	pub static ref SIDECAR_CLIENTS: Arc<Mutex<HashMap<String, CocoonClient>>> = Arc::new(Mutex::new(HashMap::new()));
+
+	/// Per-connection metadata keyed by sidecar identifier.
+	///
+	/// Tracks activity timestamps, failure counts, and health flags
+	/// used by `CheckSideCarHealth` and the failure-eviction logic in
+	/// `RecordSideCarFailure`.
 	pub static ref CONNECTION_METADATA: Arc<Mutex<HashMap<String, ConnectionMetadata>>> =
 		Arc::new(Mutex::new(HashMap::new()));
+
+	/// Global notification broadcast channel.
+	///
+	/// Every successful wire send publishes a `NotificationFrame` here
+	/// so broadcast subscribers (Effect-TS fibers, OTel emitters, future
+	/// Mist-WS bridge, dev log) observe the flow concurrently.
 	pub static ref NOTIFICATION_BROADCAST: tokio::sync::broadcast::Sender<NotificationFrame::Struct> = {
 		let (Sender, _) = tokio::sync::broadcast::channel(NOTIFICATION_BROADCAST_CAPACITY);
 
@@ -80,6 +104,11 @@ lazy_static! {
 /// handshake. Subsequent calls see a pre-fired notifier and wake immediately.
 static CONNECTION_NOTIFIERS:OnceLock<Arc<parking_lot::RwLock<HashMap<String, Arc<Notify>>>>> = OnceLock::new();
 
+/// Retrieves (or lazily creates) the connection-ready notifier for a sidecar.
+///
+/// # Parameters
+///
+/// * `SideCarIdentifier` — identifies the sidecar whose notifier to fetch.
 pub fn GetConnectionNotify(SideCarIdentifier:&str) -> Arc<Notify> {
 	let Map = CONNECTION_NOTIFIERS.get_or_init(|| Arc::new(parking_lot::RwLock::new(HashMap::new())));
 
@@ -99,6 +128,14 @@ pub fn GetConnectionNotify(SideCarIdentifier:&str) -> Arc<Notify> {
 		.clone()
 }
 
+/// Wakes all waiters on the connection-ready notifier for a sidecar.
+///
+/// Called by `ConnectToSideCar` after a successful handshake to unblock
+/// any `WaitForClientConnection` callers.
+///
+/// # Parameters
+///
+/// * `SideCarIdentifier` — identifies the sidecar whose notifier to fire.
 pub fn FireConnectionNotify(SideCarIdentifier:&str) {
 	if let Some(Map) = CONNECTION_NOTIFIERS.get() {
 		if let Some(Notifier) = Map.read().get(SideCarIdentifier) {
@@ -107,19 +144,35 @@ pub fn FireConnectionNotify(SideCarIdentifier:&str) {
 	}
 }
 
-/// Process-wide shutdown flag. Set to `true` once the embedder has issued
-/// `$shutdown` (or SIGKILL'd) the sidecar. After that point all
-/// `SendNotification` / `SendRequest` calls short-circuit.
+/// Process-wide shutdown flag.
+///
+/// Set to `true` once the embedder has issued `$shutdown` (or SIGKILL'd)
+/// the sidecar. After that point all `SendNotification` / `SendRequest`
+/// calls short-circuit.
 pub static SHUTDOWN_FLAG:AtomicBool = AtomicBool::new(false);
 
+/// Stores a value in the process-wide shutdown flag.
+///
+/// # Parameters
+///
+/// * `Value` — `true` to mark the client as shutting down.
 pub fn ShutdownFlagStore(Value:bool) { SHUTDOWN_FLAG.store(Value, Ordering::Relaxed); }
 
+/// Loads the current value of the process-wide shutdown flag.
 pub fn ShutdownFlagLoad() -> bool { SHUTDOWN_FLAG.load(Ordering::Relaxed) }
 
-/// Increment the failure counter and mark the connection unhealthy. Once
-/// the counter passes `MAX_RETRY_ATTEMPTS` the pooled client is evicted
-/// from `SIDECAR_CLIENTS` so the next caller gets `ClientNotConnected`
-/// and triggers a fresh reconnect instead of hammering a dead channel.
+/// Records a sidecar failure and evicts the pooled client after
+/// `MAX_RETRY_ATTEMPTS` consecutive failures.
+///
+/// Increments the failure counter and marks the connection unhealthy.
+/// Once the counter passes `MAX_RETRY_ATTEMPTS` the pooled client is
+/// evicted from `SIDECAR_CLIENTS` so the next caller gets
+/// `ClientNotConnected` and triggers a fresh reconnect instead of
+/// hammering a dead channel.
+///
+/// # Parameters
+///
+/// * `SideCarIdentifier` — identifies the sidecar that experienced a failure.
 pub fn RecordSideCarFailure(SideCarIdentifier:&str) {
 	let ShouldEvict = {
 		let mut Metadata = CONNECTION_METADATA.lock();
@@ -145,7 +198,12 @@ pub fn RecordSideCarFailure(SideCarIdentifier:&str) {
 	}
 }
 
-/// Refresh the last-activity timestamp and reset the failure counter.
+/// Refreshes the last-activity timestamp and resets the failure counter
+/// for a sidecar.
+///
+/// # Parameters
+///
+/// * `SideCarIdentifier` — identifies the sidecar whose metadata to update.
 pub fn UpdateSideCarActivity(SideCarIdentifier:&str) {
 	let mut Metadata = CONNECTION_METADATA.lock();
 
@@ -158,10 +216,16 @@ pub fn UpdateSideCarActivity(SideCarIdentifier:&str) {
 	}
 }
 
-/// Report a notification subscriber falling behind the broadcast channel.
+/// Reports a notification subscriber falling behind the broadcast channel.
+///
 /// `NOTIFICATION_BROADCAST` drops the oldest frames when a subscriber lags
 /// (`broadcast::error::RecvError::Lagged`); recv loops call this with the
 /// skipped-frame count so the loss is visible instead of silent.
+///
+/// # Parameters
+///
+/// * `SubscriberIdentity` — label identifying the lagging subscriber.
+/// * `SkippedFrames` — number of frames that were dropped.
 pub fn ReportNotificationLag(SubscriberIdentity:&str, SkippedFrames:u64) {
 	crate::dev_log!(
 		"grpc",
@@ -171,9 +235,19 @@ pub fn ReportNotificationLag(SubscriberIdentity:&str, SkippedFrames:u64) {
 	);
 }
 
-/// Reject messages above `MAX_MESSAGE_SIZE_BYTES` to bound the worst-case
-/// gRPC frame. Mirrors tonic's own check so we don't pay the codec round-
-/// trip for an oversize payload.
+/// Validates that a byte payload does not exceed the maximum message size.
+///
+/// Rejects messages above `MAX_MESSAGE_SIZE_BYTES` to bound the worst-case
+/// gRPC frame. Mirrors tonic's own check so callers don't pay the codec
+/// round-trip for an oversize payload.
+///
+/// # Parameters
+///
+/// * `Data` — byte slice to validate.
+///
+/// # Errors
+///
+/// Returns `VineError::MessageTooLarge` when the payload exceeds the limit.
 pub fn ValidateMessageSize(Data:&[u8]) -> Result<(), VineError> {
 	if Data.len() > MAX_MESSAGE_SIZE_BYTES {
 		Err(VineError::MessageTooLarge { ActualSize:Data.len(), MaxSize:MAX_MESSAGE_SIZE_BYTES })

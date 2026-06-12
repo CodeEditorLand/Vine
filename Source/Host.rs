@@ -2,11 +2,11 @@
 //!
 //! [`VineHost`] is the embedder-facing seam between Vine and its consumer
 //! runtime. Mountain (Tauri runtime), Air (background daemon), and any
-//! Rust-side Cocoon client implement this trait to expose the minimum
-//! surface Vine's notification handlers need: application-state access,
-//! renderer event emission, and an [`IPCProvider`] handle for cross-channel
-//! re-entrancy. Handlers operate on `&dyn VineHost` so a single handler
-//! tree can be hosted against any embedder runtime.
+//! Rust-side extension host client implement this trait to expose the
+//! minimum surface Vine's notification handlers need: application-state
+//! access, renderer event emission, and an [`IPCProvider`] handle for
+//! cross-channel re-entrancy. Handlers operate on `&dyn VineHost` so a
+//! single handler tree can be hosted against any embedder runtime.
 //!
 //! ## Design notes
 //!

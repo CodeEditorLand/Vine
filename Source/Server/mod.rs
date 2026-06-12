@@ -1,20 +1,20 @@
 //! # Vine::Server
 //!
 //! Server-side gRPC scaffolding shared by every embedder that hosts a Vine
-//! service: Mountain (`MountainService`), Air (`AirService`), and Rust-side
-//! Cocoon. The pieces below are the boilerplate every bind site needs;
-//! concrete service implementations stay in their owning crate.
+//! service: Mountain (MountainService), Air (AirService), and Rust-side
+//! extension host services. The pieces below are the boilerplate every bind
+//! site needs; concrete service implementations stay in their owning crate.
 //!
 //! ## Modules
 //!
-//! - [`Constants`] - default ports / timeouts / message-size cap.
-//! - [`ValidateSocketAddress`] - port-and-format pre-flight check.
-//! - [`SpawnBindTask`] - detached `tokio::spawn` that runs
+//! - [`Constants`] — default ports / timeouts / message-size cap.
+//! - [`ValidateSocketAddress`] — port-and-format pre-flight check.
+//! - [`SpawnBindTask`] — detached `tokio::spawn` that runs
 //!   `Router::serve(Address)` until process termination.
-//! - [`SpawnBindTaskWithShutdown`] - same shape but takes a shutdown future so
+//! - [`SpawnBindTaskWithShutdown`] — same shape but takes a shutdown future so
 //!   daemons can drain in-flight calls before exit.
-//! - [`Notification`] - one-entry-point-per-file Cocoon → Mountain notification
-//!   handlers dispatched against [`crate::Host::VineHost`].
+//! - [`Notification`] — one-entry-point-per-file extension host → Mountain
+//!   notification handlers dispatched against [`crate::Host::VineHost`].
 //!
 //! ## Embedder call pattern
 //!

@@ -10,11 +10,20 @@
 //! [`crate::DefaultRequestTimeoutMs`] (15 000 ms); when the caller passes
 //! `0` for `TimeoutMilliseconds` the unary path falls back to
 //! `crate::Client::Shared::DEFAULT_TIMEOUT_MS` (5 000 ms).
+//!
+//! [`FnCancellable`] additionally accepts a `watch::Receiver<bool>` cancel
+//! signal; when the sender flips it to `true` mid-flight the unary call is
+//! abandoned, a fire-and-forget `CancelOperation` carrying the wire
+//! `RequestIdentifier` is sent on the same client channel, and
+//! [`VineError::RequestCanceled`] is returned. [`Fn`] delegates to it with
+//! a never-cancelled signal. A unary timeout also fires a best-effort
+//! `CancelOperation` so the side-car aborts work Mountain has stopped
+//! waiting for.
 
-use std::time::Duration;
+use std::{sync::OnceLock, time::Duration};
 
 use serde_json::{Value, from_slice, to_vec};
-use tokio::time::timeout;
+use tokio::{sync::watch, time::timeout};
 
 use crate::{
 	Client::{
@@ -28,7 +37,7 @@ use crate::{
 		},
 	},
 	Error::VineError,
-	Generated::GenericRequest,
+	Generated::{CancelOperationRequest, GenericRequest},
 	dev_log,
 };
 
@@ -41,6 +50,20 @@ pub async fn Fn(
 
 	TimeoutMilliseconds:u64,
 ) -> Result<Value, VineError> {
+	FnCancellable(SideCarIdentifier, Method, Parameters, TimeoutMilliseconds, NeverCancelled()).await
+}
+
+pub async fn FnCancellable(
+	SideCarIdentifier:&str,
+
+	Method:String,
+
+	Parameters:Value,
+
+	TimeoutMilliseconds:u64,
+
+	CancelSignal:watch::Receiver<bool>,
+) -> Result<Value, VineError> {
 	if IsShuttingDown::Fn() {
 		return Err(VineError::ClientNotConnected(SideCarIdentifier.to_string()));
 	}
@@ -49,6 +72,13 @@ pub async fn Fn(
 		return Err(VineError::RPCError(
 			"Method name must be between 1 and 128 characters".to_string(),
 		));
+	}
+
+	if *CancelSignal.borrow() {
+		return Err(VineError::RequestCanceled {
+			SideCarIdentifier:SideCarIdentifier.to_string(),
+			MethodName:Method,
+		});
 	}
 
 	let TimeoutDuration =
@@ -115,7 +145,50 @@ pub async fn Fn(
 
 	let Request = GenericRequest { request_identifier:RequestIdentifier, method:Method, parameter:ParameterBytes };
 
-	let Result_ = timeout(TimeoutDuration, Client.process_mountain_request(Request)).await;
+	let mut CancelClient = Client.clone();
+
+	let Result_ = tokio::select! {
+		Outcome = timeout(TimeoutDuration, Client.process_mountain_request(Request)) => Outcome,
+
+		_ = WaitForCancel(CancelSignal) => {
+			tokio::spawn(async move {
+				match CancelClient
+					.cancel_operation(CancelOperationRequest { request_identifier_to_cancel:RequestIdentifier })
+					.await
+				{
+					Ok(_) => {
+						dev_log!(
+							"grpc",
+							"[VineClient::SendRequest] CancelOperation delivered for request {}",
+							RequestIdentifier
+						);
+					},
+
+					Err(Status) => {
+						dev_log!(
+							"grpc",
+							"warn: [VineClient::SendRequest] CancelOperation for request {} failed: {}",
+							RequestIdentifier,
+							Status
+						);
+					},
+				}
+			});
+
+			dev_log!(
+				"grpc",
+				"[VineClient::SendRequest] request {} ('{}::{}') cancelled by caller",
+				RequestIdentifier,
+				SideCarIdentifier,
+				MethodForLog
+			);
+
+			return Err(VineError::RequestCanceled {
+				SideCarIdentifier:SideCarIdentifier.to_string(),
+				MethodName:MethodForLog,
+			});
+		},
+	};
 
 	match Result_ {
 		Ok(Ok(Response)) => {
@@ -154,11 +227,47 @@ pub async fn Fn(
 		Err(_) => {
 			RecordSideCarFailure(SideCarIdentifier);
 
+			tokio::spawn(async move {
+				if let Err(Status) = CancelClient
+					.cancel_operation(CancelOperationRequest { request_identifier_to_cancel:RequestIdentifier })
+					.await
+				{
+					dev_log!(
+						"grpc",
+						"warn: [VineClient::SendRequest] CancelOperation after timeout for request {} failed: {}",
+						RequestIdentifier,
+						Status
+					);
+				}
+			});
+
 			Err(VineError::RequestTimeout {
 				SideCarIdentifier:SideCarIdentifier.to_string(),
 				MethodName:MethodForLog,
 				TimeoutMilliseconds:TimeoutDuration.as_millis() as u64,
 			})
 		},
+	}
+}
+
+/// A shared, always-`false` cancel signal whose sender is held alive for the
+/// process lifetime, so `Fn` callers never observe a spurious cancellation.
+fn NeverCancelled() -> watch::Receiver<bool> {
+	static CHANNEL:OnceLock<(watch::Sender<bool>, watch::Receiver<bool>)> = OnceLock::new();
+
+	CHANNEL.get_or_init(|| watch::channel(false)).1.clone()
+}
+
+/// Resolves once the signal reads `true`. A dropped sender means the caller
+/// can no longer cancel, so the future pends forever instead of resolving.
+async fn WaitForCancel(mut Signal:watch::Receiver<bool>) {
+	loop {
+		if *Signal.borrow_and_update() {
+			return;
+		}
+
+		if Signal.changed().await.is_err() {
+			std::future::pending::<()>().await;
+		}
 	}
 }

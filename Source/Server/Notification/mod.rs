@@ -1,6 +1,6 @@
 //! # Vine::Server::Notification
 //!
-//! Cocoon → Mountain notification handlers with non-trivial logic.
+//! Extension host → Mountain notification handlers with non-trivial logic.
 //! Pure relay atoms (single RelayToSky::Fn call, single EmitToRenderer,
 //! or single dev_log!) are inlined directly in the Mountain dispatcher
 //! rather than given their own file.

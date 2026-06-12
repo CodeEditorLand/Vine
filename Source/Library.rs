@@ -8,56 +8,57 @@
 	unused_assignments
 )]
 
-//! # Vine 🌿 - gRPC Protocol Layer for Land 🏞️
+//! # Vine 🌿 — gRPC Protocol Layer for Land 🏞️
 //!
-//! Vine is the canonical home of the gRPC IPC schema + runtime that wires
-//! the Land elements together:
+//! Vine owns the gRPC IPC schema and runtime that connects the Land
+//! elements:
 //!
-//! - **Mountain** (Tauri editor host) - hosts the `MountainService` gRPC
-//!   server; routes notifications from Cocoon and Air into Tauri's renderer.
-//! - **Cocoon** (Node.js extension host) - speaks Vine to invoke VS Code-shaped
+//! - **Mountain** (Tauri editor host) hosts the MountainService gRPC server;
+//!   routes notifications from the extension host into Tauri's renderer.
+//! - **Extension host** (Node.js) speaks Vine to invoke VS Code–shaped
 //!   operations on Mountain.
-//! - **Air** (background daemon) - speaks Vine as a client to query Mountain
-//!   for editor state when running indexing / update / download tasks; also
-//!   hosts its own `AirService` gRPC server on `[::1]:50053`.
+//! - **Air** (background daemon) speaks Vine as a client to query Mountain
+//!   for editor state when running indexing, update, or download tasks; also
+//!   hosts its own AirService gRPC server on `[::1]:50053`.
 //!
 //! ## Architecture reference
 //!
-//! See [`Documentation/GitHub/Architecture.md`](https://github.com/Editor-Land/Land/blob/main/Element/Vine/Documentation/GitHub/Architecture.md)
+//! See the [Architecture documentation](https://github.com/Editor-Land/Land/blob/main/Element/Vine/Documentation/GitHub/Architecture.md)
 //! for the full protocol specification, service definitions, message types,
 //! and wire-format details.
 //!
 //! ## Module layout
 //!
-//! - [`Error`] - canonical [`VineError`](Error::VineError) variants and `From`
+//! - [`DevLog`] — tag-gated, debug-only logging macro.
+//! - [`Error`] — canonical [`VineError`](Error::VineError) variants and `From`
 //!   conversions for `serde_json`, `tonic::transport`, `tonic::Status`,
 //!   `http::uri::InvalidUri`, and `std::net::AddrParseError`.
-//! - [`Host`] - the [`VineHost`](Host::VineHost) trait,
-//!   [`IPCProvider`](Host::IPCProvider), and
-//!   [`ApplicationStateAccess`](Host::ApplicationStateAccess) - the seam
-//!   between Vine handlers and any embedder runtime.
-//! - [`Generated`] - prost-built message types + tonic clients and servers
+//! - [`Generated`] — prost-built message types and tonic clients and servers
 //!   produced from [`Proto/Vine.proto`](../Proto/Vine.proto) by `build.rs`.
-//! - [`Client`] - client building blocks (cargo feature `client`).
-//! - [`Server`] - server scaffolding + notification handler tree (cargo feature
-//!   `server`).
-//! - `Multiplexer` - bidirectional envelope multiplexer
-//!   (`OpenChannelFromMountain` / `OpenChannelFromCocoon` per LAND-PATCH B7-S6
+//! - [`Host`] — the [`VineHost`](Host::VineHost) trait,
+//!   [`IPCProvider`](Host::IPCProvider), and
+//!   [`ApplicationStateAccess`](Host::ApplicationStateAccess) — the seam
+//!   between Vine handlers and any embedder runtime.
+//! - [`Client`] — client building blocks (cargo feature `client`).
+//! - [`Server`] — server scaffolding and notification handler tree (cargo
+//!   feature `server`).
+//! - [`Multiplexer`] — bidirectional envelope multiplexer
+//!   (OpenChannelFromMountain / OpenChannelFromCocoon per LAND-PATCH B7-S6
 //!   P14.1; cargo feature `multiplexer`).
 //!
 //! ## Cargo features
 //!
 //! | Feature | Default | Pulls in |
 //! | --- | :---: | --- |
-//! | `client` | ✅ | `Source/Client/` - tonic-generated client stub wrappers + connection pool |
-//! | `server` | ✅ | `Source/Server/` - bind helpers + notification handler tree |
-//! | `multiplexer` |  | bidirectional streaming envelope multiplexer |
+//! | `client` | ✅ | `Source/Client/` — tonic-generated client stub wrappers + connection pool |
+//! | `server` | ✅ | `Source/Server/` — bind helpers + notification handler tree |
+//! | `multiplexer` | | bidirectional streaming envelope multiplexer |
 //!
 //! ## Port allocation
 //!
-//! - `50051` - Mountain Vine server (Cocoon ↔ Mountain)
-//! - `50052` - Cocoon Vine server (Mountain → Cocoon callbacks)
-//! - `50053` - Air Vine server (Mountain / external → Air)
+//! - `50051` — Mountain Vine server (extension host ↔ Mountain)
+//! - `50052` — extension host Vine server (Mountain → extension host callbacks)
+//! - `50053` — Air Vine server (Mountain / external → Air)
 
 pub mod DevLog;
 

@@ -1,3 +1,6 @@
+//! Cocoon `outputChannel.clear` notification. Relays the payload to Sky
+//! as `sky://output/clear`.
+
 use serde_json::Value;
 
 use crate::{Host::VineHost, Server::Notification::Support::RelayToSky};

@@ -1,7 +1,8 @@
 //! # Vine::Error
 //!
 //! Canonical, structured error types for every operation that flows through
-//! Vine - the gRPC IPC layer that connects Mountain, Cocoon, and Air.
+//! Vine — the gRPC IPC layer that connects Mountain, the extension host,
+//! and Air.
 //!
 //! ## Error Categories
 //!
@@ -106,8 +107,19 @@ pub enum VineError {
 }
 
 impl VineError {
-	/// Returns `true` when the error is recoverable (the caller can sensibly
-	/// retry the operation).
+	/// Returns `true` when the error category is recoverable via a retry.
+	///
+	/// Recoverable variants include timeouts, connection failures,
+	/// connection loss, and tonic transport errors. All other variants
+	/// return `false`, indicating the caller should fall back or
+	/// surface the error rather than retrying.
+	///
+	/// ## Returns
+	///
+	/// `true` for [`RequestTimeout`](VineError::RequestTimeout),
+	/// [`ConnectionFailed`](VineError::ConnectionFailed),
+	/// [`ConnectionLost`](VineError::ConnectionLost), and
+	/// [`TonicTransportError`](VineError::TonicTransportError).
 	pub fn IsRecoverable(&self) -> bool {
 		matches!(
 			self,
@@ -118,7 +130,25 @@ impl VineError {
 		)
 	}
 
-	/// Maps the error to a `tonic::Status` suitable for a gRPC error response.
+	/// Maps the error to a `tonic::Status` for use as a gRPC error response.
+	///
+	/// Each `VineError` variant maps to an appropriate gRPC status code:
+	///
+	/// | Error variant | gRPC status |
+	/// |---|---|
+	/// | `RequestTimeout` | `DeadlineExceeded` |
+	/// | `ClientNotConnected`, `ConnectionFailed` | `Unavailable` |
+	/// | `SerializationError`, `InternalLockError`, `InvalidState` | `Internal` |
+	/// | `MessageTooLarge` | `ResourceExhausted` |
+	/// | `InvalidMessageFormat`, `InvalidUri`, `AddressParseError` | `InvalidArgument` |
+	/// | `RequestCanceled` | `Cancelled` |
+	/// | `RPCError` | `Unknown` |
+	/// | `ConnectionLost` | `Aborted` |
+	/// | `TonicTransportError` | `Unavailable` |
+	///
+	/// ## Returns
+	///
+	/// A `tonic::Status` with code and message derived from the error variant.
 	pub fn ToTonicStatus(&self) -> tonic::Status {
 		match self {
 			Self::RequestTimeout { .. } => tonic::Status::deadline_exceeded(self.to_string()),
@@ -189,4 +219,6 @@ impl From<tonic::Status> for VineError {
 }
 
 /// Convenience `Result` alias for Vine operations.
+///
+/// Shortens `Result<T, VineError>` throughout the crate and for consumers.
 pub type Result<T> = std::result::Result<T, VineError>;
