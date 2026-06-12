@@ -21,6 +21,12 @@
 //!   for editor state when running indexing / update / download tasks; also
 //!   hosts its own `AirService` gRPC server on `[::1]:50053`.
 //!
+//! ## Architecture reference
+//!
+//! See [`Documentation/GitHub/Architecture.md`](https://github.com/Editor-Land/Land/blob/main/Element/Vine/Documentation/GitHub/Architecture.md)
+//! for the full protocol specification, service definitions, message types,
+//! and wire-format details.
+//!
 //! ## Module layout
 //!
 //! - [`Error`] - canonical [`VineError`](Error::VineError) variants and `From`
@@ -35,7 +41,7 @@
 //! - [`Client`] - client building blocks (cargo feature `client`).
 //! - [`Server`] - server scaffolding + notification handler tree (cargo feature
 //!   `server`).
-//! - [`Multiplexer`] - bidirectional envelope multiplexer
+//! - `Multiplexer` - bidirectional envelope multiplexer
 //!   (`OpenChannelFromMountain` / `OpenChannelFromCocoon` per LAND-PATCH B7-S6
 //!   P14.1; cargo feature `multiplexer`).
 //!

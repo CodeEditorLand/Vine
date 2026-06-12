@@ -9,7 +9,7 @@
 //! The hard upper bound on per-call timeouts is
 //! [`crate::DefaultRequestTimeoutMs`] (15 000 ms); when the caller passes
 //! `0` for `TimeoutMilliseconds` the unary path falls back to
-//! [`Shared::DEFAULT_TIMEOUT_MS`] (5 000 ms).
+//! `crate::Client::Shared::DEFAULT_TIMEOUT_MS` (5 000 ms).
 
 use std::time::Duration;
 

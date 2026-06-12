@@ -229,8 +229,13 @@ impl Multiplexer {
 		Ok(())
 	}
 
+	/// Check whether the multiplexed stream has been closed by the remote
+	/// side-car (or shut down locally). `true` means no further I/O will be
+	/// attempted on this channel.
 	pub fn IsClosed(&self) -> bool { self.Closed.load(Ordering::Relaxed) }
 
+	/// Borrow the side-car identifier that identifies which remote endpoint
+	/// this multiplexer is paired with.
 	pub fn SideCarIdentifierBorrow(&self) -> &str { &self.SideCarIdentifier }
 }
 

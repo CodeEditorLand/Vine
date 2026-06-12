@@ -15,8 +15,8 @@
 //! - [`SendRequest::Fn`] / [`SendNotification::Fn`] - wire dispatch with
 //!   optional streaming-multiplexer fast path under `LAND_VINE_STREAMING=1`
 //!   when the `multiplexer` cargo feature is enabled.
-//! - [`PublishNotification::Fn`] (private) and
-//!   [`PublishNotificationFromMux::Fn`] (`pub(crate)`) - broadcast publishers.
+//! - `PublishNotification::Fn` (private) and `PublishNotificationFromMux::Fn`
+//!   (`pub(crate)`) - broadcast publishers.
 //! - [`Shared`] - module-private state (statics, helpers, constants).
 //!
 //! ## Behaviours
