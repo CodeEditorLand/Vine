@@ -437,14 +437,14 @@ Vine is designed to be compatible with:
 
 ## Related Documentation
 
-- [Architecture Overview](https://github.com/CodeEditorLand/Vine/tree/Current/Documentation/GitHub/Architecture.md) - Internal
-  module structure and protocol specification
-- [Deep Dive](https://github.com/CodeEditorLand/Vine/tree/Current/Documentation/GitHub/DeepDive.md) - In-depth
-  technical details
+- [Architecture Overview](https://github.com/CodeEditorLand/Vine/tree/Current/Documentation/GitHub/Architecture.md) -
+  Internal module structure and protocol specification
+- [Deep Dive](https://github.com/CodeEditorLand/Vine/tree/Current/Documentation/GitHub/DeepDive.md) -
+  In-depth technical details
 - [Land Documentation](../../Documentation/GitHub/README.md) - Complete
   documentation index
-- [CHANGELOG](https://github.com/CodeEditorLand/Vine/tree/Current/CHANGELOG.md) - Version
-  history and migration guides
+- [CHANGELOG](https://github.com/CodeEditorLand/Vine/tree/Current/CHANGELOG.md) -
+  Version history and migration guides
 - **Air** 🪁 - Background daemon using Vine/`gRPC` on port 50053 -
   [GitHub](https://github.com/CodeEditorLand/Air)
 - **Mist** 🌫️ - DNS isolation for the private network -
@@ -499,13 +499,14 @@ the open-source steward for Code Editor Land under the NGI0 Commons Fund grant.
 
 ## Shim Compatibility
 
-| 🟠 Low-Level Shim | 🔵 Coverage Shim |
-|-------------------|-----------------|
-| Tier: `TierShim=Own\|Preempt` | Tier: `TierShim=Proxy\|Replace` |
-| Engine prototype hooks | Service routing + audit |
+| 🟠 Low-Level Shim                              | 🔵 Coverage Shim                   |
+| ---------------------------------------------- | ---------------------------------- |
+| Tier: `TierShim=Own\|Preempt`                  | Tier: `TierShim=Proxy\|Replace`    |
+| Engine prototype hooks                         | Service routing + audit            |
 | Error, Emitter, Cancel, Dispose, Async, Timing | IPC SwallowMap, DI proxy, AuditLog |
 
 > This Element supports the Land deep-shim interception system. The shim
-> intercepts VS Code engine events at both the JavaScript prototype level (🟠 orange)
-> and the application service level (🔵 blue). Gated behind `TierShim` env var
-> (default: `None` — zero overhead). See the [Shim documentation](/doc/low-level-shim).
+> intercepts VS Code engine events at both the JavaScript prototype level (🟠
+> orange) and the application service level (🔵 blue). Gated behind `TierShim`
+> env var (default: `None` - zero overhead). See the
+> [Shim documentation](/doc/low-level-shim).
