@@ -33,6 +33,11 @@ pub const MAX_RETRY_ATTEMPTS:usize = 10;
 /// Base delay between retry attempts (ms).
 pub const RETRY_BASE_DELAY_MS:u64 = 200;
 
+/// Ceiling on the exponential retry backoff (ms). Without the clamp the
+/// doubling series reaches ~102 s by attempt 9 and holds boot for >3 min
+/// on a dead sidecar.
+pub const MAX_BACKOFF_MS:u64 = 5000;
+
 /// Maximum message size for validation (4 MB to match the tonic default).
 pub const MAX_MESSAGE_SIZE_BYTES:usize = 4 * 1024 * 1024;
 
@@ -111,14 +116,32 @@ pub fn ShutdownFlagStore(Value:bool) { SHUTDOWN_FLAG.store(Value, Ordering::Rela
 
 pub fn ShutdownFlagLoad() -> bool { SHUTDOWN_FLAG.load(Ordering::Relaxed) }
 
-/// Increment the failure counter and mark the connection unhealthy.
+/// Increment the failure counter and mark the connection unhealthy. Once
+/// the counter passes `MAX_RETRY_ATTEMPTS` the pooled client is evicted
+/// from `SIDECAR_CLIENTS` so the next caller gets `ClientNotConnected`
+/// and triggers a fresh reconnect instead of hammering a dead channel.
 pub fn RecordSideCarFailure(SideCarIdentifier:&str) {
-	let mut Metadata = CONNECTION_METADATA.lock();
+	let ShouldEvict = {
+		let mut Metadata = CONNECTION_METADATA.lock();
 
-	if let Some(Connection) = Metadata.get_mut(SideCarIdentifier) {
-		Connection.FailureCount += 1;
+		if let Some(Connection) = Metadata.get_mut(SideCarIdentifier) {
+			Connection.FailureCount += 1;
 
-		Connection.IsHealthy = false;
+			Connection.IsHealthy = false;
+
+			Connection.FailureCount > MAX_RETRY_ATTEMPTS
+		} else {
+			false
+		}
+	};
+
+	if ShouldEvict && SIDECAR_CLIENTS.lock().remove(SideCarIdentifier).is_some() {
+		crate::dev_log!(
+			"grpc",
+			"warn: [VineClient] evicting pooled client for sidecar '{}' after {} consecutive failures",
+			SideCarIdentifier,
+			MAX_RETRY_ATTEMPTS
+		);
 	}
 }
 
@@ -133,6 +156,19 @@ pub fn UpdateSideCarActivity(SideCarIdentifier:&str) {
 
 		Connection.IsHealthy = true;
 	}
+}
+
+/// Report a notification subscriber falling behind the broadcast channel.
+/// `NOTIFICATION_BROADCAST` drops the oldest frames when a subscriber lags
+/// (`broadcast::error::RecvError::Lagged`); recv loops call this with the
+/// skipped-frame count so the loss is visible instead of silent.
+pub fn ReportNotificationLag(SubscriberIdentity:&str, SkippedFrames:u64) {
+	crate::dev_log!(
+		"grpc",
+		"warn: [VineClient] notification subscriber '{}' lagged; {} frame(s) dropped by the broadcast channel",
+		SubscriberIdentity,
+		SkippedFrames
+	);
 }
 
 /// Reject messages above `MAX_MESSAGE_SIZE_BYTES` to bound the worst-case

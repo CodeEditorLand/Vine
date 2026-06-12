@@ -12,7 +12,7 @@
 use std::time::Duration;
 
 use crate::{
-	Client::Shared::{CocoonClient, SIDECAR_CLIENTS},
+	Client::Shared::{CocoonClient, MAX_MESSAGE_SIZE_BYTES, SIDECAR_CLIENTS},
 	Error::VineError,
 	dev_log,
 };
@@ -48,7 +48,11 @@ pub async fn Fn(SideCarIdentifier:&str, Endpoint:&str) -> Result<(), VineError> 
 		.await
 		.map_err(|E| VineError::RPCError(format!("Failed to connect: {}", E)))?;
 
-	let Client = CocoonClient::new(Connected);
+	// Pin the codec limits to `MAX_MESSAGE_SIZE_BYTES` so the wire bound
+	// matches `ValidateMessageSize` instead of tonic's implicit defaults.
+	let Client = CocoonClient::new(Connected)
+		.max_decoding_message_size(MAX_MESSAGE_SIZE_BYTES)
+		.max_encoding_message_size(MAX_MESSAGE_SIZE_BYTES);
 
 	{
 		let mut Pool = SIDECAR_CLIENTS.lock();

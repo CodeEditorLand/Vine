@@ -10,6 +10,7 @@ use crate::{
 			CONNECTION_METADATA,
 			ConnectionMetadata,
 			FireConnectionNotify,
+			MAX_BACKOFF_MS,
 			MAX_RETRY_ATTEMPTS,
 			RETRY_BASE_DELAY_MS,
 		},
@@ -57,7 +58,7 @@ pub async fn Fn(SideCarIdentifier:String, Address:String) -> Result<(), VineErro
 		LastError = Some(Result.unwrap_err());
 
 		if Attempt < MAX_RETRY_ATTEMPTS {
-			let DelayMilliseconds = RETRY_BASE_DELAY_MS * 2_u64.pow(Attempt as u32);
+			let DelayMilliseconds = (RETRY_BASE_DELAY_MS * 2_u64.pow(Attempt as u32)).min(MAX_BACKOFF_MS);
 
 			tokio::time::sleep(Duration::from_millis(DelayMilliseconds)).await;
 		}
