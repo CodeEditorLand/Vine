@@ -5,17 +5,17 @@
 		<td>
 			<a href="https://GitHub.Com/CodeEditorLand/Vine" target="_blank">
 				<picture>
-					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/last-commit/CodeEditorLand/Vine?label=Last-commit&color=black&labelColor=black&logoColor=white&logoWidth=0" />
-					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/last-commit/CodeEditorLand/Vine?label=Last-commit&color=white&labelColor=white&logoColor=black&logoWidth=0" />
-					<img src="https://img.shields.io/github/last-commit/CodeEditorLand/Vine?label=Last-commit&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Last-commit" title="Last-commit" />
+					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/last-commit/CodeEditorLand/Vine?label=Update&color=black&labelColor=black&logoColor=white&logoWidth=0" />
+					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/last-commit/CodeEditorLand/Vine?label=Update&color=white&labelColor=white&logoColor=black&logoWidth=0" />
+					<img src="https://img.shields.io/github/last-commit/CodeEditorLand/Vine?label=Update&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Update" title="Update" />
 				</picture>
 			</a>
 			<br />
 			<a href="https://GitHub.Com/CodeEditorLand/Vine" target="_blank">
 				<picture>
-					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/issues/CodeEditorLand/Vine?label=Issues&color=black&labelColor=black&logoColor=white&logoWidth=0" />
-					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/issues/CodeEditorLand/Vine?label=Issues&color=white&labelColor=white&logoColor=black&logoWidth=0" />
-					<img src="https://img.shields.io/github/issues/CodeEditorLand/Vine?label=Issues&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Issues" title="Issues" />
+					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/issues/CodeEditorLand/Vine?label=Issue&color=black&labelColor=black&logoColor=white&logoWidth=0" />
+					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/issues/CodeEditorLand/Vine?label=Issue&color=white&labelColor=white&logoColor=black&logoWidth=0" />
+					<img src="https://img.shields.io/github/issues/CodeEditorLand/Vine?label=Issue&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Issue" title="Issue" />
 				</picture>
 			</a>
 		</td>
@@ -30,9 +30,9 @@
 			<br />
 			<a href="https://GitHub.Com/CodeEditorLand/Vine" target="_blank">
 				<picture>
-					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/downloads/CodeEditorLand/Vine?label=Downloads&color=black&labelColor=black&logoColor=white&logoWidth=0" />
-					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/downloads/CodeEditorLand/Vine?label=Downloads&color=white&labelColor=white&logoColor=black&logoWidth=0" />
-					<img src="https://img.shields.io/github/downloads/CodeEditorLand/Vine?label=Downloads&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Downloads" title="Downloads" />
+					<source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/github/downloads/CodeEditorLand/Vine/total?label=Download&color=black&labelColor=black&logoColor=white&logoWidth=0" />
+					<source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/downloads/CodeEditorLand/Vine/total?label=Download&color=white&labelColor=white&logoColor=black&logoWidth=0" />
+					<img src="https://img.shields.io/github/downloads/CodeEditorLand/Vine/total?label=Download&color=black&labelColor=black&logoColor=white&logoWidth=0" alt="Download" title="Download" />
 				</picture>
 			</a>
 		</td>
@@ -56,17 +56,19 @@ _"One `.proto` file. Every service. Type safety from compile time to wire."_
 
 ## Overview
 
-**Vine** is the `gRPC` protocol definition, code-generation pipeline, and
-runtime scaffolding for the **Land** Code Editor ecosystem. It defines the
-strongly-typed IPC contracts used for all inter-component communication:
-**Mountain** ⛰️ (Rust backend shell), **Cocoon** 🦋 (`Node.js` extension host),
-**Air** 🪁 (background daemon), and **Grove** 🌳 (Rust/`WASM` extension host).
+**Vine** is the communication layer for the **Land** Code Editor. It defines
+how every component talks to every other component — what messages they can
+send, what responses they expect, and how data streams between them.
 
-All Land IPC converges on a single `.proto` file - `Proto/Vine.proto` - which
-declares every RPC method, message type, and streaming envelope the system
-needs. From that one source, `tonic-build` / `tonic-prost-build` generates Rust
-clients and servers; TypeScript-side consumers mirror the same definitions for
-the `Node.js` extension host.
+All IPC in Land is defined in a single file: `Proto/Vine.proto`. This file
+declares every RPC method, every message type, and every streaming channel the
+system needs. From this one source, the build system generates type-safe Rust
+clients and servers (using `tonic` / `prost`), while the `Node.js` extension
+host mirrors the same definitions in TypeScript.
+
+The components that speak Vine: **Mountain** ⛰️ (the Rust backend),
+**Cocoon** 🦋 (the `Node.js` extension host), **Air** 🪁 (the background
+daemon), and **Grove** 🌳 (the Rust/`WASM` extension host).
 
 **Vine is engineered to:**
 
@@ -93,11 +95,10 @@ the canonical specification for `MountainService` (hosted by `Mountain`) and
 `tonic-prost-build`, producing `Source/Generated/vine.rs` with all message
 types, clients, and server traits.
 
-**Feature-Gated Runtime** - The crate ships three cargo features: `client`
-(connection pool, request/notification dispatch, health checks), `server` (bind
-helpers, notification handler tree, socket validation), and `multiplexer`
-(bidirectional streaming envelope multiplexer dispatching traffic over
-`OpenChannelFromMountain` / `OpenChannelFromCocoon`).
+**Feature-Gated Runtime** — The crate is split into three optional features so
+consumers only compile what they need: `client` (connection pool, request
+dispatch, health checks), `server` (bind helpers, notification handler tree),
+and `multiplexer` (bidirectional streaming over a single HTTP/2 connection).
 
 **Embedder-Agnostic Handler Tree** - The `VineHost` trait is the seam between
 Vine and its consumer runtime. Notification handlers operate on `&dyn VineHost`,
