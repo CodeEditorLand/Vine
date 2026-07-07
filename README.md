@@ -48,7 +48,7 @@ _"One `.proto` file. Every service. Type safety from compile time to wire."_
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
 [<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Crates.io](https://img.shields.io/crates/v/Vine.svg)](https://crates.io/crates/Vine)
-[<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Rust Version](https://img.shields.io/badge/Rust-1.75+-orange.svg)](https://www.rust-lang.org/)
+[<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Rust Version](https://img.shields.io/badge/Rust-1.95.0+-orange.svg)](https://www.rust-lang.org/)
 
 **[Rust API Documentation](https://rust.documentation.vine.editor.land/)**&#x2001;📖
 
@@ -56,9 +56,9 @@ _"One `.proto` file. Every service. Type safety from compile time to wire."_
 
 ## Overview
 
-**Vine** is the communication layer for the **Land** Code Editor. It defines
-how every component talks to every other component — what messages they can
-send, what responses they expect, and how data streams between them.
+**Vine** is the communication layer for the **Land** Code Editor. It defines how
+every component talks to every other component - what messages they can send,
+what responses they expect, and how data streams between them.
 
 All IPC in Land is defined in a single file: `Proto/Vine.proto`. This file
 declares every RPC method, every message type, and every streaming channel the
@@ -66,9 +66,10 @@ system needs. From this one source, the build system generates type-safe Rust
 clients and servers (using `tonic` / `prost`), while the `Node.js` extension
 host mirrors the same definitions in TypeScript.
 
-The components that speak Vine: **Mountain** ⛰️ (the Rust backend),
-**Cocoon** 🦋 (the `Node.js` extension host), **Air** 🪁 (the background
-daemon), and **Grove** 🌳 (the Rust/`WASM` extension host).
+The components that speak Vine: **Mountain**&#x2001;⛰️&#x2001;(the Rust
+backend), **Cocoon**&#x2001;🦋&#x2001;(the `Node.js` extension host),
+**Air**&#x2001;🪁&#x2001;(the background daemon), and
+**Grove**&#x2001;🌳&#x2001;(the Rust/`WASM` extension host).
 
 **Vine is engineered to:**
 
@@ -95,7 +96,7 @@ the canonical specification for `MountainService` (hosted by `Mountain`) and
 `tonic-prost-build`, producing `Source/Generated/vine.rs` with all message
 types, clients, and server traits.
 
-**Feature-Gated Runtime** — The crate is split into three optional features so
+**Feature-Gated Runtime** - The crate is split into three optional features so
 consumers only compile what they need: `client` (connection pool, request
 dispatch, health checks), `server` (bind helpers, notification handler tree),
 and `multiplexer` (bidirectional streaming over a single HTTP/2 connection).
@@ -142,13 +143,13 @@ graph LR
     classDef grove    fill:#d4f5d4,stroke:#27ae60,stroke-width:1px,color:#0a3a0a;
     classDef proto    fill:#fff3c0,stroke:#f39c12,stroke-width:1px,stroke-dasharray:5 5,color:#5a3e00;
 
-    subgraph PROTO["Vine.proto - Contract Definition 🌿"]
+    subgraph PROTO["Vine.proto - Contract Definition 🌿"]
         direction TB
         MountainSvc["MountainService ProcessCocoonRequest · SendCocoonNotification CancelOperation · OpenChannelFromCocoon (streaming)"]:::proto
         CocoonSvc["CocoonService ProcessMountainRequest · SendMountainNotification CancelOperation · OpenChannelFromMountain (streaming)"]:::proto
     end
 
-    subgraph VINE["Vine 🌿 - Crate"]
+    subgraph VINE["Vine 🌿 - Crate"]
         direction TB
         Generated["Generated/ prost message types + tonic stubs"]:::vine
         Client["Client/ connection pool · dispatch · health checks"]:::vine
@@ -163,16 +164,16 @@ graph LR
         Server --- HostTrait
     end
 
-    subgraph MOUNTAIN["Mountain ⛰️"]
+    subgraph MOUNTAIN["Mountain ⛰️"]
         VineServer["Vine gRPC Server (tonic) hosts MountainService"]:::mountain
     end
 
-    subgraph COCOON["Cocoon 🦋"]
+    subgraph COCOON["Cocoon 🦋"]
         GRPCClient["Services/Mountain/gRPC/Client.ts"]:::cocoon
         GRPCServer["Services/gRPC/Server/ - CocoonService impl"]:::cocoon
     end
 
-    subgraph GROVE_S["Grove 🌳"]
+    subgraph GROVE_S["Grove 🌳"]
         GroveClient["gRPCTransport.rs speaks Vine as client"]:::grove
     end
 
@@ -186,14 +187,14 @@ graph LR
 
 **Connection paths:**
 
-| Path               | Protocol                       | Use Case                                          |
-| ------------------ | ------------------------------ | ------------------------------------------------- |
-| Mountain → Cocoon  | `gRPC` on port 50052           | Backend-to-extension-host dispatch                |
-| Cocoon → Mountain  | `gRPC` on port 50051           | Extension invocation of editor operations         |
-| Air → Mountain     | `gRPC` on port 50051           | Daemon queries for indexing/update/download tasks |
-| Mountain → Air     | `gRPC` on port 50053           | Editor-to-daemon service calls                    |
-| Grove → Mountain   | `gRPC` on port 50052           | Native `WASM` extension host communication        |
-| Multiplexer stream | HTTP/2 bidirectional streaming | Concurrent dispatch over single connection        |
+| Path                                          | Protocol                       | Use Case                                          |
+| --------------------------------------------- | ------------------------------ | ------------------------------------------------- |
+| **Mountain**&#x2001;⛰️ → **Cocoon**&#x2001;🦋 | `gRPC` on port 50052           | Backend-to-extension-host dispatch                |
+| **Cocoon**&#x2001;🦋 → **Mountain**&#x2001;⛰️ | `gRPC` on port 50051           | Extension invocation of editor operations         |
+| **Air**&#x2001;🪁 → **Mountain**&#x2001;⛰️    | `gRPC` on port 50051           | Daemon queries for indexing/update/download tasks |
+| **Mountain**&#x2001;⛰️ → **Air**&#x2001;🪁    | `gRPC` on port 50053           | Editor-to-daemon service calls                    |
+| **Grove**&#x2001;🌳 → **Mountain**&#x2001;⛰️  | `gRPC` on port 50052           | Native `WASM` extension host communication        |
+| Multiplexer stream                            | HTTP/2 bidirectional streaming | Concurrent dispatch over single connection        |
 
 ---
 
@@ -311,16 +312,17 @@ Vine is the `gRPC` contract layer that wires every Land component together. It
 is not the implementation - it is the specification and the shared runtime that
 all implementations conform to:
 
-| Component       | Role                                            | Port  | Consumes Vine                        |
-| --------------- | ----------------------------------------------- | ----- | ------------------------------------ |
-| **Mountain** ⛰️ | Desktop shell, hosts `MountainService`          | 50051 | `server` feature                     |
-| **Cocoon** 🦋   | `Node.js` extension host, hosts `CocoonService` | 50052 | TypeScript mirror of proto           |
-| **Air** 🪁      | Background daemon, hosts `AirService`           | 50053 | `client` feature                     |
-| **Grove** 🌳    | Rust/`WASM` extension host                      | -     | `client` feature via `gRPCTransport` |
+| Component              | Role                                            | Port  | Consumes Vine                        |
+| ---------------------- | ----------------------------------------------- | ----- | ------------------------------------ |
+| **Mountain**&#x2001;⛰️ | Desktop shell, hosts `MountainService`          | 50051 | `server` feature                     |
+| **Cocoon**&#x2001;🦋   | `Node.js` extension host, hosts `CocoonService` | 50052 | TypeScript mirror of proto           |
+| **Air**&#x2001;🪁      | Background daemon, hosts `AirService`           | 50053 | `client` feature                     |
+| **Grove**&#x2001;🌳    | Rust/`WASM` extension host                      | -     | `client` feature via `gRPCTransport` |
 
-Vine is part of the Land networking/IPC connectivity stack alongside **Air** 🪁
-(background daemon, uses Vine/`gRPC` on port 50053 for `AirService`) and
-**Mist** 🌫️ (DNS isolation, used by Air's HTTP client).
+Vine is part of the Land networking/IPC connectivity stack alongside
+**Air**&#x2001;🪁 (background daemon, uses Vine/`gRPC` on port 50053 for
+`AirService`) and **Mist**&#x2001;🌫️&#x2001;(DNS isolation, used by Air's HTTP
+client).
 
 The `VineHost` trait abstracts the embedder runtime so a single notification
 handler tree works across all consumers. `Mountain` wires `EmitToRenderer` to
@@ -334,7 +336,7 @@ reconnect - all driven by the same `Proto/Vine.proto` contract.
 
 ### Prerequisites
 
-- **Rust** 1.75 or later
+- **Rust** 1.95.0 or later (workspace MSRV; edition 2024)
 - Protocol Buffer compiler (`protoc`, optional - only needed for proto file
   modifications)
 
@@ -410,9 +412,9 @@ boundaries live in the embedders:
 | **Type safety**        | `Prost`-generated code ensures every message conforms to the proto schema at compile time                             |
 | **Feature isolation**  | Each cargo feature (`client`, `server`, `multiplexer`) compiles independently - embedders only compile what they use  |
 
-For extension sandboxing, see **Grove** 🌳 (hardware-enforced `WASMtime`
-isolation). For renderer isolation, see **Mountain** ⛰️ (process-per-window via
-`Tauri`).
+For extension sandboxing, see **Grove**&#x2001;🌳&#x2001;(hardware-enforced
+`WASMtime` isolation). For renderer isolation, see
+**Mountain**&#x2001;⛰️&#x2001;(process-per-window via `Tauri`).
 
 ---
 
@@ -420,13 +422,29 @@ isolation). For renderer isolation, see **Mountain** ⛰️ (process-per-window 
 
 Vine is designed to be compatible with:
 
-| Target          | Integration                                                                                       |
-| --------------- | ------------------------------------------------------------------------------------------------- |
-| **Mountain** ⛰️ | Hosts `MountainService`; implements `VineHost` with `Tauri` renderer dispatch                     |
-| **Cocoon** 🦋   | TypeScript `@grpc/grpc-js` clients mirror `MountainService` and `CocoonService` proto definitions |
-| **Air** 🪁      | Consumes `client` feature for daemon-side `gRPC` calls to `Mountain`                              |
-| **Grove** 🌳    | Consumes `client` feature via `gRPCTransport` for native `WASM` extension host communication      |
-| **tonic**       | Built on `tonic` 0.x / `prost` - any `tonic`-compatible `gRPC` client can speak Vine              |
+| Target                 | Integration                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------- |
+| **Mountain**&#x2001;⛰️ | Hosts `MountainService`; implements `VineHost` with `Tauri` renderer dispatch                     |
+| **Cocoon**&#x2001;🦋   | TypeScript `@grpc/grpc-js` clients mirror `MountainService` and `CocoonService` proto definitions |
+| **Air**&#x2001;🪁      | Consumes `client` feature for daemon-side `gRPC` calls to `Mountain`                              |
+| **Grove**&#x2001;🌳    | Consumes `client` feature via `gRPCTransport` for native `WASM` extension host communication      |
+| **tonic**              | Built on `tonic` 0.x / `prost` - any `tonic`-compatible `gRPC` client can speak Vine              |
+
+---
+
+## Shim Compatibility
+
+| 🟠&#x2001;Low-Level Shim                       | 🔵&#x2001;Coverage Shim            |
+| ---------------------------------------------- | ---------------------------------- |
+| Tier: `TierShim=Own\|Preempt`                  | Tier: `TierShim=Proxy\|Replace`    |
+| Engine prototype hooks                         | Service routing + audit            |
+| Error, Emitter, Cancel, Dispose, Async, Timing | IPC SwallowMap, DI proxy, AuditLog |
+
+> This Element supports the Land deep-shim interception system. The shim
+> intercepts VS Code engine events at both the JavaScript prototype level (🟠
+> orange) and the application service level (🔵&#x2001;blue). Gated behind
+> `TierShim` env var (default: `None` - zero overhead). See the
+> [Shim documentation](/doc/low-level-shim).
 
 ---
 
@@ -444,18 +462,34 @@ Vine is designed to be compatible with:
   In-depth technical details
 - [Land Documentation](../../Documentation/GitHub/README.md) - Complete
   documentation index
-- [CHANGELOG](https://github.com/CodeEditorLand/Vine/tree/Current/CHANGELOG.md) -
-  Version history and migration guides
-- **Air** 🪁 - Background daemon using Vine/`gRPC` on port 50053 -
+- **Air**&#x2001;🪁 - Background daemon using Vine/`gRPC` on port 50053 -
   [GitHub](https://github.com/CodeEditorLand/Air)
-- **Mist** 🌫️ - DNS isolation for the private network -
+- **Mist**&#x2001;🌫️ - DNS isolation for the private network -
   [GitHub](https://github.com/CodeEditorLand/Mist)
-- **Mountain** ⛰️ - `gRPC` server host -
+- **Mountain**&#x2001;⛰️ - `gRPC` server host -
   [GitHub](https://github.com/CodeEditorLand/Mountain)
-- **Cocoon** 🦋 - `gRPC` client host -
+- **Cocoon**&#x2001;🦋 - `gRPC` client host -
   [GitHub](https://github.com/CodeEditorLand/Cocoon)
-- **Grove** 🌳 - Native `Rust`/`WASM` extension host -
+- **Grove**&#x2001;🌳 - Native `Rust`/`WASM` extension host -
   [GitHub](https://github.com/CodeEditorLand/Grove)
+
+---
+
+## License&#x2001;⚖️
+
+This project is released into the public domain under the **Creative Commons CC0
+Universal** license. You are free to use, modify, distribute, and build upon
+this work for any purpose, without any restrictions. For the full legal text,
+see the [`LICENSE`](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
+file.
+
+---
+
+## Changelog&#x2001;📜
+
+See
+[`CHANGELOG.md`](https://github.com/CodeEditorLand/Vine/tree/Current/CHANGELOG.md)
+for a history of changes specific to **Vine**&#x2001;🌿.
 
 ---
 
@@ -472,42 +506,18 @@ the open-source steward for Code Editor Land under the NGI0 Commons Fund grant.
 <table>
 	<tbody>
 		<tr>
-			<td align="left" valign="middle">
-				<a href="https://Editor.Land">
-					<img width="60" src="https://raw.githubusercontent.com/CodeEditorLand/Asset/refs/heads/Current/Logo/Land.svg" alt="Land" />
-				</a>
-			</td>
-			<td align="left" valign="middle">
-				<a href="https://PlayForm.Cloud">
-					<img width="76" src="https://raw.githubusercontent.com/PlayForm/Asset/refs/heads/Current/Logo/PlayForm.svg" alt="PlayForm" />
-				</a>
-			</td>
-			<td align="left" valign="middle">
-				<a href="https://NLnet.NL">
-					<img width="240" src="https://NLnet.NL/logo/banner.svg" alt="NLnet" />
-				</a>
-			</td>
-			<td align="left" valign="middle">
-				<a href="https://NLnet.NL/commonsfund">
-					<img width="240" src="https://NLnet.NL/image/logos/NGI0CommonsFund_tag_black_mono.svg" alt="NGI0 Commons Fund" />
-				</a>
-			</td>
+			<td align="left" valign="middle"><a href="https://Editor.Land"><img width="60" src="https://raw.githubusercontent.com/CodeEditorLand/Asset/refs/heads/Current/Logo/Land.svg" alt="Land" /></a></td>
+			<td align="left" valign="middle"><a href="https://PlayForm.Cloud"><img width="76" src="https://raw.githubusercontent.com/PlayForm/Asset/refs/heads/Current/Logo/PlayForm.svg" alt="PlayForm" /></a></td>
+			<td align="left" valign="middle"><a href="https://NLnet.NL"><img width="240" src="https://NLnet.NL/logo/banner.svg" alt="NLnet" /></a></td>
+			<td align="left" valign="middle"><a href="https://NLnet.NL/commonsfund"><img width="240" src="https://NLnet.NL/image/logos/NGI0CommonsFund_tag_black_mono.svg" alt="NGI0 Commons Fund" /></a></td>
 		</tr>
 	</tbody>
 </table>
 
 ---
 
-## Shim Compatibility
-
-| 🟠 Low-Level Shim                              | 🔵 Coverage Shim                   |
-| ---------------------------------------------- | ---------------------------------- |
-| Tier: `TierShim=Own\|Preempt`                  | Tier: `TierShim=Proxy\|Replace`    |
-| Engine prototype hooks                         | Service routing + audit            |
-| Error, Emitter, Cancel, Dispose, Async, Timing | IPC SwallowMap, DI proxy, AuditLog |
-
-> This Element supports the Land deep-shim interception system. The shim
-> intercepts VS Code engine events at both the JavaScript prototype level (🟠
-> orange) and the application service level (🔵 blue). Gated behind `TierShim`
-> env var (default: `None` - zero overhead). See the
-> [Shim documentation](/doc/low-level-shim).
+**Project Maintainers**: Source Open
+([Source/Open@editor.land](mailto:Source/Open@editor.land)) |
+[GitHub Repository](https://github.com/CodeEditorLand/Vine) |
+[Report an Issue](https://github.com/CodeEditorLand/Vine/issues) |
+[Security Policy](https://github.com/CodeEditorLand/Vine/security/policy)
