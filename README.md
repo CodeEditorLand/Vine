@@ -47,8 +47,8 @@ The `gRPC` Protocol Layer for the Land Editor&#x2001;🏞️
 _"One `.proto` file. Every service. Type safety from compile time to wire."_
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0_1.0-lightgrey.svg)](https://github.com/CodeEditorLand/Vine/tree/Current/LICENSE)
-[<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Crates.io](https://img.shields.io/crates/v/Vine.svg)](https://crates.io/crates/Vine)
-[<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/)&#x2001;[![Rust Version](https://img.shields.io/badge/Rust-1.95.0+-orange.svg)](https://www.rust-lang.org/)
+[<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/) [![Crates.io](https://img.shields.io/crates/v/Vine.svg)](https://crates.io/crates/Vine)
+[<img src="https://editor.land/Image/Rust.svg" width="14" alt="Rust" />](https://www.rust-lang.org/) [![Rust Version](https://img.shields.io/badge/Rust-1.95.0+-orange.svg)](https://www.rust-lang.org/)
 
 **[Rust API Documentation](https://rust.documentation.vine.editor.land/)**&#x2001;📖
 
@@ -66,10 +66,10 @@ system needs. From this one source, the build system generates type-safe Rust
 clients and servers (using `tonic` / `prost`), while the `Node.js` extension
 host mirrors the same definitions in TypeScript.
 
-The components that speak Vine: **Mountain**&#x2001;⛰️&#x2001;(the Rust
-backend), **Cocoon**&#x2001;🦋&#x2001;(the `Node.js` extension host),
-**Air**&#x2001;🪁&#x2001;(the background daemon), and
-**Grove**&#x2001;🌳&#x2001;(the Rust/`WASM` extension host).
+The components that speak Vine: **Mountain**&#x2001;⛰️ (the Rust
+backend), **Cocoon**&#x2001;🦋 (the `Node.js` extension host),
+**Air**&#x2001;🪁 (the background daemon), and
+**Grove**&#x2001;🌳 (the Rust/`WASM` extension host).
 
 **Vine is engineered to:**
 
@@ -133,7 +133,7 @@ LAND-PATCH B7-S6 P14.1) for concurrent dispatch over a single HTTP/2 stream.
 
 ---
 
-## System Architecture&#x2001;
+## System Architecture
 
 ```mermaid
 graph LR
@@ -321,7 +321,7 @@ all implementations conform to:
 
 Vine is part of the Land networking/IPC connectivity stack alongside
 **Air**&#x2001;🪁 (background daemon, uses Vine/`gRPC` on port 50053 for
-`AirService`) and **Mist**&#x2001;🌫️&#x2001;(DNS isolation, used by Air's HTTP
+`AirService`) and **Mist**&#x2001;🌫️ (DNS isolation, used by Air's HTTP
 client).
 
 The `VineHost` trait abstracts the embedder runtime so a single notification
@@ -412,9 +412,9 @@ boundaries live in the embedders:
 | **Type safety**        | `Prost`-generated code ensures every message conforms to the proto schema at compile time                             |
 | **Feature isolation**  | Each cargo feature (`client`, `server`, `multiplexer`) compiles independently - embedders only compile what they use  |
 
-For extension sandboxing, see **Grove**&#x2001;🌳&#x2001;(hardware-enforced
+For extension sandboxing, see **Grove**&#x2001;🌳 (hardware-enforced
 `WASMtime` isolation). For renderer isolation, see
-**Mountain**&#x2001;⛰️&#x2001;(process-per-window via `Tauri`).
+**Mountain**&#x2001;⛰️ (process-per-window via `Tauri`).
 
 ---
 
