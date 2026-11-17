@@ -30,7 +30,7 @@ pub const DEFAULT_TIMEOUT_MS:u64 = 5000;
 /// Maximum number of retry attempts for failed connections.
 ///
 /// Air's gRPC server takes ~150-500 ms to bind after the process spawns,
-/// so 10 attempts at 200 ms base gives a ~5 s window (2^0+…+2^9 × 200 ms,
+/// so 10 attempts at 200 ms base gives a ~5 s window (2^0+...+2^9 × 200 ms,
 /// capped by the Vine client's exponential backoff).
 pub const MAX_RETRY_ATTEMPTS:usize = 10;
 
@@ -49,7 +49,12 @@ pub const MAX_MESSAGE_SIZE_BYTES:usize = 4 * 1024 * 1024;
 /// Health-check interval, in milliseconds.
 pub const HEALTH_CHECK_INTERVAL_MS:u64 = 30000;
 
-/// Connection timeout (currently unused - kept for the streaming variant).
+/// Legacy connection timeout (unused - kept for the streaming variant).
+///
+/// The live connect path is bounded in `Client::TryConnectSingle::Fn`, not
+/// here: `TryConnectSingle.rs:44` sets a 30 s overall timeout and `:45` a
+/// 5 s connect timeout, both gated by `LAND_TONIC_TUNED != 0`. This constant
+/// is not wired into that path, so changing it does not change connect timing.
 pub const CONNECTION_TIMEOUT_MS:u64 = 10000;
 
 /// Notification broadcast capacity (drop-oldest when full).
