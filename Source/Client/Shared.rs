@@ -30,7 +30,7 @@ pub const DEFAULT_TIMEOUT_MS:u64 = 5000;
 /// Maximum number of retry attempts for failed connections.
 ///
 /// Air's gRPC server takes ~150-500 ms to bind after the process spawns,
-/// so 10 attempts at 200 ms base gives a ~5 s window (2^0+...+2^9 × 200 ms,
+/// so 10 attempts at 200 ms base gives a ~5 s window (2^0+…+2^9 × 200 ms,
 /// capped by the Vine client's exponential backoff).
 pub const MAX_RETRY_ATTEMPTS:usize = 10;
 
