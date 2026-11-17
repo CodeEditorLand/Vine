@@ -1,12 +1,12 @@
-# Vine: gRPC Protocol Layer&#x2001;🌿
+# `Vine`: `gRPC` Protocol Layer
 
 `Vine` is the `gRPC` protocol definition and communication specification for the
 `Land` ecosystem. `Vine` defines the strongly-typed IPC layer used for
 communication between:
 
-- `Mountain` (`Rust` backend) - gRPC server
-- `Cocoon` (`Node.js` extension host) - gRPC client
-- `Air` (background daemon) - gRPC client
+- `Mountain` (`Rust` backend) - `gRPC` server
+- `Cocoon` (`Node.js` extension host) - `gRPC` client
+- `Air` (background daemon) - `gRPC` client
 
 ---
 
@@ -14,13 +14,13 @@ communication between:
 
 1. [Overview](#overview)
 2. [Architecture](#architecture)
-3. [Protocol Buffers](#protocol-buffers)
+3. [`protobuf`](#protobuf)
 4. [Service Definitions](#service-definitions)
 5. [Message Types](#message-types)
 6. [Client Implementation](#client-implementation)
 7. [Server Implementation](#server-implementation)
 8. [Port Allocation](#port-allocation)
-9. [Code Generation](#code-generation)
+9. [Code Building](#code-building)
 10. [Related Documentation](#related-documentation)
 
 ---
@@ -33,8 +33,8 @@ graph TB
         AIRPROTO["Air.proto<br/>background services"]
     end
 
-    VINEPROTO -->|"prost-build"| RUST["Generated Rust types<br/>(tonic + prost)"]
-    VINEPROTO -->|"protoc-gen-ts"| TS["Generated TS types<br/>(@grpc/grpc-js)"]
+    VINEPROTO -->|"prost-build"| RUST["produced Rust types<br/>(tonic + prost)"]
+    VINEPROTO -->|"protoc-gen-ts"| TS["produced TS types<br/>(@grpc/grpc-js)"]
     SPINEPROTO --> RUST
     GROVEPROTO --> RUST
     AIRPROTO --> RUST
@@ -45,29 +45,29 @@ graph TB
     AIR_SRV["Air<br/>gRPC Client"] -->|"consumes"| RUST
 ```
 
-## Overview&#x2001;📋
+## Overview 📋
 
-`Vine` defines the `gRPC` service contracts in Protocol Buffer (`.proto`) files:
+`Vine` defines the `gRPC` service contracts in `protobuf` (`.proto`) files:
 
 - These are the source of truth for inter-component communication
-- `Rust` code is generated via `prost`/`tonic-build` at compile time
-- `TypeScript` code is generated via `protoc-gen-ts`
+- `Rust` code is produced via `prost`/`tonic-build` at compile time
+- `TypeScript` code is produced via `protoc-gen-ts`
 
-| Attribute       | Value                                      |
-| --------------- | ------------------------------------------ |
-| Language        | Protocol Buffers (`.proto`)                |
-| Rust impl       | `tonic` (server) + generated `prost` types |
-| TypeScript impl | `@grpc/grpc-js` + `protoc-gen-ts`          |
-| Transport       | TCP loopback (`127.0.0.1` only)            |
-| Security        | No TLS (localhost-only enforced)           |
+| Attribute | Value |
+| -------- | -------- |
+| Language | `protobuf` (`.proto`) |
+| Rust impl | `tonic` (server) + built `prost` types |
+| TypeScript impl | `@grpc/grpc-js` + `protoc-gen-ts` |
+| Transport | TCP loopback (`127.0.0.1` only) |
+| Security | No TLS (localhost-only enforced) |
 
 ---
 
-## Architecture&#x2001;🏗️
+## Architecture 🏗️
 
 `Vine` is the protocol layer that enables all inter-component communication:
 
-```
+```text
                     +------------------------------------+
                     |            Vine Protocol            |
                     |  (gRPC service contracts in .proto) |
@@ -86,19 +86,19 @@ graph TB
      +------------------+
 ```
 
-### Protocol Files&#x2001;📋
+### Protocol Files 📋
 
-| File          | Location                             | Defines                              |
-| ------------- | ------------------------------------ | ------------------------------------ |
-| `Vine.proto`  | `Element/Mountain/Proto/Vine.proto`  | Core Mountain<->Cocoon gRPC services |
+| File | Location | Defines |
+| -------- | -------- | -------- |
+| `Vine.proto` | `Element/Mountain/Proto/Vine.proto` | Core `Mountain`<->`Cocoon` gRPC services |
 | `Spine.proto` | `Element/Mountain/Proto/Spine.proto` | Extension host coordination protocol |
-| `Air.proto`   | (in-source in Air Element)           | Mountain<->Air background services   |
+| `Air.proto` | (in-source in `Air` Element) | `Mountain`<->`Air` background services |
 
 ---
 
-## Protocol Buffers&#x2001;📋
+## `protobuf` 📋
 
-### Vine.proto
+### `Vine.proto` 🌐
 
 ```protobuf
 syntax = "proto3";
@@ -156,35 +156,35 @@ message Location { ... }
 
 ---
 
-## Service Definitions
+## Service Definitions 🌐
 
-### MountainService (`Cocoon` -> `Mountain`)
+### `MountainService` (`Cocoon` -> `Mountain`) 🌐
 
-| RPC                      | Direction              | Purpose                                |
-| ------------------------ | ---------------------- | -------------------------------------- |
-| `ProcessCocoonRequest`   | `Cocoon` -> `Mountain` | Generic request-response               |
-| `SendCocoonNotification` | `Cocoon` -> `Mountain` | Fire-and-forget event                  |
-| `CancelOperation`        | `Cocoon` -> `Mountain` | Cancel an in-flight request            |
-| `OpenChannelFromCocoon`  | `Cocoon` -> `Mountain` | LAND-PATCH B7-S6 P2 multiplexed stream |
+| RPC | Direction | Purpose |
+| -------- | -------- | -------- |
+| `ProcessCocoonRequest` | `Cocoon` -> `Mountain` | Generic request-response |
+| `SendCocoonNotification` | `Cocoon` -> `Mountain` | Fire-and-forget event |
+| `CancelOperation` | `Cocoon` -> `Mountain` | Cancel an in-flight request |
+| `OpenChannelFromCocoon` | `Cocoon` -> `Mountain` | LAND-PATCH B7-S6 P2 multiplexed stream |
 
-### CocoonService (`Mountain` -> `Cocoon`)
+### `CocoonService` (`Mountain` -> `Cocoon`) 🌐
 
-| RPC                         | Direction              | Purpose                                |
-| --------------------------- | ---------------------- | -------------------------------------- |
-| `ProcessMountainRequest`    | `Mountain` -> `Cocoon` | Generic request-response               |
-| `SendMountainNotification`  | `Mountain` -> `Cocoon` | Fire-and-forget notification           |
-| `CancelOperation`           | `Mountain` -> `Cocoon` | Cancel an in-flight request            |
-| `OpenChannelFromMountain`   | `Mountain` -> `Cocoon` | LAND-PATCH B7-S6 P2 multiplexed stream |
-| `InitExtensionHost`         | `Mountain` -> `Cocoon` | Send workspace / extensions / config   |
-| `ExecuteContributedCommand` | `Mountain` -> `Cocoon` | Execute an extension command           |
-| `ProvideHover`              | `Mountain` -> `Cocoon` | Request hover from provider            |
-| `ProvideCompletionItems`    | `Mountain` -> `Cocoon` | Request completion items               |
-| `ProvideDefinition`         | `Mountain` -> `Cocoon` | Request definition location            |
-| `ProvideReferences`         | `Mountain` -> `Cocoon` | Request reference locations            |
-| `ProvideCodeActions`        | `Mountain` -> `Cocoon` | Request code actions                   |
-| `ProvideDocumentHighlights` | `Mountain` -> `Cocoon` | Request document highlights            |
-| `ProvideDocumentSymbols`    | `Mountain` -> `Cocoon` | Request document symbols               |
-| `ProvideWorkspaceSymbols`   | `Mountain` -> `Cocoon` | Request workspace symbols              |
+| RPC | Direction | Purpose |
+| -------- | -------- | -------- |
+| `ProcessMountainRequest` | `Mountain` -> `Cocoon` | Generic request-response |
+| `SendMountainNotification` | `Mountain` -> `Cocoon` | Fire-and-forget notification |
+| `CancelOperation` | `Mountain` -> `Cocoon` | Cancel an in-flight request |
+| `OpenChannelFromMountain` | `Mountain` -> `Cocoon` | LAND-PATCH B7-S6 P2 multiplexed stream |
+| `InitExtensionHost` | `Mountain` -> `Cocoon` | Send workspace / extensions / config |
+| `ExecuteContributedCommand` | `Mountain` -> `Cocoon` | Execute an extension command |
+| `ProvideHover` | `Mountain` -> `Cocoon` | Request hover from provider |
+| `ProvideCompletionItems` | `Mountain` -> `Cocoon` | Request completion items |
+| `ProvideDefinition` | `Mountain` -> `Cocoon` | Request definition location |
+| `ProvideReferences` | `Mountain` -> `Cocoon` | Request reference locations |
+| `ProvideCodeActions` | `Mountain` -> `Cocoon` | Request code actions |
+| `ProvideDocumentHighlights` | `Mountain` -> `Cocoon` | Request document highlights |
+| `ProvideDocumentSymbols` | `Mountain` -> `Cocoon` | Request document symbols |
+| `ProvideWorkspaceSymbols` | `Mountain` -> `Cocoon` | Request workspace symbols |
 
 `Air` speaks `Vine` via its own `AirService` (see `Element/Air/Proto/Air.proto`)
 on port `50053`.
@@ -193,19 +193,34 @@ Streaming (`OpenChannelFromMountain` / `OpenChannelFromCocoon`) replaces the
 older unary path for any caller that needs concurrent dispatch. Unary RPCs are
 preserved for backward compatibility.
 
-### Spine Service (Cocoon -> Mountain)&#x2001;🔗
+```mermaid
+sequenceDiagram
+    participant C as Cocoon
+    participant M as Mountain
+    C->>M: ProcessCocoonRequest
+    alt success
+        M-->>C: GenericResponse
+    else error
+        M-->>C: GenericResponse with RPCError
+    end
+    loop notification fan-out
+        M-->>C: SendMountainNotification
+    end
+```
 
-| RPC             | Direction          | Purpose                          |
-| --------------- | ------------------ | -------------------------------- |
-| `PerformAction` | Cocoon -> Mountain | Execute an ActionEffect natively |
-| `CancelAction`  | Cocoon -> Mountain | Cancel an in-flight action       |
-| `StreamActions` | Cocoon -> Mountain | Open action streaming channel    |
+### `Spine` Service (`Cocoon` -> `Mountain`) 🌐
+
+| RPC | Direction | Purpose |
+| -------- | -------- | -------- |
+| `PerformAction` | `Cocoon` -> `Mountain` | Execute an ActionEffect natively |
+| `CancelAction` | `Cocoon` -> `Mountain` | Cancel an in-flight action |
+| `StreamActions` | `Cocoon` -> `Mountain` | Open action streaming channel |
 
 ---
 
-## Message Types&#x2001;📨
+## Message Types 📊
 
-### Initialize&#x2001;📦
+### Initialize 📦
 
 ```protobuf
 message InitRequest {
@@ -226,7 +241,7 @@ message ProductInfo {
 }
 ```
 
-### Commands&#x2001;⌨️
+### Commands 💻
 
 ```protobuf
 message CommandRequest {
@@ -242,7 +257,7 @@ message CommandResponse {
 }
 ```
 
-### Language Features&#x2001;📝
+### Language Features 🧩
 
 ```protobuf
 message HoverRequest {
@@ -262,7 +277,7 @@ message HoverResponse {
 
 ---
 
-## Client Implementation&#x2001;💻
+## Client Implementation 💻
 
 `Cocoon`'s `gRPC` client (`Cocoon/Source/Services/Mountain/gRPC/Client.ts`) uses
 `@grpc/grpc-js`:
@@ -291,7 +306,7 @@ const response = await new Promise<CommandResponse>((resolve, reject) => {
 
 ---
 
-## Server Implementation&#x2001;💻
+## Server Implementation 💻
 
 `Mountain`'s `gRPC` server (`Mountain/Source/Vine/Server/`) uses `tonic`:
 
@@ -324,13 +339,13 @@ impl ExtensionHost for VineServiceImpl {
 
 ---
 
-## Port Allocation&#x2001;🔢
+## Port Allocation ⚙️
 
-| Service       | Port  | Transport    | Components                         |
-| ------------- | ----- | ------------ | ---------------------------------- |
-| Mountain Vine | 50051 | TCP loopback | Mountain (server), Cocoon (client) |
-| Cocoon Vine   | 50052 | TCP loopback | Cocoon (server), Mountain (client) |
-| Air Vine      | 50053 | TCP loopback | Air (server)                       |
+| Service | Port | Transport | Components |
+| -------- | -------- | -------- | -------- |
+| Mountain Vine | 50051 | TCP loopback | `Mountain` (server), `Cocoon` (client) |
+| Cocoon Vine | 50052 | TCP loopback | `Cocoon` (server), `Mountain` (client) |
+| Air Vine | 50053 | TCP loopback | `Air` (server) |
 
 Ports can be overridden via environment variables:
 
@@ -338,11 +353,26 @@ Ports can be overridden via environment variables:
 - `NetworkCocoonPort` (default: 50052)
 - `NetworkAirPort` (default: 50053)
 
+```mermaid
+graph TB
+    P51["50051<br/>Mountain Vine server<br/>Cocoon to Mountain"]
+    P52["50052<br/>Cocoon Vine server<br/>Mountain callbacks"]
+    P53["50053<br/>Air Vine server<br/>Mountain and external"]
+```
+
 ---
 
-## Code Generation&#x2001;⚙️
+## Code Building ⚙️
 
-### Rust (compile-time via build.rs)&#x2001;⚙️
+```mermaid
+graph LR
+    PROTO["Proto/Vine.proto"] --> BS["build.rs via tonic-prost-build"]
+    BS --> RS["Source/Generated/vine.rs<br/>Rust types and stubs"]
+    PROTO --> TS["protoc-gen-ts"]
+    TS --> COCOON["Cocoon/Source/Generated/<br/>TypeScript types"]
+```
+
+### `Rust` (compile-time via `build.rs`) ⚙️
 
 ```rust
 // Mountain/build.rs
@@ -353,7 +383,7 @@ fn main() {
 }
 ```
 
-### TypeScript (pre-generated via protoc-gen-ts)&#x2001;⚙️
+### `TypeScript` (pre-built via `protoc-gen-ts`) ⚙️
 
 ```sh
 protoc \
@@ -363,36 +393,21 @@ protoc \
 	Element/Mountain/Proto/Vine.proto
 ```
 
-- Generated `TypeScript` types are committed to the `Cocoon` source tree
+- Built `TypeScript` types are committed to the `Cocoon` source tree
 
 ---
 
-## Related Documentation&#x2001;📚
+## Shim Compatibility 🔌
 
-- [Mountain](https://github.com/CodeEditorLand/Mountain/tree/Current/Documentation/GitHub/Architecture.md) -
-  `gRPC` server implementation
-- [Cocoon](https://github.com/CodeEditorLand/Cocoon/tree/Current/Documentation/GitHub/Architecture.md) -
-  `gRPC` client implementation
-- [Air](https://github.com/CodeEditorLand/Air/tree/Current/Documentation/GitHub/Architecture.md) -
-  Background daemon (`gRPC` consumer)
-- [Grove](https://github.com/CodeEditorLand/Grove/tree/Current/Documentation/GitHub/Architecture.md) -
-  WASM host (`gRPC` consumer)
-- [InterComponentProtocol](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/GitHub/InterComponentProtocol.md) -
-  Full protocol specification
-
----
-
-## Shim Compatibility
-
-| 🟠 Low-Level Shim                              | 🔵 Coverage Shim                   |
-| ---------------------------------------------- | ---------------------------------- |
-| Tier: `TierShim=Own\|Preempt`                  | Tier: `TierShim=Proxy\|Replace`    |
-| Engine prototype hooks                         | Service routing + audit            |
+| Low-Level Shim | Coverage Shim |
+| -------- | -------- |
+| Tier: `TierShim=Own\|Preempt` | Tier: `TierShim=Proxy\|Replace` |
+| Engine prototype hooks | Service routing + audit |
 | Error, Emitter, Cancel, Dispose, Async, Timing | IPC SwallowMap, DI proxy, AuditLog |
 
-> This Element supports the Land deep-shim interception system. The shim
-> intercepts VS Code engine events at both the JavaScript prototype level (🟠
-> orange) and the application service level (🔵 blue). Gated behind `TierShim`
+> This Element supports the `Land` deep-shim interception system. The shim
+> intercepts VS Code engine events at both the JavaScript prototype level
+> (orange) and the application service level (blue). Gated behind `TierShim`
 > env var (default: `None` - zero overhead). See the
 > [Shim documentation](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/GitHub/Shim.md).
 
@@ -401,7 +416,17 @@ protoc \
 
 ---
 
+## Related Documentation 📖
+
+- [Mountain](https://github.com/CodeEditorLand/Mountain/tree/Current/Documentation/GitHub/Architecture.md) - `gRPC` server implementation
+- [Cocoon](https://github.com/CodeEditorLand/Cocoon/tree/Current/Documentation/GitHub/Architecture.md) - `gRPC` client implementation
+- [Air](https://github.com/CodeEditorLand/Air/tree/Current/Documentation/GitHub/Architecture.md) - Background daemon (`gRPC` consumer)
+- [Grove](https://github.com/CodeEditorLand/Grove/tree/Current/Documentation/GitHub/Architecture.md) - WASM host (`gRPC` consumer)
+- [InterComponentProtocol](https://github.com/CodeEditorLand/Land/tree/Current/Documentation/GitHub/InterComponentProtocol.md) - Full protocol specification
+
+---
+
 **Project Maintainers:** Source Open
 ([Source/Open@Editor.Land](mailto:Source/Open@Editor.Land)) |
-[GitHub Repository](https://github.com/CodeEditorLand/Land) |
-[Report an Issue](https://github.com/CodeEditorLand/Land/issues)
+[GitHub Repository](https://github.com/CodeEditorLand/Vine) |
+[Report an Issue](https://github.com/CodeEditorLand/Vine/issues)
